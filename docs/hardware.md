@@ -1,0 +1,1 @@
+# Liste der benutzten Hardwarekomponenten
