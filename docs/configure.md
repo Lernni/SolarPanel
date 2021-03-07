@@ -5,6 +5,8 @@
 
 >Anleitung: https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb
 
+>Achtung: Die SD-Karte sollte mindestens genauso groß sein, wie das USB Flash Drive, ansonsten wird dem Flash Drive weniger Speicher zugewiesen, als eigentlich zur Verfügung steht. In dem Fall sollte die Partition manuell vergrößert werden (siehe https://www.yourhelpcenter.de/2017/08/raspberry-pi-eine-partition-erweitern/ ; Bei der Meldung 'partition #2 contains a ext4 signature. Want to remove it?' 'Yes' auswählen)
+
 1. Raspberry Pi OS Lite (32 Bit) auf eine SD Karte über Raspberry Pi Imager schreiben
 2. Auf dem Datenträger die Datei `ssh` erstellen, um SSH zu aktivieren
 3. `sudo raspi-config` aufrufen und Hostname ändern (System Options > Hostname) + Neustart
@@ -43,7 +45,7 @@ sudo passwd [benutzer]
 ```
 sudo passwd --lock pi
 ```
-4. Anmeldung über SSH als 'root' unterbinden: `#PermitRootLogin no`
+4. Anmeldung über SSH als 'root' unterbinden (`#PermitRootLogin no`) und Port ändern
 ```
 sudo nano /etc/ssh/sshd_config
 ```
@@ -71,8 +73,32 @@ sudo /etc/init.d/ssh restart
 12. VSCode Extension 'Remote - SSH' installieren und Verbindung dauerhaft hinzufügen
 
 ## Pakete installieren
-1. Docker installieren und testen:
+1. Git:
+```
+sudo apt install git
+git clone https://github.com/Lernni/SolarPanel.git
+```
+2. Docker:
 ```
 curl -fsSL https://get.docker.com | sh
 sudo docker run armhf/hello-world
 ```
+3. fail2ban:
+```
+sudo apt-get install fail2ban
+cd /etc/fail2ban
+sudo cp jail.conf jail.local
+sudo nano jail.local
+```
+
+>Unter '[sshd]' Änderungen vornehmen, wie siehe https://pimylifeup.com/raspberry-pi-fail2ban/ , Schritt 9 
+
+```
+sudo service fail2ban restart
+```
+4. I2C:
+```
+sudo apt-get install -y python-smbus
+sudo apt-get install -y i2c-tools
+```
+- I2C-Interface manuell in `raspi-config` aktivieren
