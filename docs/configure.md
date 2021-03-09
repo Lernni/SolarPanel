@@ -76,12 +76,15 @@ sudo /etc/init.d/ssh restart
 1. Git:
 ```
 sudo apt install git
+git config --global user.name "Lernni"
+git config --global user.email "Lernni@users.noreply.github.com"
 git clone https://github.com/Lernni/SolarPanel.git
 ```
 2. Docker:
 ```
 curl -fsSL https://get.docker.com | sh
 sudo docker run armhf/hello-world
+sudo usermod -aG docker lernni
 ```
 3. fail2ban:
 ```
