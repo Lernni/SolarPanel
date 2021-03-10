@@ -1,30 +1,39 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+  <NavBar title="SolarPanel"/>
+  <div class="row no-gutters">
+    <div class="col-md-2">
+      <SideBar/>
+    </div>
+    <div class="col-md-10">
+      <router-view/>
+    </div>
   </div>
-  <router-view/>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+# <router-link to="/about">About</router-link>
 
-#nav {
-  padding: 30px;
-}
+<script>
+import SideBar from './components/SideBar.vue'
+import NavBar from './components/NavBar.vue'
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
+export default {
+  name: 'App',
+  components : {
+    SideBar,
+    NavBar
+  }
 }
+</script>
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
+<style lang="scss">
+  .no-gutters {
+    margin-right: 0;
+    margin-left: 0;
+
+    > .col,
+    > [class*="col-"] {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
 </style>
