@@ -1,11 +1,13 @@
 <template>
-  <NavBar title="SolarPanel"/>
-  <div class="row no-gutters">
-    <div class="col-md-2">
-      <SideBar/>
-    </div>
-    <div class="col-md-10">
-      <router-view/>
+  <div class="wrapper overflow-hidden h-100">
+    <NavBar title="SolarPanel"/>
+    <div class="row no-gutters h-100">
+      <div class="sidebar col-lg-1 order-lg-1 order-sm-2">
+        <SideBar/>
+      </div>
+      <div class="content col-lg-11 order-lg-2 order-sm-1">
+        <router-view/>
+      </div>
     </div>
   </div>
 </template>
@@ -36,4 +38,19 @@ export default {
       padding-left: 0;
     }
   }
+
+  html, body, #app {
+    height: 100%;
+  }
+
+  .content {
+    height: 90%
+  }
+
+  @media (min-width: 992px) {
+    .content {
+
+    }
+  }
+
 </style>
