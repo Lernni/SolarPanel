@@ -83,8 +83,8 @@ git clone https://github.com/Lernni/SolarPanel.git
 2. Docker:
 ```
 curl -fsSL https://get.docker.com | sh
-sudo docker run armhf/hello-world
 sudo usermod -aG docker lernni
+sudo pip3 install docker-compose
 ```
 3. fail2ban:
 ```
@@ -105,3 +105,23 @@ sudo apt-get install -y python-smbus
 sudo apt-get install -y i2c-tools
 ```
 - I2C-Interface manuell in `raspi-config` aktivieren
+
+## Display einrichten
+1. Folgende Befehle ausführen:
+```
+cd ~
+git clone https://github.com/goodtft/LCD-show.git
+chmod -R 755 LCD-show
+cd LCD-show/
+```
+>siehe http://www.lcdwiki.com/4inch_HDMI_Display-C
+2. `sudo reboot` aus `MPI4008-show` und `system_backup.sh` entfernen
+3. `./MPI4008-show` auführen
+4. `/boot/cmdline.txt` ersetzen mit:
+```
+console=serial0,115200 console=tty1 root=PARTUUID=592acc1f-02 rootfstype=ext4 elevator=deadline fsck.repair=yes rootwait fbcon=map:10 fbcon=font:ProFont6x11
+```
+>Hinweis: Spezifische `PARTUUID` aus der `cmdline.txt` des Systems verwenden
+
+>siehe https://github.com/goodtft/LCD-show/issues/276
+5. `sudo reboot` ausführen
