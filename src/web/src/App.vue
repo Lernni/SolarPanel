@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper overflow-hidden h-100">
+  <div class="wrapper h-100">
     <NavBar title="SolarPanel"/>
     <div class="row no-gutters h-100">
       <div class="sidebar col-lg-1 order-lg-1 order-sm-2">
@@ -11,8 +11,6 @@
     </div>
   </div>
 </template>
-
-# <router-link to="/about">About</router-link>
 
 <script>
 import SideBar from './components/SideBar.vue'
@@ -28,28 +26,18 @@ export default {
 </script>
 
 <style lang="scss">
-  .no-gutters {
-    margin-right: 0;
-    margin-left: 0;
-
-    > .col,
-    > [class*="col-"] {
-      padding-right: 0;
-      padding-left: 0;
-    }
-  }
-
   html, body, #app {
     height: 100%;
   }
 
   .content {
-    height: 90%
+    height: 90%;
+    padding: 15px !important;
   }
 
   @media (min-width: 992px) {
     .content {
-
+      height: 100%
     }
   }
 
