@@ -28,6 +28,7 @@ export default {
 <style lang="scss">
   html, body, #app {
     height: 100%;
+    user-select: none;
   }
 
   .content {
@@ -36,6 +37,10 @@ export default {
   }
 
   @media (min-width: 992px) {
+    html, body, #app {
+      user-select: auto;
+    }
+
     .content {
       height: 100%
     }

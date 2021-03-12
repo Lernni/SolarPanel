@@ -21,6 +21,10 @@ export default {
 
 <style scoped>
 
+  .nav-link {
+    -webkit-user-drag: none;
+  }
+
   .nav {
     width: max-content;
     margin-left: auto;
@@ -31,6 +35,10 @@ export default {
     .nav {
       height: 100%;
       width: 100%;
+    }
+
+    .nav-link {
+      -webkit-user-drag: auto;
     }
   }
 
