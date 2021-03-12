@@ -125,3 +125,23 @@ console=serial0,115200 console=tty1 root=PARTUUID=592acc1f-02 rootfstype=ext4 el
 
 >siehe https://github.com/goodtft/LCD-show/issues/276
 5. `sudo reboot` ausführen
+6. Folgende Befehle ausführen:
+```
+sudo apt-get install --no-install-recommends xinit
+sudo apt install xserver-xorg-video-fbdev
+sudo apt-get install -y chromium-browser matchbox
+```
+>Vielleicht auch in `sudo raspi-config` eine bestimmte Displayauflösung auswählen, statt Standardauflösung
+7. `nano start_browser.sh` erstellen mit:
+```
+#!/bin/sh
+xset -dpms # disable DPMS (Energy Star) features.
+xset s off # disable screen saver
+xset s noblank # don't blank the video device
+matchbox-window-manager &
+chromium-browser --no-pings --incognito --noerrdialogs --disable-infobars --no-sandbox --kiosk $1
+```
+>Alle Chromium Commandline-Options: https://peter.sh/experiments/chromium-command-line-switches/
+8. Skript ausführbar machen: `sudo chmod +x start_browser.sh`
+9. In `/etc/X11/xinit/xserverrc` die Option `-nocursor` anfügen
+10. Skript starten: `sudo startx ./start_browser.sh http://localhost:8080`
