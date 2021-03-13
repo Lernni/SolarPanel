@@ -84,6 +84,7 @@ git clone https://github.com/Lernni/SolarPanel.git
 ```
 curl -fsSL https://get.docker.com | sh
 sudo usermod -aG docker lernni
+sudo apt-get install python3-pip
 sudo pip3 install docker-compose
 ```
 3. fail2ban:
@@ -132,7 +133,19 @@ sudo apt install xserver-xorg-video-fbdev
 sudo apt-get install -y chromium-browser matchbox
 ```
 >Vielleicht auch in `sudo raspi-config` eine bestimmte Displayauflösung auswählen, statt Standardauflösung
-7. `nano start_browser.sh` erstellen mit:
+7. Schriftart 'Segoe UI' installieren:
+```
+cd /usr/share/fonts/truetype
+sudo mkdir segoe
+cd segoe
+sudo wget -O segoe_ui.zip "https://drive.google.com/u/0/uc?id=1X6u8o0z6APX1RDn6ZaQwYZUeWsmnY21X&export=download"
+sudo unzip segoe_ui.zip
+sudo rm segoe_ui.zip
+fc-cache
+fc-list
+```
+>siehe https://www.fontmirror.com/segoe-ui
+8. `nano start_browser.sh` erstellen mit:
 ```
 #!/bin/sh
 xset -dpms # disable DPMS (Energy Star) features.
@@ -142,6 +155,6 @@ matchbox-window-manager &
 chromium-browser --no-pings --incognito --noerrdialogs --disable-infobars --no-sandbox --kiosk $1
 ```
 >Alle Chromium Commandline-Options: https://peter.sh/experiments/chromium-command-line-switches/
-8. Skript ausführbar machen: `sudo chmod +x start_browser.sh`
-9. In `/etc/X11/xinit/xserverrc` die Option `-nocursor` anfügen
-10. Skript starten: `sudo startx ./start_browser.sh http://localhost:8080`
+9. Skript ausführbar machen: `sudo chmod +x start_browser.sh`
+10. In `/etc/X11/xinit/xserverrc` die Option `-nocursor` anfügen
+11. Skript starten: `sudo startx ./start_browser.sh http://localhost:8080`
