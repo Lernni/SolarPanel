@@ -7,17 +7,20 @@ const routes = [
   {
     path: '/',
     name: 'Dashboard',
-    component: Dashboard
+    component: Dashboard,
+    icon: 'dashboard'
   },
   {
     path: '/stats',
     name: 'Messwerte',
-    component: Stats
+    component: Stats,
+    icon: 'stats'
   },
   {
     path: '/settings',
     name: 'Einstellungen',
-    component: Settings
+    component: Settings,
+    icon: 'settings'
   }
 ]
 
