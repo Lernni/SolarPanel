@@ -22,6 +22,13 @@ npm install --save vue3-apexcharts
 ```
 >siehe https://apexcharts.com/docs/vue-charts/
 4. `main.js` anpassen
+5. FeatherIcons installieren:
+```
+yarn add vue-feather-icons
+```
+>siehe https://github.com/egoist/vue-feather-icons und https://vue-feather-icons.egoist.sh
+
+>Workaround für Vue 3: https://github.com/egoist/vue-feather-icons/issues/60#issuecomment-757351760
 5. Development Server starten:
 ```
 npm run serve
