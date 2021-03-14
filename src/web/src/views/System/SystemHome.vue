@@ -1,5 +1,5 @@
 <template>
-  Stats
+  SystemHome
 </template>
 
 <script>
