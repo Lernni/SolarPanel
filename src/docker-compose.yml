@@ -1,0 +1,6 @@
+services:
+  flask-test:
+    build: ./module
+    ports:
+      - "5000:5000"
+      
