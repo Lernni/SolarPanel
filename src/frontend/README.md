@@ -5,7 +5,7 @@
 ```
 curl -sL https://deb.nodesource.com/setup_15.x | sudo -E bash -
 sudo apt-get install -y nodejs
-npx @vue/cli create webserver
+npx @vue/cli [create webserver]
 ```
 Manuelle Installation auswählen und `vue-router` aktivieren
 
