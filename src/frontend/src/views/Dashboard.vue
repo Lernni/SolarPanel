@@ -2,10 +2,10 @@
   <div class="row">
     <div class="col-lg-8 col-md-6">
       <div class="card-deck">
-        <ParameterCard parameter="Spannung" value="13,65" unit="V"/>
-        <ParameterCard parameter="Eingangsstrom" value="6,3" unit="A" color="#E91E63"/>
-        <ParameterCard parameter="Ausgangsstrom" value="1,5" unit="A" color="#E91E63"/>
-        <ParameterCard parameter="Leistung" value="35,2" unit="W" color="#546E7A"/>
+        <ParameterCard parameter="Spannung" :value=voltage unit="V"/>
+        <ParameterCard parameter="Eingangsstrom" :value=input_current unit="A" color="#E91E63"/>
+        <ParameterCard parameter="Ausgangsstrom" :value=output_current unit="A" color="#E91E63"/>
+        <ParameterCard parameter="Leistung" :value=power unit="W" color="#546E7A"/>
       </div>
     </div>
     <div class="col-lg-4 col-md-6">
@@ -32,12 +32,31 @@
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
 import Battery from '../components/Battery.vue'
+import axios from 'axios'
 
 export default {
   name: 'Dashboard',
   components: {
     ParameterCard,
     Battery
+  },
+  data() {
+    return {
+      voltage: 0,
+      input_current: 0,
+      output_current: 0,
+      power: 0
+    };
+  },
+  async mounted() {
+    await axios({ method: "GET", "url": "http://localhost/solarmodule"}).then(result => {
+      this.voltage = result.data['voltage'];
+      this.input_current = result.data['input_current'];
+      this.output_current = result.data['output_current'];
+      this.power = result.data['power'];
+    }, error => {
+      console.error(error);
+    });
   }
 }
 </script>
