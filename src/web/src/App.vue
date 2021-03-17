@@ -2,7 +2,7 @@
   <div class="wrapper h-100">
     <NavBar title="SolarPanel"/>
     <div class="row no-gutters h-100">
-      <div class="sidebar col-lg-auto order-lg-1 order-sm-2">
+      <div class="col-lg-auto order-lg-1 order-sm-2">
         <SideBar/>
       </div>
       <div class="content col-lg order-lg-2 order-sm-1">
@@ -34,6 +34,16 @@ export default {
   .content {
     height: 90%;
     padding: 15px !important;
+  }
+
+  .nav-link {
+    font-size: 25px;
+  }
+
+  .tab-title {
+    display: inline;
+    padding-left: 5px;
+    vertical-align: middle;
   }
 
   @media (min-width: 992px) {

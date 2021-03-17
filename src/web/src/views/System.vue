@@ -1,13 +1,38 @@
 <template>
-  <div class="user">
-    <h2>System {{ $route.params.id }}</h2>
-    <router-view/>
-  </div>
+  <ul v-if="$route.name === 'System'" class="nav flex-column">
+    <router-link class="nav-link" :to="{ name: 'Browser' }">
+      <sliders-icon class="tab-icon"></sliders-icon>
+      <div class="tab-title">Shuntwerte bearbeiten</div>
+    </router-link>
+    <router-link class="nav-link" :to="{ name: 'Browser' }">
+      <sliders-icon class="tab-icon"></sliders-icon>
+      <div class="tab-title">Highscore zurücksetzen</div>
+    </router-link>
+    <router-link class="nav-link" :to="{ name: 'Browser' }">
+      <sliders-icon class="tab-icon"></sliders-icon>
+      <div class="tab-title">System herunterfahren</div>
+    </router-link>
+    <router-link class="nav-link" :to="{ name: 'Browser' }">
+      <bell-icon class="tab-icon"></bell-icon>
+      <div class="tab-title">Ereignisse der letzten Woche</div>
+    </router-link>
+  </ul>
+
+  <router-view/>
 </template>
 
 <script>
-export default {
+import {SlidersIcon, BellIcon} from 'vue-feather-icons';
+import featCompt from '../lib/feathercompt';
 
+featCompt(SlidersIcon);
+featCompt(BellIcon);
+
+export default {
+  name: 'System',
+  components: {
+    SlidersIcon, BellIcon
+  }
 }
 </script>
 

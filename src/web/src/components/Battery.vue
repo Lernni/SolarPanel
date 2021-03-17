@@ -1,7 +1,7 @@
 <template>
-  <div class="progress" ref="progress">
+  <div class="progress">
     <div class="progress-value"><span>{{soc}}</span>%</div>
-    <div v-bind:style="{ height: soc * 0.98 + '%' }" class="progress-bar" role="progressbar" v-bind:aria-valuenow=soc aria-valuemin="0" aria-valuemax="100"></div>
+    <div :style="{ height: soc * 0.98 + '%' }" class="progress-bar" role="progressbar" v-bind:aria-valuenow=soc aria-valuemin="0" aria-valuemax="100"></div>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   .progress::after {
     content: " ";
