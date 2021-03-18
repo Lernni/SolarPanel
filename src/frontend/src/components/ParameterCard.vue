@@ -4,18 +4,18 @@
       <h5 class="card-title">{{parameter}}</h5>
       <slot></slot>
       <h2 class="text-right">{{value}} {{unit}}</h2>
-      <apexchart class="sparkline d-none d-lg-block" type="area" height="100" :options="chartOptions" :series="series"></apexchart>
+      <Sparkline height="100" :series="series"/>
     </div>
   </div>
-</template>
+</template> 
 
 <script>
-import VueApexCharts from 'vue3-apexcharts'
+import Sparkline from './charts/Sparkline.vue'
 
 export default {
   name: 'ParameterCard',
   components: {
-    apexchart: VueApexCharts
+    Sparkline
   },
   props: {
     parameter: String,
@@ -28,26 +28,7 @@ export default {
       name: instance.parameter,
       data: [31, 40, 28, 51, 42, 109, 100],
       color: instance.color,
-    }],
-    chartOptions: {
-      chart: {
-        type: 'area',
-        sparkline: {
-          enabled: true
-        }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth'
-      },
-      tooltip: {
-        x: {
-          format: 'dd/MM/yy HH:mm'
-        },
-      },
-    },
+    }]
   })
 }
 </script>
