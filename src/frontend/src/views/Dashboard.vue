@@ -32,31 +32,12 @@
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
 import Battery from '../components/Battery.vue'
-import axios from 'axios'
 
 export default {
   name: 'Dashboard',
   components: {
     ParameterCard,
     Battery
-  },
-  data() {
-    return {
-      voltage: 0,
-      input_current: 0,
-      output_current: 0,
-      power: 0
-    };
-  },
-  async mounted() {
-    await axios({ method: "GET", "url": "http://localhost/solarmodule"}).then(result => {
-      this.voltage = result.data['voltage'];
-      this.input_current = result.data['input_current'];
-      this.output_current = result.data['output_current'];
-      this.power = result.data['power'];
-    }, error => {
-      console.error(error);
-    });
   }
 }
 </script>

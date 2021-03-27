@@ -18,7 +18,8 @@
     "vue": "^3.0.0",
     "vue-feather-icons": "^5.1.0",
     "vue-router": "^4.0.0-0",
-    "vue3-apexcharts": "^1.2.1"
+    "vue3-apexcharts": "^1.2.1",
+    "ws": "^6.2.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -44,7 +45,9 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {
+      "no-console": "off"
+    }
   },
   "browserslist": [
     "> 1%",
