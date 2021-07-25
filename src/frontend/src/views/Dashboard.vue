@@ -1,6 +1,7 @@
 <template>
   <div class="row">
     <div class="col-lg-8 col-md-6">
+      <button @click="sendMessage()">{{ buttonText }}</button>
       <div class="card-deck">
         <ParameterCard parameter="Spannung" :value=voltage unit="V"/>
         <ParameterCard parameter="Eingangsstrom" :value=input_current unit="A" color="#E91E63"/>
@@ -32,12 +33,33 @@
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
 import Battery from '../components/Battery.vue'
+import io from 'socket.io-client';
 
 export default {
   name: 'Dashboard',
   components: {
     ParameterCard,
     Battery
+  },
+  data() {
+    return {
+      socket: io(),
+      buttonText: 'Ping Server'
+    }
+  },
+  methods: {
+    sendMessage() {
+      this.socket.emit('testEvent', {
+        message: '12345'
+      });
+      console.log("emitted test event")
+    }
+  },
+  created() {
+    this.socket.on('updateTest', (data) => {
+      this.buttonText = data.message;
+      console.log(data);
+    });
   }
 }
 </script>

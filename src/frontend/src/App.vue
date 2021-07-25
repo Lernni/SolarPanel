@@ -6,7 +6,6 @@
         <SideBar/>
       </div>
       <div class="content col-lg order-lg-2 order-sm-1">
-        <button @click="sendMessage()">Ping Server</button>
         <router-view/>
       </div>
     </div>
@@ -19,48 +18,9 @@ import NavBar from './components/NavBar.vue'
 
 export default {
   name: 'App',
-  data () {
-    return {
-      message: 'testtesttest',
-      logs: [],
-      status: 'disconnected'
-    }
-  },
   components : {
     SideBar,
     NavBar
-  },
-  created() {
-    this.connect()
-  },
-  methods: {
-    connect() {
-      this.socket = new WebSocket('ws://localhost:4000')
-      this.socket.onopen = () => {
-        this.status = 'connected'
-        console.log('WebSocket connected to:', this.socket.url)
-        this.logs.push({event: 'WebSocket Connected', data: this.socket.url})
-        this.socket.onmessage = ({data}) => {
-          this.logs.push({event: 'Recieved message', data})
-          console.log('Received:', data)
-        }
-      }
-    },
-    disconnect () {
-      this.socket.close()
-      this.status = 'disconnected'
-      this.logs = []
-      console.log('WebSocket disconnected')
-    },
-    sendMessage() {
-      // Send message to Websocket echo service
-      this.socket.send(this.message)
-      this.logs.push({ event: 'Sent message', data: this.message })
-
-      // Log to console and clear input field
-      console.log('Sent:', this.message)
-      this.message = ''
-    }
   }
 }
 </script>

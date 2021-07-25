@@ -1,12 +1,24 @@
-const WebSocket = require('ws');
+const express = require('express');
+const app = express();
+const http = require('http');
+const server = http.createServer(app);
 
-const wss = new WebSocket.Server({ port: 4000 });
-console.log('websocket open on port 4000');
+const { Server } = require('socket.io');
+const io = new Server(server);
 
-wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('testEvent', function(data) {
+    console.log('received: %s', JSON.stringify(data));
+    io.emit('updateTest', data);
   });
 
-  ws.send('something');
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+server.listen(4000, 'web_socket', () => {
+  console.log('listening on port 4000');
 });
