@@ -1,12 +1,11 @@
 <template>
   <div class="row">
     <div class="col-lg-8 col-md-6">
-      <button @click="sendMessage()">{{ buttonText }}</button>
       <div class="card-deck">
-        <ParameterCard parameter="Spannung" :value=voltage unit="V"/>
-        <ParameterCard parameter="Eingangsstrom" :value=input_current unit="A" color="#E91E63"/>
-        <ParameterCard parameter="Ausgangsstrom" :value=output_current unit="A" color="#E91E63"/>
-        <ParameterCard parameter="Leistung" :value=power unit="W" color="#546E7A"/>
+        <ParameterCard parameter="Spannung" :value=record.voltage unit="V"/>
+        <ParameterCard parameter="Eingangsstrom" :value=record.input_current unit="A" color="#E91E63"/>
+        <ParameterCard parameter="Ausgangsstrom" :value=record.output_current unit="A" color="#E91E63"/>
+        <ParameterCard parameter="Leistung" :value=record.power unit="W" color="#546E7A"/>
       </div>
     </div>
     <div class="col-lg-4 col-md-6">
@@ -44,21 +43,25 @@ export default {
   data() {
     return {
       socket: io(),
-      buttonText: 'Ping Server'
+      record: {
+        voltage: 0,
+        input_current: 0,
+        output_current: 0,
+        power: 0
+      }
     }
   },
-  methods: {
-    sendMessage() {
-      this.socket.emit('testEvent', {
-        message: '12345'
-      });
-      console.log("emitted test event")
-    }
-  },
+  // methods: {
+  //   sendMessage() {
+  //     this.socket.emit('testEvent', {
+  //       message: '12345'
+  //     });
+  //     console.log("emitted test event")
+  //   }
+  // },
   created() {
-    this.socket.on('updateTest', (data) => {
-      this.buttonText = data.message;
-      console.log(data);
+    this.socket.on('updateMeasurements', (data) => {
+      this.record = data;
     });
   }
 }
