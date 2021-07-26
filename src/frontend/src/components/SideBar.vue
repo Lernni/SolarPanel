@@ -1,72 +1,61 @@
 <template>
-  <div id="sidebar" class="navbar nav-box bg-light h-100">
-    <nav class="nav flex-lg-column nav-pills bg-light" role="tablist">
+  <div id="sidebar" class="bg-light h-100">
+    <b-navbar-brand>
+      SolarPanel
+    </b-navbar-brand>
+    <b-nav vertical pills>
       <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Dashboard' }">
-        <sun-icon class="tab-icon"></sun-icon>
+        <!-- <sun-icon class="tab-icon"></sun-icon> -->
         <div class="tab-title">
           Dashboard
           <span class="badge badge-pill badge-secondary">pause</span>
         </div>
       </router-link>
       <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Messwerte' }">
-        <activity-icon class="tab-icon"></activity-icon>
+        <!-- <activity-icon class="tab-icon"></activity-icon> -->
         <div class="tab-title">Messwerte</div>
       </router-link>
       <nav class="nav nav-pills flex-lg-column" role="tablist">
         <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Browser' }">
-          <database-icon class="tab-icon"></database-icon>
+          <!-- <database-icon class="tab-icon"></database-icon> -->
           <div class="tab-title">Browser</div>
         </router-link>
         <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Export' }">
-          <log-out-icon class="tab-icon"></log-out-icon>
+          <!-- <log-out-icon class="tab-icon"></log-out-icon> -->
           <div class="tab-title">Export</div>
         </router-link>
       </nav>
       <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'System' }">
-        <sliders-icon class="tab-icon"></sliders-icon>
+        <!-- <sliders-icon class="tab-icon"></sliders-icon> -->
         <div class="tab-title">System</div>
       </router-link>
       <nav class="nav nav-pills flex-lg-column" role="tablist">
         <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Einstellungen' }">
-          <sliders-icon class="tab-icon"></sliders-icon>
+          <!-- <sliders-icon class="tab-icon"></sliders-icon> -->
           <div class="tab-title">Einstellungen</div>
         </router-link>
         <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Ereignisse' }">
-          <bell-icon class="tab-icon"></bell-icon>
+          <!-- <bell-icon class="tab-icon"></bell-icon> -->
           <div class="tab-title">
             Ereignisse
             <span class="badge badge-pill badge-primary">8</span>
           </div>
         </router-link>
         <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Systeminfo' }">
-          <info-icon class="tab-icon"></info-icon>
+          <!-- <info-icon class="tab-icon"></info-icon> -->
           <div class="tab-title">
             Systeminfo
             <span class="badge badge-pill badge-danger">!</span>
           </div>
         </router-link>
       </nav>
-    </nav>
+    </b-nav>
   </div>
 </template>
 
 <script>
-import {ActivityIcon, SunIcon, SlidersIcon, DatabaseIcon, LogOutIcon, InfoIcon, BellIcon} from 'vue-feather-icons';
-import featCompt from '../lib/feathercompt';
-
-featCompt(ActivityIcon);
-featCompt(SunIcon);
-featCompt(SlidersIcon);
-featCompt(DatabaseIcon);
-featCompt(LogOutIcon);
-featCompt(BellIcon);
-featCompt(InfoIcon);
-
 export default {
-  name: 'SideBar',
-  components: {
-    ActivityIcon, SunIcon, SlidersIcon, DatabaseIcon, LogOutIcon, InfoIcon, BellIcon
-  }
+  name: 'SideBar'
 }
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  Export
+  <div>Export</div>
 </template>
 
 <script>

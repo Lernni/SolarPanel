@@ -1,46 +1,40 @@
 <template>
-  <ul v-if="$route.name === 'Messwerte'" class="nav flex-column">
-    <router-link class="nav-link" :to="{ name: 'Browser' }">
-      <database-icon class="tab-icon"></database-icon>
-      <div class="tab-title">Benutzerdefiniert</div>
-    </router-link>
-    <router-link class="nav-link" :to="{ name: 'Browser' }">
-      <database-icon class="tab-icon"></database-icon>
-      <div class="tab-title">Letzte Stunde</div>
-    </router-link>
-    <router-link class="nav-link" :to="{ name: 'Browser' }">
-      <database-icon class="tab-icon"></database-icon>
-      <div class="tab-title">Letzter Tag</div>
-    </router-link>
-    <router-link class="nav-link" :to="{ name: 'Browser' }">
-      <database-icon class="tab-icon"></database-icon>
-      <div class="tab-title">Letzte Woche</div>
-    </router-link>
-    <router-link class="nav-link" :to="{ name: 'Browser' }">
-      <database-icon class="tab-icon"></database-icon>
-      <div class="tab-title">Letzter Monat</div>
-    </router-link>
-    <router-link class="nav-link" :to="{ name: 'Browser' }">
-      <log-out-icon class="tab-icon"></log-out-icon>
-      <div class="tab-title">Messwerte exportieren</div>
-    </router-link>
-  </ul>
+  <div>
+    <ul v-if="$route.name === 'Messwerte'" class="nav flex-column">
+      <router-link class="nav-link" :to="{ name: 'Browser' }">
+        <!-- <database-icon class="tab-icon"></database-icon> -->
+        <div class="tab-title">Benutzerdefiniert</div>
+      </router-link>
+      <router-link class="nav-link" :to="{ name: 'Browser' }">
+        <!-- <database-icon class="tab-icon"></database-icon> -->
+        <div class="tab-title">Letzte Stunde</div>
+      </router-link>
+      <router-link class="nav-link" :to="{ name: 'Browser' }">
+        <!-- <database-icon class="tab-icon"></database-icon> -->
+        <div class="tab-title">Letzter Tag</div>
+      </router-link>
+      <router-link class="nav-link" :to="{ name: 'Browser' }">
+        <!-- <database-icon class="tab-icon"></database-icon> -->
+        <div class="tab-title">Letzte Woche</div>
+      </router-link>
+      <router-link class="nav-link" :to="{ name: 'Browser' }">
+        <!-- <database-icon class="tab-icon"></database-icon> -->
+        <div class="tab-title">Letzter Monat</div>
+      </router-link>
+      <router-link class="nav-link" :to="{ name: 'Browser' }">
+        <!-- <log-out-icon class="tab-icon"></log-out-icon> -->
+        <div class="tab-title">Messwerte exportieren</div>
+      </router-link>
+    </ul>
 
-  <router-view/>
+    <router-view/>
+  </div>
 </template>
 
 <script>
-import {DatabaseIcon, LogOutIcon} from 'vue-feather-icons';
-import featCompt from '../lib/feathercompt';
-
-featCompt(DatabaseIcon);
-featCompt(LogOutIcon);
 
 export default {
-  name: 'Stats',
-  components: {
-    DatabaseIcon, LogOutIcon
-  }
+  name: 'Stats'
 }
 </script>
 

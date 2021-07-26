@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import Vue from 'vue'
+import VueRouter from 'vue-router'
 import Dashboard from '../views/Dashboard.vue'
 import Stats from '../views/Stats.vue'
 import Browser from '../views/Stats/Browser.vue'
@@ -7,6 +8,8 @@ import System from '../views/System.vue'
 import Settings from '../views/System/Settings.vue'
 import Events from '../views/System/Events.vue'
 import Info from '../views/System/Info.vue'
+
+Vue.use(VueRouter)
 
 const routes = [
   {
@@ -55,10 +58,10 @@ const routes = [
   }
 ]
 
-const router = createRouter({
-  history: createWebHistory(process.env.BASE_URL),
-  routes,
-  linkActiveClass: "active"
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes
 })
 
 export default router

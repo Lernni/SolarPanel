@@ -1,5 +1,5 @@
 <template>
-  Browser
+  <div>Browser</div>
 </template>
 
 <script>

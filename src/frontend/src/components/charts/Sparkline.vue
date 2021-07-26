@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import VueApexCharts from 'vue3-apexcharts'
+import VueApexCharts from 'vue-apexcharts'
 
 export default {
   name: 'Sparkline Chart',

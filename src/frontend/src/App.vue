@@ -1,15 +1,29 @@
 <template>
-  <div class="wrapper h-100">
-    <NavBar title="SolarPanel"/>
-    <div class="row no-gutters h-100">
-      <div class="col-lg-auto order-lg-1 order-sm-2">
+  <b-container fluid class="h-100 p-0">
+    <b-row no-gutters class="h-100">
+      <b-col lg="auto">
         <SideBar/>
-      </div>
-      <div class="content col-lg order-lg-2 order-sm-1">
+      </b-col>
+      <b-col>
+        <NavBar title="SolarPanel"/>
         <router-view/>
-      </div>
+      </b-col>
+    </b-row>
+  </b-container>
+
+  <!--<div>
+    <NavBar title="SolarPanel"/>
+    <div class="h-100">
+      <b-row align-v="stretch">
+        <b-col lg="auto" class="order-lg-1 order-sm-2">
+          <SideBar/>
+        </b-col>
+        <b-col class="order-lg-2 order-sm-1">
+          <router-view/>
+        </b-col>
+      </b-row>
     </div>
-  </div>
+  </div>-->
 </template>
 
 <script>

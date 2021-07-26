@@ -1,5 +1,5 @@
 <template>
-  Events
+  <div>Events</div>
 </template>
 
 <script>
