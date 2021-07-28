@@ -1,3 +1,6 @@
 flask
 flask_restx
 flask_cors
+pi-ina219
+Adafruit-PureIO
+Adafruit-GPIO

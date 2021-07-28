@@ -30,3 +30,4 @@ services:
       context: ./solar_module
     ports:
       - 5001:5001
+    privileged: true

@@ -3,7 +3,7 @@
     <div class="col-lg-8 col-md-6">
       <div class="card-deck">
         <ParameterCard parameter="Spannung" :value=record.voltage unit="V"/>
-        <ParameterCard parameter="Eingangsstrom" :value=record.input_current unit="A" color="#E91E63"/>
+        <ParameterCard parameter="Eingangsstrom" :value=record.input_current unit="mA" color="#E91E63"/>
         <ParameterCard parameter="Ausgangsstrom" :value=record.output_current unit="A" color="#E91E63"/>
         <ParameterCard parameter="Leistung" :value=record.power unit="W" color="#546E7A"/>
       </div>

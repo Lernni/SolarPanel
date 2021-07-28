@@ -71,6 +71,14 @@ cat id_rsa.pub >> authorized_keys
 sudo /etc/init.d/ssh restart
 ```
 12. VSCode Extension 'Remote - SSH' installieren und Verbindung dauerhaft hinzufügen
+13. I2C für Non-Root User einrichten
+```
+sudo groupadd i2c
+sudo chown :i2c /dev/i2c-1
+sudo chmod g+rw /dev/i2c-1
+sudo usermod -aG i2c [benutzer]
+```
+>siehe https://lexruee.ch/setting-i2c-permissions-for-non-root-users.html (Schritte 1-5)
 
 ## Pakete installieren
 1. Git:

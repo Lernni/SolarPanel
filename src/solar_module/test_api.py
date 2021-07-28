@@ -1,35 +1,54 @@
 from flask import Flask
 from flask_restx import Resource, Api
 from flask_cors import CORS
-
-import random
+from ina219 import INA219, DeviceRangeError
 
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
+SHUNT_OHM = 0.1
+MAX_EXPECTED_AMPS = 0.4
+ina = INA219(SHUNT_OHM, MAX_EXPECTED_AMPS)
+ina.configure(ina.RANGE_16V, ina.GAIN_1_40MV)
+
 class Voltage(Resource):
     def get(self):
+        try:
+            voltage = round(ina.voltage() + ina.shunt_voltage() / 1000, 2);
+        except DeviceRangeError as e:
+            voltage = 0
+
         return {
-            'voltage': round(random.uniform(12.0, 14.5), 2)
+            'voltage': voltage
         }
 
 class InputCurrent(Resource):
     def get(self):
+        try:
+            current = round(ina.current(), 2);
+        except DeviceRangeError as e:
+            current = 0
+
         return {
-            'input_current': round(random.uniform(0.0, 20.0), 2)
+            'input_current': current
         }
 
 class OutputCurrent(Resource):
     def get(self):
         return {
-            'output_current': round(random.uniform(0.0, 150.0), 2)
+            'output_current': 0
         }
 
 class Power(Resource):
     def get(self):
+        try:
+            power = round(ina.power(), 2);
+        except DeviceRangeError as e:
+            power = 0
+
         return {
-            'power': round(random.uniform(0.0, 2000.0), 2)
+            'power': power
         }
 
 class LatestRecord(Resource):
