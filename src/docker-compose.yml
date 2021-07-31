@@ -30,4 +30,6 @@ services:
       context: ./solar_module
     ports:
       - 5001:5001
+    volumes:
+      - ~/solarpanel_data:/data
     privileged: true

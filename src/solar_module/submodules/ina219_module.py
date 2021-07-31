@@ -1,5 +1,5 @@
 from ina219 import INA219, DeviceRangeError
-from data_objects.measurment import RawMeasurement
+from data_objects.record import RawRecord
 
 from submodules.submodule import Submodule
 
@@ -23,7 +23,7 @@ class INA219Module(Submodule):
             current = self.ina.current() / 1000
             if current < 0: current = 0
 
-            return RawMeasurement(voltage, current)
+            return RawRecord(voltage, current)
         except DeviceRangeError as e:
             print(e)
 
