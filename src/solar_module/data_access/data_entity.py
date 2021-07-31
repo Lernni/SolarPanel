@@ -1,11 +1,9 @@
-from datetime import datetime
 import os
 import logging
+from datetime import datetime, timedelta
 
 from data_access.globals import DB_PATH
 from data_objects.record import Record
-
-from datetime import timedelta
 
 class DataEntity:
 

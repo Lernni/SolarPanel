@@ -32,4 +32,5 @@ services:
       - 5001:5001
     volumes:
       - ~/solarpanel_data:/data
-    privileged: true
+    devices: 
+      - /dev/i2c-1:/dev/i2c-1

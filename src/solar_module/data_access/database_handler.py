@@ -2,8 +2,6 @@ from data_access.globals import DB_PATH
 from data_access.data_entity import DataEntity
 from data_objects.date_time_range import DateTimeRange
 
-import logging
-
 class DatabaseHandler:
 
     entities = []

@@ -1,6 +1,6 @@
 from ina219 import INA219, DeviceRangeError
-from data_objects.record import RawRecord
 
+from data_objects.record import RawRecord
 from submodules.submodule import Submodule
 
 class INA219Module(Submodule):
