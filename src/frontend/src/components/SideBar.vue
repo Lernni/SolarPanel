@@ -4,7 +4,7 @@
       SolarPanel
     </b-navbar-brand>
     <b-nav vertical pills>
-      <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Dashboard' }">
+      <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'dashboard' }">
         <!-- <sun-icon class="tab-icon"></sun-icon> -->
         <div class="tab-title">
           Dashboard
@@ -30,7 +30,7 @@
         <div class="tab-title">System</div>
       </router-link>
       <nav class="nav nav-pills flex-lg-column" role="tablist">
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Einstellungen' }">
+        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'settings' }">
           <!-- <sliders-icon class="tab-icon"></sliders-icon> -->
           <div class="tab-title">Einstellungen</div>
         </router-link>

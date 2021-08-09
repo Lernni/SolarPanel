@@ -32,7 +32,7 @@
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
 import Battery from '../components/Battery.vue'
-import io from 'socket.io-client';
+//import io from 'socket.io-client';
 
 export default {
   name: 'Dashboard',
@@ -42,7 +42,7 @@ export default {
   },
   data() {
     return {
-      socket: io(),
+      //socket: io(),
       record: {
         voltage: 0,
         input_current: 0,
@@ -59,11 +59,11 @@ export default {
   //     console.log("emitted test event")
   //   }
   // },
-  created() {
+  /*created() {
     this.socket.on('updateMeasurements', (data) => {
       this.record = data;
     });
-  }
+  }*/
 }
 </script>
 

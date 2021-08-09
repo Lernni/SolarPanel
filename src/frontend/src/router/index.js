@@ -9,49 +9,53 @@ import Settings from '../views/System/Settings.vue'
 import Events from '../views/System/Events.vue'
 import Info from '../views/System/Info.vue'
 
+import io from 'socket.io-client';
+
+const socket = io()
+
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Dashboard',
+    name: 'dashboard',
     component: Dashboard
   },
   {
     path: '/stats',
-    name: 'Messwerte',
+    name: 'records',
     component: Stats,
     children: [
       {
         path: 'browser',
-        name: 'Browser',
+        name: 'browser',
         component: Browser
       },
       {
         path: 'export',
-        name: 'Export',
+        name: 'export',
         component: Export
       }
     ]
   },
   {
     path: '/system',
-    name: 'System',
+    name: 'system',
     component: System,
     children: [
       {
         path: 'settings',
-        name: 'Einstellungen',
+        name: 'settings',
         component: Settings
       },
       {
         path: 'events',
-        name: 'Ereignisse',
+        name: 'events',
         component: Events
       },
       {
         path: 'info',
-        name: 'Systeminfo',
+        name: 'info',
         component: Info
       }
     ]
@@ -62,6 +66,11 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+// eslint-disable-next-line no-unused-vars
+router.beforeEach((to, from, next) => {
+  socket.emit('navigate', to.name)
 })
 
 export default router
