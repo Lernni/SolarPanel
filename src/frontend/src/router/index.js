@@ -71,6 +71,7 @@ const router = new VueRouter({
 // eslint-disable-next-line no-unused-vars
 router.beforeEach((to, from, next) => {
   socket.emit('navigate', to.name)
+  next()
 })
 
 export default router
