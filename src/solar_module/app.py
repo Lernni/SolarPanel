@@ -23,4 +23,4 @@ logging.info("start recording...")
 RecordHandler.start_recording()
 
 if __name__ == '__main__':
-    flask_app.run(debug = True)
+    flask_app.run(debug = True, use_reloader = False, host = '0.0.0.0', port = 5001)

@@ -6,8 +6,18 @@ class DateTimeRange:
         if start_date_time > end_date_time:
             raise ValueError("Start date time is greater than end date time")
         
-        self.start_date_time = start_date_time
-        self.end_date_time = end_date_time
+        self.start_date_time = start_date_time.replace(microsecond = 0)
+        self.end_date_time = end_date_time.replace(microsecond = 0)
+
+    def __str__(self):
+        return "{} - {}".format(self.start_date_time, self.end_date_time)
+
+    def __eq__(self, other):
+        if isinstance(other, DateTimeRange):
+            return self.start_date_time == other.start_date_time and \
+                self.end_date_time == other.end_date_time
+        else:
+            raise TypeError("Cannot compare DateTimeRange with {}".format(type(other)))
 
     def covers(self, date_time):
         if isinstance(date_time, datetime):
@@ -34,35 +44,49 @@ class DateTimeRange:
 
         return DateTimeRange(start_date_time, end_date_time)
 
+
     # returns a list of DataTimeRange objects that combines self, other and their intersection 
-    def split_merge(self, other):
+    def split_merge(self, other, subtract = False):
         if self.start_date_time > other.end_date_time or \
             self.end_date_time < other.start_date_time:
-            return [self, other]
+                return [self, other]
 
         if self.start_date_time == other.start_date_time and \
             self.end_date_time == other.end_date_time:
-            return [self]
+                return [None] if subtract else [self]
+
 
         intersect_range = self.intersect(other)
         merge_range = self.full_merge(other)
 
         if merge_range.start_date_time == intersect_range.start_date_time:
-            return [
-                intersect_range,
-                DateTimeRange(intersect_range.end_date_time, merge_range.end_date_time)
-            ]
+            if subtract:
+                return [DateTimeRange(intersect_range.end_date_time, merge_range.end_date_time)]
+            else:
+                return [
+                    intersect_range,
+                    DateTimeRange(intersect_range.end_date_time, merge_range.end_date_time)
+                ]
         elif merge_range.end_date_time == intersect_range.end_date_time:
-            return [
-                DateTimeRange(merge_range.start_date_time, intersect_range.start_date_time),
-                intersect_range
-            ]
+            if subtract:
+                return [DateTimeRange(merge_range.start_date_time, intersect_range.start_date_time)]
+            else:
+                return [
+                    DateTimeRange(merge_range.start_date_time, intersect_range.start_date_time),
+                    intersect_range
+                ]
         else:
-            return [
-                DateTimeRange(merge_range.start_date_time, intersect_range.start_date_time),
-                intersect_range,
-                DateTimeRange(intersect_range.end_date_time, merge_range.end_date_time)
-            ]
+            if subtract:
+                return [
+                    DateTimeRange(merge_range.start_date_time, intersect_range.start_date_time),
+                    DateTimeRange(intersect_range.end_date_time, merge_range.end_date_time)
+                ]
+            else:
+                return [
+                    DateTimeRange(merge_range.start_date_time, intersect_range.start_date_time),
+                    intersect_range,
+                    DateTimeRange(intersect_range.end_date_time, merge_range.end_date_time)
+                ]
 
     # returns a new DateTimeRange that is the union of self and other
     def full_merge(self, other):

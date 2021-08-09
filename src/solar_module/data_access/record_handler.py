@@ -1,17 +1,19 @@
 import time
 import logging
 from threading import Thread
+from datetime import datetime, timedelta
 
 import schedule
 
 from data_objects.record_buffer import RecordBuffer
 from data_objects.record import Record
+from data_objects.date_time_range import DateTimeRange
 from data_access.database_handler import DatabaseHandler
 from module import Module
 
 class RecordHandler:
     
-    read_cache = RecordBuffer(10)
+    read_cache = RecordBuffer(60)
     recording = False
     write_cache = []
     record_scheduler = None
@@ -24,7 +26,7 @@ class RecordHandler:
         if not RecordHandler.recording:
             RecordHandler.recording = True
 
-            DatabaseHandler.new_entity()
+            DatabaseHandler.current_entity_index = None
             RecordHandler.record_scheduler.start()
             RecordHandler.cache_scheduler.start()
 
@@ -45,48 +47,65 @@ class RecordHandler:
         else:
             raise TypeError("RecordHandler.add() requires a Record object")
     
-    def latest():
-        return RecordHandler.read_cache.top()
+    def latest(n = 1):
+        if n == 1:
+            return RecordHandler.read_cache.top()
+        elif n > 1:
+            end_date_time = datetime.now()
+            start_date_time = end_date_time - timedelta(seconds = n)
 
-    def get_records(start_time, end_time):
-        if end_time < start_time:
-            raise ValueError("end_time must be greater than start_time")
+            return RecordHandler.get_records(DateTimeRange(start_date_time, end_date_time))
 
-        buffer_start_time = RecordHandler.read_cache.bottom().record_time
+    def get_records(date_time_range):
+        logging.info(date_time_range)
+        end_date_time = date_time_range.end_date_time
+        start_date_time = date_time_range.start_date_time
 
-        if end_time > buffer_start_time:
-            # requested time frame is located in cache (or parts of it)
+        if end_date_time < start_date_time:
+            raise ValueError("end_date_time must be greater than start_time")
 
-            if start_time > buffer_start_time:
-                # requested time frame is entirely in cache
-                return RecordHandler.read_cache.get_records(start_time, end_time)
-            
-            else:
-                # only some of the requested time frame is in cache
-                cache_records = RecordHandler.read_cache.get_records(start_time, end_time)
+        buffer_bottom = RecordHandler.read_cache.bottom()
+        logging.info("buffer bottom: " + str(buffer_bottom.recorded_time) if buffer_bottom is not None else "None")
+        if buffer_bottom is not None:
+            buffer_start_time = buffer_bottom.recorded_time
 
-                # get remaining records from database
-                db_records = DatabaseHandler.get_records(start_time, buffer_start_time)
+            if end_date_time > buffer_start_time:
+                # requested time frame is located in cache (or parts of it)
 
-                db_records.extend(cache_records)
-                return db_records
-        else:
-            # requested time frame is not in cache, get data from database
-            return DatabaseHandler.get_records(start_time, end_time)
+                logging.info("start: " + str(start_date_time) + " buffer_start: " + str(buffer_start_time))
+                if start_date_time >= buffer_start_time:
+                    # requested time frame is entirely in cache
+                    logging.info("request entirely in cache")
+                    return RecordHandler.read_cache.get_records(date_time_range)
+                
+                else:
+                    # only some of the requested time frame is in cache
+                    logging.info("only some of the requested time frame is in cache")
+                    cache_records = RecordHandler.read_cache.get_records(date_time_range)
+
+                    # get remaining records from database
+                    db_records = DatabaseHandler.get_records(DateTimeRange(start_date_time, buffer_start_time - timedelta(seconds = 1)))
+
+                    db_records.extend(cache_records)
+                    return db_records
+
+        # requested time frame is not in cache, get data from database
+        return DatabaseHandler.get_records(date_time_range)
 
 class RecordScheduler(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.running = True
+        self.name = "RecordScheduler"
 
         schedule.every().second.do(self.create_record)
     
     def run(self):
         while self.running:
-            schedule.run_pending()
-
             # sleep as long as needed to run at an exact one second interval
             time.sleep(1.0 - time.time() % 1.0)
+
+            schedule.run_pending()
 
     def stop(self):
         self.running = False
@@ -106,6 +125,7 @@ class CacheScheduler(Thread):
     def __init__(self):
         Thread.__init__(self)
         self.running = True
+        self.name = "CacheScheduler"
 
         schedule.every(20).seconds.do(self.save_cache)
     

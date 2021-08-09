@@ -80,3 +80,12 @@ class Record:
             interval = len(records),
             recorded_time = average_date_time
         )
+
+    def to_dict(self):
+        return {
+            'voltage': self.voltage,
+            'input_current': self.input_current,
+            'output_current': self.output_current,
+            'interval': self.interval,
+            'recorded_time': self.recorded_time.isoformat()
+        }

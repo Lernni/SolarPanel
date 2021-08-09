@@ -17,10 +17,17 @@ class RecordBuffer:
         return self._buffer[-1]
 
     def bottom(self) -> Record:
-        return self._buffer[0]
+        bottom_record = next((record for record in self._buffer if record is not None), None)
+        return bottom_record
 
-    def get_records(self, start_time, end_time):
-        return [m for m in self._buffer if start_time <= m.recorded_time <= end_time]
+    def get_records(self, date_time_range):
+        records = []
+        for record in self._buffer:
+            if record is None: continue
+            if date_time_range.covers(record.recorded_time):
+                records.append(record)
+
+        return records
 
     @property
     def buffer(self):

@@ -28,10 +28,12 @@ services:
     container_name: solar_module
     build: 
       context: ./solar_module
-      target: prod
+      target: debug
     ports:
       - 5001:5001
+      - 5678:5678 # debug port
     volumes:
       - ~/solarpanel_data:/data
+      - ./solar_module:/app # enables hot reloading
     devices: 
       - /dev/i2c-1:/dev/i2c-1
