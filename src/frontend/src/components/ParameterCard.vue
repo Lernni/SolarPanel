@@ -3,7 +3,7 @@
     <div class="card-body">
       <h5 class="card-title">{{parameter}}</h5>
       <slot></slot>
-      <h2 class="text-right">{{value}} {{unit}}</h2>
+      <h2 class="text-right">{{unit}}</h2>
       <Sparkline height="100" :series="series"/>
     </div>
   </div>
@@ -17,19 +17,16 @@ export default {
   components: {
     Sparkline
   },
-  props: {
-    parameter: String,
-    value: Number,
-    unit: String,
-    color: String
-  },
-  data: (instance) => ({
-    series: [{
-      name: instance.parameter,
-      data: [31, 40, 28, 51, 42, 109, 100],
-      color: instance.color,
-    }]
-  })
+  props: ["parameter", "unit", "color", "seriesData"],
+  data() {
+    return {
+      series: [{
+        name: this.parameter,
+        data: this.seriesData,
+        color: this.color,
+      }]
+    }
+  }
 }
 </script>
 

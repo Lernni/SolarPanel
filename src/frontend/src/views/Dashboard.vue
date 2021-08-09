@@ -2,10 +2,10 @@
   <div class="row">
     <div class="col-lg-8 col-md-6">
       <div class="card-deck">
-        <ParameterCard parameter="Spannung" :value=record.voltage unit="V"/>
-        <ParameterCard parameter="Eingangsstrom" :value=record.input_current unit="mA" color="#E91E63"/>
-        <ParameterCard parameter="Ausgangsstrom" :value=record.output_current unit="A" color="#E91E63"/>
-        <ParameterCard parameter="Leistung" :value=record.power unit="W" color="#546E7A"/>
+        <ParameterCard parameter="Spannung" unit="V" :seriesData=records.voltage />
+        <ParameterCard parameter="Eingangsstrom" unit="mA" color="#E91E63" :seriesData=records.input_current />
+        <ParameterCard parameter="Ausgangsstrom" unit="A" color="#E91E63" :seriesData=records.output_current />
+        <ParameterCard parameter="Leistung" unit="W" color="#546E7A" :seriesData=records.power />
       </div>
     </div>
     <div class="col-lg-4 col-md-6">
@@ -32,7 +32,7 @@
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
 import Battery from '../components/Battery.vue'
-//import io from 'socket.io-client';
+import io from 'socket.io-client';
 
 export default {
   name: 'Dashboard',
@@ -42,12 +42,13 @@ export default {
   },
   data() {
     return {
-      //socket: io(),
-      record: {
-        voltage: 0,
-        input_current: 0,
-        output_current: 0,
-        power: 0
+      socket: io(),
+
+      records: {
+        voltage: [],
+        input_current: [],
+        output_current: [],
+        power: []
       }
     }
   },
@@ -59,11 +60,21 @@ export default {
   //     console.log("emitted test event")
   //   }
   // },
-  /*created() {
-    this.socket.on('updateMeasurements', (data) => {
-      this.record = data;
+
+
+  created() {
+    this.socket.on('latestRecords', (data) => {
+      this.records.voltage = data.voltage;
+      this.records.input_current = data.input_current;
+      this.records.output_current = data.output_current;
     });
-  }*/
+
+    this.socket.on("newRecord", (data) => {
+      this.records.voltage = this.records.voltage.slice(1).push(data.voltage)
+      this.records.input_current = this.records.input_current.slice(1).push(data.input_current)
+      this.records.output_current = this.records.output_current.slice(1).push(data.output_current)
+    })
+  }
 }
 </script>
 
