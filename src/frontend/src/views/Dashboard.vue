@@ -32,7 +32,6 @@
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
 import Battery from '../components/Battery.vue'
-import io from 'socket.io-client';
 
 export default {
   name: 'Dashboard',
@@ -40,40 +39,10 @@ export default {
     ParameterCard,
     Battery
   },
-  data() {
-    return {
-      socket: io(),
-
-      records: {
-        voltage: [],
-        input_current: [],
-        output_current: [],
-        power: []
-      }
+  computed: {
+    records () {
+      return this.$store.state.records
     }
-  },
-  // methods: {
-  //   sendMessage() {
-  //     this.socket.emit('testEvent', {
-  //       message: '12345'
-  //     });
-  //     console.log("emitted test event")
-  //   }
-  // },
-
-
-  created() {
-    this.socket.on('latestRecords', (data) => {
-      this.records.voltage = data.voltage;
-      this.records.input_current = data.input_current;
-      this.records.output_current = data.output_current;
-    });
-
-    this.socket.on("newRecord", (data) => {
-      this.records.voltage = this.records.voltage.slice(1).push(data.voltage)
-      this.records.input_current = this.records.input_current.slice(1).push(data.input_current)
-      this.records.output_current = this.records.output_current.slice(1).push(data.output_current)
-    })
   }
 }
 </script>
