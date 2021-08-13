@@ -4,7 +4,7 @@
       <h5 class="card-title">{{parameter}}</h5>
       <slot></slot>
       <h2 class="text-right">{{unit}}</h2>
-      <Sparkline height="100" :series="series"/>
+      <Sparkline ref="sparkline" :height=100 :series="series"/>
     </div>
   </div>
 </template> 
@@ -25,6 +25,15 @@ export default {
         data: this.seriesData,
         color: this.color,
       }]
+    }
+  },
+  watch: {
+    seriesData: {
+      handler: function(newVal, oldVal) {
+        console.log("update" + oldVal + newVal)
+        this.$refs.sparkline.updateChart(newVal)
+      },
+      deep: true
     }
   }
 }

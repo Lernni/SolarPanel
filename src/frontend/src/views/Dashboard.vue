@@ -12,7 +12,7 @@
       <ParameterCard parameter="Ladezustand" color="#00ebb9">
         <div class="row battery-info no-gutters">
           <div class="col-lg-3 col-md-4">
-            <Battery class="battery" soc="63"/>
+            <Battery class="battery" :soc=63 />
           </div>
           <div class="col-lg-9 col-md-8">
             <h5>Kapazität</h5>

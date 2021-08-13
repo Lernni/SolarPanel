@@ -1,36 +1,42 @@
 <template>
-  <apexchart class="sparkline" type="area" :height="height" :options="chartOptions" :series="series"/>
+  <apexchart ref="schart" :series="series" class="sparkline" type="area" :height="height" :options="chartOptions"/>
 </template>
 
 <script>
 import VueApexCharts from 'vue-apexcharts'
 
 export default {
-  name: 'Sparkline Chart',
+  name: 'SparklineChart',
   components: {
     apexchart: VueApexCharts
   },
-  props: {
-    height: Number,
-    series: Array
-  },
-  data: (instance) => (
-    instance.series, {
-    chartOptions: {
-      chart: {
-        type: 'area',
-        sparkline: {
-          enabled: true
+  props: ["height", "series"],
+  data() {
+    return {
+      chartOptions: {
+        chart: {
+          type: 'area',
+          sparkline: {
+            enabled: true
+          }
+        },
+        dataLabels: {
+          enabled: false
+        },
+        stroke: {
+          curve: 'smooth'
         }
-      },
-      dataLabels: {
-        enabled: false
-      },
-      stroke: {
-        curve: 'smooth'
       }
     }
-  })
+  },
+  methods: {
+    updateChart(chartData) {
+      console.log("update chart")
+      this.$refs.schart.updateSeries([{
+        data: chartData
+      }])
+    }
+  }
 }
 </script>
 
