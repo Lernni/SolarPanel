@@ -3,8 +3,8 @@
     <div class="card-body">
       <h5 class="card-title">{{parameter}}</h5>
       <slot></slot>
-      <h2 class="text-right">{{unit}}</h2>
-      <Sparkline ref="sparkline" :height=100 :series="series"/>
+      <h2 class="text-right">{{seriesData[seriesData.length - 1]}} {{unit}}</h2>
+      <Sparkline ref="sparkline" :height=100 :series="series" :unit="unit"/>
     </div>
   </div>
 </template> 
