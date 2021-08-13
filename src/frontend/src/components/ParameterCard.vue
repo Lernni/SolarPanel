@@ -22,15 +22,14 @@ export default {
     return {
       series: [{
         name: this.parameter,
-        data: this.seriesData,
         color: this.color,
       }]
     }
   },
   watch: {
     seriesData: {
+      // eslint-disable-next-line no-unused-vars
       handler: function(newVal, oldVal) {
-        console.log("update" + oldVal + newVal)
         this.$refs.sparkline.updateChart(newVal)
       },
       deep: true

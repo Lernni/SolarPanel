@@ -1,5 +1,5 @@
 <template>
-  <apexchart ref="schart" :series="series" class="sparkline" type="area" :height="height" :options="chartOptions"/>
+  <apexchart ref="chart" :series="series" class="sparkline" type="area" :height="height" :options="chartOptions"/>
 </template>
 
 <script>
@@ -31,8 +31,7 @@ export default {
   },
   methods: {
     updateChart(chartData) {
-      console.log("update chart")
-      this.$refs.schart.updateSeries([{
+      this.$refs.chart.updateSeries([{
         data: chartData
       }])
     }
