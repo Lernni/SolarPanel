@@ -20,17 +20,13 @@ export default {
             enabled: true
           },
           animations: {
+            enabled: true,
+            easing: 'linear',
+            speed: 1000,
+            dynamicAnimation: {
               enabled: true,
-              easing: 'easeinout',
-              speed: 1000,
-              animateGradually: {
-                  enabled: true,
-                  delay: 150
-              },
-              dynamicAnimation: {
-                  enabled: true,
-                  speed: 1000
-              }
+              speed: 1000
+            }
           }
         },
         dataLabels: {

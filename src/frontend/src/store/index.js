@@ -16,6 +16,9 @@ export default new Vuex.Store({
   mutations: {
     SOCKET_SPARKLINE_RECORDS(state, data) {
       state.records = data.records
+      for (let i = 0; i < data.records.voltage.length; i++) {
+        state.records.power[i] = state.records.voltage[i] * state.records.output_current[i]
+      }
     },
     SOCKET_SPARKLINE_UPDATE(state, data) {
       state.records.voltage = state.records.voltage.slice(1)
@@ -26,6 +29,9 @@ export default new Vuex.Store({
 
       state.records.output_current = state.records.output_current.slice(1)
       state.records.output_current.push(data.output_current)
+
+      state.records.power = state.records.power.slice(1)
+      state.records.power.push(data.voltage * data.output_current)
     }
   },
 
