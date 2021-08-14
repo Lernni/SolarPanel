@@ -5,6 +5,7 @@ services:
     container_name: frontend
     build: 
       context: ./frontend
+      target: build-stage
     depends_on:
       - solar_module
       - web_socket
