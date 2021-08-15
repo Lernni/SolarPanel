@@ -5,4 +5,4 @@ class Module:
     input_ina = None
 
     def init():
-        Module.input_ina = INA219Module(0.00042, "Test Module")
+        Module.input_ina = INA219Module(0.0001, "Test Module")

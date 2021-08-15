@@ -5,7 +5,7 @@
         <ParameterCard parameter="Spannung" unit="V" :seriesData=records.voltage />
         <ParameterCard parameter="Eingangsstrom" unit="mA" color="#E91E63" :seriesData=records.input_current />
         <ParameterCard parameter="Ausgangsstrom" unit="A" color="#E91E63" :seriesData=records.output_current />
-        <ParameterCard parameter="Leistung" unit="W" color="#546E7A" :seriesData=records.power />
+        <ParameterCard parameter="Eingangsleistung" unit="W" color="#546E7A" :seriesData=records.power />
       </div>
     </div>
     <div class="col-lg-4 col-md-6">
