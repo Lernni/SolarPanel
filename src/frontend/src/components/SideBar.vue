@@ -16,7 +16,7 @@
         <div class="tab-title">Messwerte</div>
       </router-link>
       <nav class="nav nav-pills flex-lg-column" role="tablist">
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Browser' }">
+        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'browser' }">
           <!-- <database-icon class="tab-icon"></database-icon> -->
           <div class="tab-title">Browser</div>
         </router-link>
