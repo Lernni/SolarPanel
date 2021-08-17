@@ -3,10 +3,17 @@
     <b-row class="justify-content-center">
       <b-col cols="11">
         <b-card no-body>
-          <b-tabs pills card vertical>
+          <b-tabs pills card vertical nav-wrapper-class="col-2">
             <PillTab caption="Zeitraum" :done="timeRangeDone">
               <template #tab-content>
-                Auswahl treffen
+                <div v-show="timeRangeDone">
+                  {{ timeRangeSubtext[0] }}
+                  <br>
+                  {{ timeRangeSubtext[1] }}
+                </div>
+                <div v-show="!timeRangeDone">
+                  {{ timeRangeSubtext }}
+                </div>
               </template>
 
               Alle Zeitangaben sind in mitteleuropäischer Winterzeit.
@@ -28,11 +35,18 @@
                         :max="endDate"
                         labelHelp=""
                         labelNoDateSelected="Kein Datum ausgewählt"
+                        :state="timeRangeDone"
                       ></b-form-datepicker>
                     </b-col>
                     <b-col>
                       <label for="start-timepicker">Startzeit</label>
-                      <b-form-input id="input" v-model="startTime" type="time" class="mb-2"></b-form-input>
+                      <b-form-input
+                        id="input"
+                        v-model="startTime"
+                        type="time"
+                        class="mb-2"
+                        :state="timeRangeDone"
+                      ></b-form-input>
                     </b-col>
                   </b-row>
                   <b-row>
@@ -48,11 +62,25 @@
                         :max="maxDate"
                         labelHelp=""
                         labelNoDateSelected="Kein Datum ausgewählt"
+                        :state="timeRangeDone"
                       ></b-form-datepicker>
                     </b-col>
                     <b-col>
                       <label for="end-timepicker">Endzeit</label>
-                      <b-form-input id="end-timepicker" v-model="endTime" type="time" class="mb-2"></b-form-input>
+                      <b-form-input
+                        id="end-timepicker"
+                        v-model="endTime"
+                        type="time"
+                        class="mb-2"
+                        :state="timeRangeDone"
+                      ></b-form-input>
+                    </b-col>
+                  </b-row>
+                  <b-row>
+                    <b-col>
+                      <b-form-invalid-feedback :state="timeRangeDone">
+                        Enddatum muss größer als Startdatum sein!
+                      </b-form-invalid-feedback>
                     </b-col>
                   </b-row>
                 </b-col>
@@ -61,7 +89,7 @@
 
             <PillTab caption="Messgrößen" :done="unitsDone">
               <template #tab-content>
-                Auswahl treffen
+                {{ unitsSubtext }}
               </template>
 
               Ausgewählte Messgrößen können im Diagramm beliebig ein- und ausgeblendet werden.
@@ -90,7 +118,7 @@
               </b-row>
             </PillTab>
 
-            <b-tab disabled>
+            <b-tab :disabled="!timeRangeDone || !unitsDone">
               <template #title>
                 <div class="text-center">
                   <h5>Auswerten</h5>
@@ -108,6 +136,7 @@
 <script>
 import VueApexCharts from 'vue-apexcharts'
 import PillTab from '../../components/PillTab.vue'
+import { required } from 'vuelidate/lib/validators'
 
 var de = require("apexcharts/dist/locales/de.json")
 
@@ -129,8 +158,6 @@ export default {
       maxDate: new Date(),
       enableZoomEvents: true,
 
-      timeRangeDone: false,
-      unitsDone: false,
 
       dateTimeRange: {
         min: Date.now(),
@@ -237,9 +264,24 @@ export default {
     }
   },
 
+  validations: {
+    dateTimeRange: {
+      minValue: value => {
+        if (value === undefined) return false
+        return value.max > value.min
+      }
+    },
+    units: {
+      selected: {
+        required
+      }
+    }
+  },
+
   mounted() {
     this.$refs.timeline.zoomX(this.dateTimeRange.min, this.dateTimeRange.max)
   },
+
   computed: {
     startDate: {
       get: function() {
@@ -303,7 +345,31 @@ export default {
 
         this.dateTimeRange.max = endDateTime.getTime()
       }
-    }
+    },
+
+    unitsSubtext: function() {
+      if (this.unitsDone) {
+        return this.units.selected.length + " ausgewählt"
+      } else {
+        return "Auswahl treffen"
+      }
+    },
+
+    timeRangeSubtext: function() {
+      if (this.timeRangeDone) {
+        return [new Date(this.dateTimeRange.min).toLocaleString(), new Date(this.dateTimeRange.max).toLocaleString()]
+      } else {
+        return "Auswahl treffen"
+      }
+    },
+
+    timeRangeDone: function() {
+      return this.$v.dateTimeRange.minValue
+    },
+
+    unitsDone: function() {
+      return this.$v.units.selected.required
+    },
   },
   watch: {
     dateTimeRange: {
@@ -329,5 +395,9 @@ export default {
 <style>
   h5 {
     margin-bottom: 0 !important;
+  },
+  .col-2-5 {
+    flex: 0 0 20%;
+    max-width: 20%;
   }
 </style>

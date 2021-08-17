@@ -5,6 +5,7 @@ import store from './store'
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import VueApexCharts from 'vue-apexcharts'
 import VueSocketIO from 'vue-socket.io'
+import Vuelidate from 'vuelidate'
 import io from 'socket.io-client'
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -13,6 +14,7 @@ import 'bootstrap-vue/dist/bootstrap-vue.css';
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.use(VueApexCharts)
+Vue.use(Vuelidate)
 
 Vue.use(new VueSocketIO({
   debug: true,
