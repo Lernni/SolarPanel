@@ -36,15 +36,15 @@ export default {
     padding: 15px !important;
   }
 
-  .nav-link {
+  /*.nav-link {
     font-size: 25px;
-  }
+  }*/
 
-  .tab-title {
+  /*.tab-title {
     display: inline;
     padding-left: 5px;
     vertical-align: middle;
-  }
+  }*/
 
   @media (min-width: 992px) {
     html, body, #app {

@@ -47,7 +47,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .battery-info {
   margin-bottom: 25px;
   margin-top: 25px;

@@ -2,54 +2,104 @@
   <div>
     <b-row class="justify-content-center">
       <b-col cols="11">
-        <h3>Zeitraum</h3>
-        <b-row>
-          <b-col cols="7">
-            <apexchart ref="timeline" type="rangeBar" height="150px" :options="chartOptions" :series="series"></apexchart>
-          </b-col>
-          <b-col>
-            <b-row>
-              <b-col>
-                <label for="start-datepicker">Startdatum</label>
-                <b-form-datepicker
-                  id="start-datepicker"
-                  v-model="startDate"
-                  class="mb-2"
-                  locale="de-DE"
-                  :start-weekday="1"
-                  :max="endDate"
-                  labelHelp=""
-                  labelNoDateSelected="Kein Datum ausgewählt"
-                ></b-form-datepicker>
-              </b-col>
-              <b-col>
-                <label for="start-timepicker">Startzeit</label>
-                <b-form-input id="input" v-model="startTime" type="time" class="mb-2"></b-form-input>
-              </b-col>
-            </b-row>
-            <b-row>
-              <b-col>
-                <label for="end-datepicker">Enddatum</label>
-                <b-form-datepicker
-                  id="end-datepicker"
-                  v-model="endDate"
-                  class="mb-2"
-                  locale="de-DE"
-                  :start-weekday="1"
-                  :min="startDate"
-                  :max="maxDate"
-                  labelHelp=""
-                  labelNoDateSelected="Kein Datum ausgewählt"
-                ></b-form-datepicker>
-              </b-col>
-              <b-col>
-                <label for="end-timepicker">Endzeit</label>
-                <b-form-input id="end-timepicker" v-model="endTime" type="time" class="mb-2"></b-form-input>
-              </b-col>
-            </b-row>
-          </b-col>
-        </b-row>
-        <h3>Messgrößen</h3>
+        <b-card no-body>
+          <b-tabs pills card vertical>
+            <PillTab caption="Zeitraum" :done="timeRangeDone">
+              <template #tab-content>
+                Auswahl treffen
+              </template>
+
+              Alle Zeitangaben sind in mitteleuropäischer Winterzeit.
+              <br><br>
+              <b-row>
+                <b-col cols="6">
+                  <apexchart ref="timeline" type="rangeBar" height="150px" :options="chartOptions" :series="series"></apexchart>
+                </b-col>
+                <b-col>
+                  <b-row>
+                    <b-col>
+                      <label for="start-datepicker">Startdatum</label>
+                      <b-form-datepicker
+                        id="start-datepicker"
+                        v-model="startDate"
+                        class="mb-2"
+                        locale="de-DE"
+                        :start-weekday="1"
+                        :max="endDate"
+                        labelHelp=""
+                        labelNoDateSelected="Kein Datum ausgewählt"
+                      ></b-form-datepicker>
+                    </b-col>
+                    <b-col>
+                      <label for="start-timepicker">Startzeit</label>
+                      <b-form-input id="input" v-model="startTime" type="time" class="mb-2"></b-form-input>
+                    </b-col>
+                  </b-row>
+                  <b-row>
+                    <b-col>
+                      <label for="end-datepicker">Enddatum</label>
+                      <b-form-datepicker
+                        id="end-datepicker"
+                        v-model="endDate"
+                        class="mb-2"
+                        locale="de-DE"
+                        :start-weekday="1"
+                        :min="startDate"
+                        :max="maxDate"
+                        labelHelp=""
+                        labelNoDateSelected="Kein Datum ausgewählt"
+                      ></b-form-datepicker>
+                    </b-col>
+                    <b-col>
+                      <label for="end-timepicker">Endzeit</label>
+                      <b-form-input id="end-timepicker" v-model="endTime" type="time" class="mb-2"></b-form-input>
+                    </b-col>
+                  </b-row>
+                </b-col>
+              </b-row>
+            </PillTab>
+
+            <PillTab caption="Messgrößen" :done="unitsDone">
+              <template #tab-content>
+                Auswahl treffen
+              </template>
+
+              Ausgewählte Messgrößen können im Diagramm beliebig ein- und ausgeblendet werden.
+              <br><br>
+              <b-row>
+                <b-col cols="2">
+                  <b-form-group>
+                    <b-form-checkbox-group
+                      id="unit-group1"
+                      v-model="units.selected"
+                      :options="units.options.slice(0, 3)"
+                      stacked
+                    ></b-form-checkbox-group>
+                  </b-form-group>
+                </b-col>
+                <b-col>
+                  <b-form-group>
+                    <b-form-checkbox-group
+                      id="unit-group2"
+                      v-model="units.selected"
+                      :options="units.options.slice(3, 6)"
+                      stacked
+                    ></b-form-checkbox-group>
+                  </b-form-group>
+                </b-col>
+              </b-row>
+            </PillTab>
+
+            <b-tab disabled>
+              <template #title>
+                <div class="text-center">
+                  <h5>Auswerten</h5>
+                </div>
+              </template>
+              <b-card-text>Tab contents 2</b-card-text>
+            </b-tab>
+          </b-tabs>
+        </b-card>    
       </b-col>
     </b-row>
   </div>
@@ -57,6 +107,7 @@
 
 <script>
 import VueApexCharts from 'vue-apexcharts'
+import PillTab from '../../components/PillTab.vue'
 
 var de = require("apexcharts/dist/locales/de.json")
 
@@ -70,6 +121,7 @@ export default {
   name: "Browser",
   components: {
       apexchart: VueApexCharts,
+      PillTab,
   },
   data() {
     return {
@@ -77,9 +129,24 @@ export default {
       maxDate: new Date(),
       enableZoomEvents: true,
 
+      timeRangeDone: false,
+      unitsDone: false,
+
       dateTimeRange: {
         min: Date.now(),
         max: Date.now(),
+      },
+
+      units: {
+        selected: [],
+        options: [
+          { text: "Spannung (V)", value: "voltage" },
+          { text: "Eingangsstrom (A)", value: "input_current" },
+          { text: "Ausgangsstrom (A)", value: "output_current" },
+          { text: "Eingangsleistung (W)", value: "input_power" },
+          { text: "Ausgangsleistung (W)", value: "output_power" },
+          { text: "Ladezustand (Ah)" , value: "soc" }
+        ]
       },
 
       // timeline
@@ -260,5 +327,7 @@ export default {
 </script>
 
 <style>
-
+  h5 {
+    margin-bottom: 0 !important;
+  }
 </style>

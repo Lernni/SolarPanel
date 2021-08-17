@@ -38,7 +38,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
   .sparkline {
     margin: 0 -20px -20px -20px;
