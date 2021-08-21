@@ -1,7 +1,8 @@
 FROM node:14.16.0 as build-stage
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
+ENV NODE_ENV=production
+RUN npm install --production
 COPY . .
 RUN npm run build
 
