@@ -43,7 +43,7 @@ export default new Vuex.Store({
       for (let i = 0; i < data.length; i++) {
         state.entities.push({
           x: "records",
-          y: data[i]
+          y: [data[i][0] * 1000, data[i][1] * 1000],
         })
       }
     },

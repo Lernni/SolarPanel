@@ -24,9 +24,9 @@
                     <template #loading>
                       <b-skeleton-img no-aspect height="150px"></b-skeleton-img>
                     </template>
-
-                    <Timeline @updateDateTimeRange="updateDateTimeRange" ref="timeline" :seriesData="entities" />
                   </b-skeleton-wrapper>
+                  <!-- Timeline must be outside of skeleton-wrapper, because Timeline will be undefined otherwise, as long as loadingEntities = true -->
+                  <Timeline v-show="!loadingEntities" @updateDateTimeRange="updateDateTimeRange" ref="timeline" :seriesData="entities" />
                 </b-col>
                 <b-col>
                   <b-row>
@@ -198,7 +198,12 @@ export default {
   },
 
   mounted() {
-    this.$refs.timeline.zoomX(this.dateTimeRange.min, this.dateTimeRange.max)
+    const interval = setInterval(() => {
+      if (this.$refs.timeline) {
+        this.$refs.timeline.zoomX(this.dateTimeRange.min, this.dateTimeRange.max)
+        clearInterval(interval)
+      }
+    }, 50)
   },
 
   computed: {
@@ -290,7 +295,7 @@ export default {
       return this.$v.units.selected.required
     },
 
-    entities: function() {
+    entities() {
       return this.$store.state.entities
     }
   },
@@ -309,8 +314,17 @@ export default {
     entities: {
       // eslint-disable-next-line no-unused-vars
       handler: function(newVal, oldVal) {
-        this.$refs.timeline.updateChart(newVal)
-        this.loadingEntities = false
+        const interval = setInterval(() => {
+          if (this.$refs.timeline) {
+            this.loadingEntities = false
+            this.$refs.timeline.updateChart(newVal)
+            this.dateTimeRange = {
+              min: this.entities[0].y[0],
+              max: this.entities[this.entities.length - 1].y[1]
+            }
+            clearInterval(interval)
+          }
+        }, 50)
       },
       deep: true
     },

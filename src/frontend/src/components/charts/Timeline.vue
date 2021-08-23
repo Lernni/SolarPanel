@@ -32,10 +32,9 @@ export default {
             }.bind(this),
 
             // eslint-disable-next-line no-unused-vars
-           /* beforeResetZoom: function(chartContext, options) {
-              console.log(options)
-              this.updateDateTimeRange(options.config.xaxis)
-            }.bind(this),*/
+            beforeResetZoom: function(chartContext, options) {
+              this.$emit("updateDateTimeRange")
+            }.bind(this),
 
             // eslint-disable-next-line no-unused-vars
             scrolled: function(chartContext, axis) {
