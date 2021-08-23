@@ -19,6 +19,12 @@ class DateTimeRange:
         else:
             raise TypeError("Cannot compare DateTimeRange with {}".format(type(other)))
 
+    def toJSON(self):
+        return [
+            datetime.timestamp(self.start_date_time),
+            datetime.timestamp(self.end_date_time)
+        ]
+
     def covers(self, date_time):
         if isinstance(date_time, datetime):
             return self.start_date_time <= date_time <= self.end_date_time

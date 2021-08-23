@@ -10,7 +10,8 @@ export default new Vuex.Store({
       input_current: [],
       output_current: [],
       power: [],
-    }
+    },
+    entities: [],
   },
 
   mutations: {
@@ -21,6 +22,7 @@ export default new Vuex.Store({
         state.records.power[i] = state.records.voltage[i] * state.records.input_current[i]
       }
     },
+
     SOCKET_SPARKLINE_UPDATE(state, data) {
       state.records.voltage = state.records.voltage.slice(1)
       state.records.voltage.push(data.voltage)
@@ -33,7 +35,10 @@ export default new Vuex.Store({
 
       state.records.power = state.records.power.slice(1)
       state.records.power.push(data.voltage * data.input_current)
-    }
-  },
+    },
 
+    SOCKET_DB_ENTITIES_SIMPLE(state, data) {
+      state.entities = data
+    },
+  },
 })
