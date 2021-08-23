@@ -20,7 +20,13 @@
               <br><br>
               <b-row>
                 <b-col cols="6">
-                  <apexchart ref="timeline" type="rangeBar" height="150px" :options="chartOptions" :series="series"></apexchart>
+                  <b-skeleton-wrapper :loading="loadingEntities">
+                    <template #loading>
+                      <b-skeleton-img no-aspect height="150px"></b-skeleton-img>
+                    </template>
+
+                    <Timeline @updateDateTimeRange="updateDateTimeRange" ref="timeline" :seriesData="entities" />
+                  </b-skeleton-wrapper>
                 </b-col>
                 <b-col>
                   <b-row>
@@ -134,11 +140,9 @@
 </template>
 
 <script>
-import VueApexCharts from 'vue-apexcharts'
 import PillTab from '../../components/PillTab.vue'
+import Timeline from '../../components/charts/Timeline.vue'
 import { required } from 'vuelidate/lib/validators'
-
-var de = require("apexcharts/dist/locales/de.json")
 
 const Formatter = {
   toTime: function(dateTime) {
@@ -149,14 +153,15 @@ const Formatter = {
 export default {
   name: "Browser",
   components: {
-      apexchart: VueApexCharts,
       PillTab,
+      Timeline,
   },
   data() {
     return {
 
       maxDate: new Date(),
       enableZoomEvents: true,
+      loadingEntities: true,
 
 
       dateTimeRange: {
@@ -174,92 +179,6 @@ export default {
           { text: "Ausgangsleistung (W)", value: "output_power" },
           { text: "Ladezustand (Ah)" , value: "soc" }
         ]
-      },
-
-      // timeline
-
-      series: [
-        {
-          data: [
-            {
-              x: "records",
-              y: [
-                new Date('2019-03-02').getTime(),
-                new Date('2019-03-04').getTime(),
-              ]
-            },
-            {
-              x: "records",
-              y: [
-                new Date('2019-03-08').getTime(),
-                new Date('2019-03-09').getTime(),
-              ]
-            },
-            {
-              x: "records",
-              y: [
-                new Date('2019-04-02').getTime(),
-                new Date('2019-05-04').getTime(),
-              ]
-            },
-            {
-              x: "records",
-              y: [
-                new Date('2019-08-12').getTime(),
-                new Date('2019-08-20').getTime(),
-              ]
-            },
-          ]
-        }
-      ],
-      chartOptions: {
-        chart: {
-          locales: [de],
-          defaultLocale: "de",
-          height: "300px",
-          type: 'rangeBar',
-          toolbar: {
-            tools: {
-              download: false
-            }
-          },
-          events: {
-            // eslint-disable-next-line no-unused-vars
-            zoomed: function(chartContext, axis) {
-              this.updateDateTimeRange(axis.xaxis)
-            }.bind(this),
-
-            // eslint-disable-next-line no-unused-vars
-           /* beforeResetZoom: function(chartContext, options) {
-              console.log(options)
-              this.updateDateTimeRange(options.config.xaxis)
-            }.bind(this),*/
-
-            // eslint-disable-next-line no-unused-vars
-            scrolled: function(chartContext, axis) {
-              this.updateDateTimeRange(axis.xaxis)
-            }.bind(this),
-
-            // eslint-disable-next-line no-unused-vars
-            dataPointSelection: function(event, chartContext, config) {
-              var dataPointRange = this.series[0].data[config.dataPointIndex].y
-              this.$refs.timeline.zoomX(dataPointRange[0], dataPointRange[1])
-            }.bind(this)
-          }
-        },
-        plotOptions: {
-          bar: {
-            horizontal: true
-          }
-        },
-        xaxis: {
-          type: 'datetime',
-          min: undefined,
-          max: undefined,
-        },
-        yaxis: {
-          show: false
-        }
       },
     }
   },
@@ -370,7 +289,12 @@ export default {
     unitsDone: function() {
       return this.$v.units.selected.required
     },
+
+    entities: function() {
+      return this.$store.state.entities
+    }
   },
+
   watch: {
     dateTimeRange: {
       // eslint-disable-next-line no-unused-vars
@@ -380,8 +304,18 @@ export default {
         this.enableZoomEvents = true
       },
       deep: true
-    }
+    },
+
+    entities: {
+      // eslint-disable-next-line no-unused-vars
+      handler: function(newVal, oldVal) {
+        this.$refs.timeline.updateChart(newVal)
+        this.loadingEntities = false
+      },
+      deep: true
+    },
   },
+
   methods: {
     updateDateTimeRange(range) {
       if (this.enableZoomEvents) {

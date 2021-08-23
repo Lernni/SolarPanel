@@ -38,7 +38,14 @@ export default new Vuex.Store({
     },
 
     SOCKET_DB_ENTITIES_SIMPLE(state, data) {
-      state.entities = data
+      state.entities = []
+
+      for (let i = 0; i < data.length; i++) {
+        state.entities.push({
+          x: "records",
+          y: data[i]
+        })
+      }
     },
   },
 })
