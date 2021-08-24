@@ -3,7 +3,7 @@
     <b-row class="justify-content-center">
       <b-col cols="11">
         <b-card no-body>
-          <b-tabs pills card vertical nav-wrapper-class="col-2">
+          <b-tabs pills card vertical nav-wrapper-class="col-2" class="flex-nowrap">
             <PillTab caption="Zeitraum" :done="timeRangeDone">
               <template #tab-content>
                 <div v-show="timeRangeDone">
@@ -127,10 +127,36 @@
             <b-tab :disabled="!timeRangeDone || !unitsDone">
               <template #title>
                 <div class="text-center">
-                  <h5>Auswerten</h5>
+                  <h5>Auswertung</h5>
                 </div>
               </template>
-              <b-card-text>Tab contents 2</b-card-text>
+              <b-card-text>
+                <b-form-group class="text-right">
+                  Diagrammart:
+                  <b-form-radio-group
+                    id="chart-type-radio"
+                    v-model="chartType.selected"
+                    :options="chartType.options"
+                    button-variant="outline-primary"
+                    buttons
+                  ></b-form-radio-group>
+                </b-form-group>
+
+                <SyncedBrowserChart
+                  v-show="chartType.selected === 'many'"
+                  ref="syncedBrowserChart"
+                  @updateDateTimeRange="activateReload"
+                  :chartsData="browserSeries"
+                />
+
+                <!--<OverlapBrowserChart
+                  v-show="chartType.selected == 'one'"
+                  ref="overlapBrowserChart"
+                  @updateDateTimeRange="activateReload"
+                  :seriesData="browserSeries"
+                />-->
+
+              </b-card-text>
             </b-tab>
           </b-tabs>
         </b-card>    
@@ -142,6 +168,8 @@
 <script>
 import PillTab from '../../components/PillTab.vue'
 import Timeline from '../../components/charts/Timeline.vue'
+import SyncedBrowserChart from '../../components/charts/SyncedBrowserChart.vue'
+//import OverlapBrowserChart from '../../components/charts/OverlapBrowserChart.vue'
 import { required } from 'vuelidate/lib/validators'
 
 const Formatter = {
@@ -153,8 +181,7 @@ const Formatter = {
 export default {
   name: "Browser",
   components: {
-      PillTab,
-      Timeline,
+      PillTab, Timeline, SyncedBrowserChart, //OverlapBrowserChart
   },
   data() {
     return {
@@ -180,6 +207,59 @@ export default {
           { text: "Ladezustand (Ah)" , value: "soc" }
         ]
       },
+
+      chartType: {
+        selected: "many",
+        options: [
+          { text: "Getrennt", value: "many" },
+          { text: "Überlappend", value: "one" },
+        ]
+      },
+
+      browserSeries: [
+        {
+          name: "voltage",
+          title: "Spannung",
+          unit: "V",
+          options: {
+            chart: {
+              type: "line",
+            },
+            colors: ['#546E7A'],
+          },
+          series: [{
+            data: [30, 40, 1, 50, 49, 4, 70, 81]
+          }]
+        },
+        {
+          name: "input-current",
+          title: "Eingangsstrom",
+          unit: "mA",
+          options: {
+            chart: {
+              type: "line",
+            },
+            colors: ['#546E7A'],
+          },
+          series: [{
+            data: [30, 40, 45, 50, 49, 60, 70, 81]
+          }]
+        },
+        {
+          name: "soc",
+          title: "Ladezustand",
+          unit: "Ah",
+          options: {
+            chart: {
+              type: "area",
+            },
+            colors: ['#046E7A'],
+          },
+          series: [{
+            data: [30, 40, 1, 50, 49, 60, 70, 81]
+          }]
+        },
+      ],
     }
   },
 
@@ -335,6 +415,10 @@ export default {
       if (this.enableZoomEvents) {
         this.dateTimeRange = range
       }
+    },
+
+    activateReload() {
+
     }
   }
 }
