@@ -8,6 +8,8 @@ class BrowserHandler {
   init(socket, io) {
     this.socket = socket
     this.io = io
+
+    socket.on("browser:requestTest", this.requestTest)
   }
 
   open() {
@@ -20,6 +22,7 @@ class BrowserHandler {
 
   }
 
+  // from websocket -> to frontend
 
   dbEntitiesRange() {
     console.log("getDBEntitiesRange")
@@ -31,6 +34,12 @@ class BrowserHandler {
     .catch((error) => {
       console.log(error);
     });
+  }
+
+  // from frontend -> to websocket
+
+  requestTest() {
+    console.log("test test")
   }
 }
 

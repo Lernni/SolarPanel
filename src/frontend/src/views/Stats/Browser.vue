@@ -4,7 +4,7 @@
       <b-col cols="11">
         <b-card no-body>
           <b-tabs pills card vertical nav-wrapper-class="col-2" class="flex-nowrap">
-            <PillTab caption="Zeitraum" :done="timeRangeDone">
+            <PillTab caption="Zeitraum" :done="timeRangeDone" :disabled="loadingRequest">
               <template #tab-content>
                 <div v-show="timeRangeDone">
                   {{ timeRangeSubtext[0] }}
@@ -93,7 +93,7 @@
               </b-row>
             </PillTab>
 
-            <PillTab caption="Messgrößen" :done="unitsDone">
+            <PillTab caption="Messgrößen" :done="unitsDone" :disabled="loadingRequest">
               <template #tab-content>
                 {{ unitsSubtext }}
               </template>
@@ -124,38 +124,67 @@
               </b-row>
             </PillTab>
 
-            <b-tab :disabled="!timeRangeDone || !unitsDone">
+            <b-tab :disabled="!timeRangeDone || !unitsDone" @click="handleRequestClick">
               <template #title>
-                <div class="text-center">
-                  <h5>Auswertung</h5>
-                </div>
+                <b-row align-v="center">
+                  <b-col cols="auto" class="pr-0 d-flex align-items-center">
+                    <b-spinner small type="grow" v-show="loadingRequest"></b-spinner>
+                    <b-button
+                      v-show="updateAvailable && !loadingRequest"
+                      size="sm"
+                      variant="warning"
+                      v-b-tooltip.hover.bottom="'Aktualisieren'"
+                      @click="requestRecords"
+                    >
+                      <b-icon-arrow-repeat></b-icon-arrow-repeat>
+                    </b-button>
+                  </b-col>
+                  <b-col>
+                    <div class="text-center">
+                      <h5>Auswertung</h5>
+                    </div>
+                  </b-col>
+                </b-row>
               </template>
               <b-card-text>
-                <b-form-group class="text-right">
-                  Diagrammart:
-                  <b-form-radio-group
-                    id="chart-type-radio"
-                    v-model="chartType.selected"
-                    :options="chartType.options"
-                    button-variant="outline-primary"
-                    buttons
-                  ></b-form-radio-group>
-                </b-form-group>
+                  <b-form-group class="text-right">
+                    Diagrammart:
+                    <b-form-radio-group
+                      id="chart-type-radio"
+                      v-model="chartType.selected"
+                      :options="chartType.options"
+                      button-variant="outline-primary"
+                      buttons
+                    ></b-form-radio-group>
+                  </b-form-group>
 
-                <SyncedBrowserChart
-                  v-show="chartType.selected === 'many'"
-                  ref="syncedBrowserChart"
-                  @updateDateTimeRange="activateReload"
-                  :chartsData="browserSeries"
-                />
+                <b-overlay :show="loadingRequest" spinner-type="grow">
+                  <template #overlay>
+                    <b-icon
+                      icon="brightness-high-fill"
+                      scale="4"
+                      animation="spin"
+                      variant="warning"
+                    ></b-icon>
+                  </template>
 
-                <!--<OverlapBrowserChart
-                  v-show="chartType.selected == 'one'"
-                  ref="overlapBrowserChart"
-                  @updateDateTimeRange="activateReload"
-                  :seriesData="browserSeries"
-                />-->
+                  <div v-show="!loadingRequest">
+                    <SyncedBrowserChart
+                      v-show="chartType.selected === 'many'"
+                      ref="syncedBrowserChart"
+                      @updateDateTimeRange="checkForUpdateRequest"
+                      :chartsData="browserSeries"
+                    />
 
+                    <!--<OverlapBrowserChart
+                      v-show="chartType.selected == 'one'"
+                      ref="overlapBrowserChart"
+                      @updateDateTimeRange="checkForUpdateRequest"
+                      :seriesData="browserSeries"
+                    />-->
+                  </div>
+
+                </b-overlay>
               </b-card-text>
             </b-tab>
           </b-tabs>
@@ -189,6 +218,9 @@ export default {
       maxDate: new Date(),
       enableZoomEvents: true,
       loadingEntities: true,
+      firstRequest: true,
+      loadingRequest: false,
+      updateAvailable: false,
 
 
       dateTimeRange: {
@@ -387,6 +419,8 @@ export default {
         this.enableZoomEvents = false
         this.$refs.timeline.zoomX(newVal.min, newVal.max)
         this.enableZoomEvents = true
+
+        this.checkForUpdateRequest()
       },
       deep: true
     },
@@ -408,6 +442,10 @@ export default {
       },
       deep: true
     },
+
+    "units.selected"() {
+      this.checkForUpdateRequest()
+    }
   },
 
   methods: {
@@ -417,8 +455,22 @@ export default {
       }
     },
 
-    activateReload() {
+    checkForUpdateRequest() {
+      this.updateAvailable = (this.timeRangeDone && this.unitsDone && !this.firstRequest)
+    },
 
+    handleRequestClick() {
+      if (this.firstRequest) {
+        this.firstRequest = false
+        this.requestRecords()
+      }
+    },
+
+    requestRecords() {
+      this.updateAvailable = false
+      this.loadingRequest = true
+
+      this.$socket.emit("browser:requestTest")
     }
   }
 }
