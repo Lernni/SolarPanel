@@ -1,4 +1,5 @@
 todo.md
+build.sh
 .DS_Store
 node_modules
 dist

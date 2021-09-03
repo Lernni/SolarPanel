@@ -6,6 +6,7 @@ from flask_cors import CORS
 
 from rest_service.records import LatestRecord, LatestNRecords
 from rest_service.db_entities import DBEntities
+from rest_service.db_records import DBRecords
 
 
 flask_app = Flask(__name__)
@@ -19,3 +20,5 @@ api.add_resource(LatestRecord, '/latest')
 api.add_resource(LatestNRecords, '/latest/<int:n>')
 
 api.add_resource(DBEntities, '/db/entities/simple')
+
+api.add_resource(DBRecords, '/db/records')

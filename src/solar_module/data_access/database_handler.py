@@ -138,8 +138,11 @@ class DatabaseHandler:
 
 
         # build requested records by combining the time frame sections and bringing them to the requested interval
+        # record list will be separated into sublists to indicate a gap in the data 
 
-        requested_records = []
+        requested_records = [[]]
+        record_frame = []
+
         for i in range(0, len(time_frame)):
             entity = time_frame[i][1]
             date_time_range = time_frame[i][0]
@@ -147,14 +150,23 @@ class DatabaseHandler:
             if time_frame[i][1] is not None:
                 entity_records = entity.get_records(date_time_range)
                 if entity.interval == interval:
-                    requested_records.extend(entity_records)
+                    record_frame.extend(entity_records)
                 else:
                     interval_multiplier = interval // entity.interval
                     for j in range(0, len(entity_records), interval_multiplier):
-                        requested_records.append(entity_records[j].compress(interval_multiplier, sort = False))
+                        record_frame.append(entity_records[j].compress(interval_multiplier, sort = False))
+            else:
+                if len(record_frame) != 0:
+                    requested_records.append(record_frame)
+                    record_frame = []
+
+        if len(record_frame) != 0:
+            requested_records.append(record_frame)
+
 
         # save requested records in database for later use
         if len(requested_records) > 0 and interval != 1:
-            DataEntity(interval).add_records(requested_records)
+            for frame in requested_records:
+                DataEntity(interval).add_records(frame)
 
         return requested_records

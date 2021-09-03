@@ -33,7 +33,7 @@ const fixChartOptions = {
       defaultLocale: "de",
     },
     xaxis: {
-      //type: 'datetime',
+      type: 'datetime',
       labels: {
         show: false
       },
@@ -74,50 +74,55 @@ export default {
   },
 
   created() {
-    // init all requested synced charts
-    for (var i = 0; i < this.charts.length; i++) {
-
-      // set dyncamic chart options
-      let title = this.charts[i].title;
-      let unit = this.charts[i].unit;
-      
-      this.charts[i].options.yaxis = {
-        title: {
-          text: title + " (" + unit + ")"
-        },
-        labels: {
-          formatter: function(val) {
-            return val + " " + unit
-          }
-        }
-      }
-
-      this.charts[i].options.chart.id = "chart-" + i
-      this.charts[i].series[0].name = title;
-
-      this.charts[i].options.chart.events = {
-        zoomed: function() {
-          this.$emit("updateDateTimeRange")
-        }.bind(this)
-      }
-
-
-      // merge fix chart options with specific chart options
-      _.merge(this.charts[i].options, fixChartOptions.options)
-
-      // only the first chart has the whole toolbar
-      if (i != 0) this.charts[i].options.chart.toolbar = varChartOptions.toolbar
-      // only the last chart has an x-axis
-      if (i == this.charts.length - 1) {
-        this.charts[i].options.xaxis.labels.show = true
-        this.charts[i].options.xaxis.tooltip.enabled = true
-      }
-    }
+    this.finalizeSyncedCharts()
   },
 
   methods: {
-    selectionUpdate() {
-      console.log("hey")
+    updateChart(chartData) {
+      this.charts = chartData
+      this.finalizeSyncedCharts()
+    },
+
+    finalizeSyncedCharts() {
+      // init all requested synced charts
+      for (var i = 0; i < this.charts.length; i++) {
+
+        // set dyncamic chart options
+        let title = this.charts[i].title;
+        let unit = this.charts[i].unit;
+        
+        this.charts[i].options.yaxis = {
+          title: {
+            text: title + " (" + unit + ")"
+          },
+          labels: {
+            formatter: function(val) {
+              return val + " " + unit
+            }
+          }
+        }
+
+        this.charts[i].options.chart.id = "chart-" + i
+        this.charts[i].series[0].name = title;
+
+        this.charts[i].options.chart.events = {
+          zoomed: function() {
+            this.$emit("updateDateTimeRange")
+          }.bind(this)
+        }
+
+
+        // merge fix chart options with specific chart options
+        _.merge(this.charts[i].options, fixChartOptions.options)
+
+        // only the first chart has the whole toolbar
+        if (i != 0) this.charts[i].options.chart.toolbar = varChartOptions.toolbar
+        // only the last chart has an x-axis
+        if (i == this.charts.length - 1) {
+          this.charts[i].options.xaxis.labels.show = true
+          this.charts[i].options.xaxis.tooltip.enabled = true
+        }
+      }
     }
   }
 }

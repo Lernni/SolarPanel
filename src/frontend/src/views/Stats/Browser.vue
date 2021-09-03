@@ -248,50 +248,7 @@ export default {
         ]
       },
 
-      browserSeries: [
-        {
-          name: "voltage",
-          title: "Spannung",
-          unit: "V",
-          options: {
-            chart: {
-              type: "line",
-            },
-            colors: ['#546E7A'],
-          },
-          series: [{
-            data: [30, 40, 1, 50, 49, 4, 70, 81]
-          }]
-        },
-        {
-          name: "input-current",
-          title: "Eingangsstrom",
-          unit: "mA",
-          options: {
-            chart: {
-              type: "line",
-            },
-            colors: ['#546E7A'],
-          },
-          series: [{
-            data: [30, 40, 45, 50, 49, 60, 70, 81]
-          }]
-        },
-        {
-          name: "soc",
-          title: "Ladezustand",
-          unit: "Ah",
-          options: {
-            chart: {
-              type: "area",
-            },
-            colors: ['#046E7A'],
-          },
-          series: [{
-            data: [30, 40, 1, 50, 49, 60, 70, 81]
-          }]
-        },
-      ],
+      browserSeries: [],
     }
   },
 
@@ -448,7 +405,68 @@ export default {
     }
   },
 
+  sockets: {
+    DB_RECORDS: function(data) {
+      if (this.loadingRequest) {
+        this.browserSeries = []
+
+        let chartOptions = {}
+
+        for (let unit of this.units.selected) {
+          switch (unit) {
+            case "voltage":
+              chartOptions = this.getChartOptions("Spannung", "V", "line", "#546E7A")
+              break
+            case "input_current":
+              chartOptions = this.getChartOptions("Eingangsstrom", "mA", "line", "#546E7A")
+              break
+            case "output_current":
+              chartOptions = this.getChartOptions("Ausgangsstrom", "mA", "line", "#546E7A")
+              break
+          }
+
+          chartOptions.name = unit
+          let seriesData = []
+
+          for (let i = 0, len = data.time.length; i < len; i++) {
+            for (let j = 0, len2 = data.time[i].length; j < len2; j++) {
+              seriesData.push({
+                x: data.time[i][j],
+                y: data[unit][i][j]
+              })
+            }
+
+            seriesData.push({
+              x: data.time[i][data.time[i].length - 1] + 1,
+              y: null
+            })
+          }
+
+          chartOptions.series = [{ data: seriesData }]
+
+          this.browserSeries.push(chartOptions)
+        }
+
+        this.$refs.syncedBrowserChart.updateChart(this.browserSeries)
+        this.loadingRequest = false
+      }
+    }
+  },
+
   methods: {
+    getChartOptions(title, unit, lineType, color) {
+      return {
+        title: title,
+        unit: unit,
+        options: {
+          chart: {
+            type: lineType,
+          },
+          colors: [color],
+        }
+      }
+    },
+
     updateDateTimeRange(range) {
       if (this.enableZoomEvents) {
         this.dateTimeRange = range
@@ -469,8 +487,8 @@ export default {
     requestRecords() {
       this.updateAvailable = false
       this.loadingRequest = true
-
-      this.$socket.emit("browser:requestTest")
+      console.log(this.units.selected)
+      this.$socket.emit("browserRequest", this.dateTimeRange, this.units.selected)
     }
   }
 }
@@ -479,7 +497,7 @@ export default {
 <style>
   h5 {
     margin-bottom: 0 !important;
-  },
+  }
   .col-2-5 {
     flex: 0 0 20%;
     max-width: 20%;

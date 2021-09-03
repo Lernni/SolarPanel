@@ -5,11 +5,11 @@ class BrowserHandler {
 
   }
 
-  init(socket, io) {
+  init(io, socket) {
     this.socket = socket
     this.io = io
 
-    socket.on("browser:requestTest", this.requestTest)
+    socket.on("browserRequest", browserRequest)
   }
 
   open() {
@@ -25,7 +25,6 @@ class BrowserHandler {
   // from websocket -> to frontend
 
   dbEntitiesRange() {
-    console.log("getDBEntitiesRange")
     axios.get("http://solar_module:5001/db/entities/simple")
     .then((response) => {
       console.log(response.data)
@@ -36,11 +35,26 @@ class BrowserHandler {
     });
   }
 
-  // from frontend -> to websocket
+}
 
-  requestTest() {
-    console.log("test test")
-  }
+// from frontend -> to websocket
+
+const browserRequest = function (range, units) {
+  const socket = this
+
+  axios.get("http://solar_module:5001/db/records", {
+    params: {
+      range: range,
+      units: units
+    }
+  })
+  .then((response) => {
+    console.log(response.data)
+    socket.emit("DB_RECORDS", response.data);
+  })
+  .catch((error) => {
+    console.log(error);
+  });
 }
 
 module.exports = BrowserHandler

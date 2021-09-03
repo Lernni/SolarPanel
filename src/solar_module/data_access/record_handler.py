@@ -76,7 +76,7 @@ class RecordHandler:
                 if start_date_time >= buffer_start_time:
                     # requested time frame is entirely in cache
                     logging.info("request entirely in cache")
-                    return RecordHandler.read_cache.get_records(date_time_range)
+                    return [RecordHandler.read_cache.get_records(date_time_range)]
                 
                 else:
                     # only some of the requested time frame is in cache
@@ -86,7 +86,15 @@ class RecordHandler:
                     # get remaining records from database
                     db_records = DatabaseHandler.get_records(DateTimeRange(start_date_time, buffer_start_time - timedelta(seconds = 1)))
 
-                    db_records.extend(cache_records)
+                    # combine records
+                    last_db_time = db_records[-1].recorded_time
+                    first_cache_time = cache_records[0].recorded_time
+
+                    if last_db_time + timedelta(seconds = 1) == first_cache_time:
+                        db_records[-1].extend(cache_records)
+                    else:
+                        db_records.append(cache_records)
+                    
                     return db_records
 
         # requested time frame is not in cache, get data from database
