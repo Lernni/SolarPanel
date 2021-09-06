@@ -70,18 +70,23 @@ class DataEntity:
         if len(records) == 0:
             return True
 
-        if self.name is None:
+        if self.interval is None:
+            self.interval = records[0].interval
+
+        if self.interval == 1:
             start_date_time = records[0].recorded_time
             end_date_time = records[-1].recorded_time
-            self.range = DateTimeRange(start_date_time, end_date_time)
-            
+        else:
+            start_date_time = records[0].recorded_time - timedelta(seconds = (self.interval / 2))
+            end_date_time = records[-1].recorded_time + timedelta(seconds = (self.interval / 2))
+
+        self.range = DateTimeRange(start_date_time, end_date_time)
+
+        if self.name is None:
             self.name = "solarpanel_" + str(self.interval) + "_" + \
                 start_date_time.strftime('%d-%m-%Y_%H%M%S') + "_" + \
                 end_date_time.strftime('%d-%m-%Y_%H%M%S') + ".csv"
         else:
-            start_date_time = self.range.start_date_time
-            end_date_time = self.range.end_date_time
-
             # check if new records are within allowed bounds
             if start_date_time > records[0].recorded_time:
                 raise ValueError("Records older than begin of entity")
@@ -94,9 +99,6 @@ class DataEntity:
             logging.info(f"berechneter nächster Wert: {new_calculated_from}, nächster Wert: {records[0].recorded_time}")
             # if new_calculated_from != records[0].recorded_time:
                 # raise ValueError("Records do not follow timeline")
-
-            end_date_time = records[-1].recorded_time
-            self.range.end_date_time = end_date_time
 
             old_name = self.name
             self.name = "solarpanel_" + str(self.interval) + "_" + \

@@ -366,6 +366,11 @@ export default {
 
     entities() {
       return this.$store.state.entities
+    },
+
+    interval() {
+      var interval = Math.floor(((this.dateTimeRange.max - this.dateTimeRange.min) / 1000) / 100)
+      return (interval < 1) ? 1 : interval
     }
   },
 
@@ -415,13 +420,13 @@ export default {
         for (let unit of this.units.selected) {
           switch (unit) {
             case "voltage":
-              chartOptions = this.getChartOptions("Spannung", "V", "line", "#546E7A")
+              chartOptions = this.getChartOptions("Spannung", "V", "line", "#2E93FA")
               break
             case "input_current":
-              chartOptions = this.getChartOptions("Eingangsstrom", "mA", "line", "#546E7A")
+              chartOptions = this.getChartOptions("Eingangsstrom", "mA", "line", "#E91E63")
               break
             case "output_current":
-              chartOptions = this.getChartOptions("Ausgangsstrom", "mA", "line", "#546E7A")
+              chartOptions = this.getChartOptions("Ausgangsstrom", "mA", "line", "#E91E63")
               break
           }
 
@@ -487,8 +492,8 @@ export default {
     requestRecords() {
       this.updateAvailable = false
       this.loadingRequest = true
-      console.log(this.units.selected)
-      this.$socket.emit("browserRequest", this.dateTimeRange, this.units.selected)
+      this.browserSeries = []
+      this.$socket.emit("browserRequest", this.dateTimeRange, this.units.selected, this.interval)
     }
   }
 }
