@@ -48,11 +48,16 @@ class DatabaseHandler:
             current_entity = DatabaseHandler.entities[DatabaseHandler.current_entity_index]
 
             logging.info(str(current_entity.record_count) + " + " + str(len(records))) 
-            if current_entity.record_count + len(records) <= DatabaseHandler.RECORD_LIMIT:
+            if current_entity.record_count + len(records) < DatabaseHandler.RECORD_LIMIT:
                 return current_entity.add_records(records)
             else:
                 place_remaining = DatabaseHandler.RECORD_LIMIT - current_entity.record_count
                 current_entity.add_records(records[:place_remaining])
+
+                # copy the last record of the current entity to a new entity
+                # this prevents one second gaps in requested record data
+
+                place_remaining -= 1
                 records = records[place_remaining:]
                 return DatabaseHandler.add_records(records)
 

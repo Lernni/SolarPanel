@@ -146,7 +146,7 @@ class CacheScheduler(Thread):
         logging.info("save cache")
 
         # remember number of records that will be saved
-        # in case of the wire operation taking a long time, this makes sure no new records are lost
+        # in case of the operation taking a long time, this makes sure no new records are lost
 
         record_count = len(RecordHandler.write_cache)
         if record_count > 0:
