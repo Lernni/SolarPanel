@@ -1,14 +1,13 @@
 <template>
   <div id="sidebar" class="bg-light h-100">
     <b-navbar-brand>
-      SolarPanel
+      
     </b-navbar-brand>
     <b-nav vertical pills>
       <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'dashboard' }">
         <!-- <sun-icon class="tab-icon"></sun-icon> -->
         <div class="tab-title">
           Dashboard
-          <span class="badge badge-pill badge-secondary">pause</span>
         </div>
       </router-link>
       <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Messwerte' }">
@@ -38,14 +37,12 @@
           <!-- <bell-icon class="tab-icon"></bell-icon> -->
           <div class="tab-title">
             Ereignisse
-            <span class="badge badge-pill badge-primary">8</span>
           </div>
         </router-link>
         <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Systeminfo' }">
           <!-- <info-icon class="tab-icon"></info-icon> -->
           <div class="tab-title">
             Systeminfo
-            <span class="badge badge-pill badge-danger">!</span>
           </div>
         </router-link>
       </nav>

@@ -19,6 +19,12 @@ class DateTimeRange:
         else:
             raise TypeError("Cannot compare DateTimeRange with {}".format(type(other)))
 
+    def average(self):
+        average_delta = (self.end_date_time - self.start_date_time) / 2
+        average_date_time = self.start_date_time + average_delta
+        return average_date_time
+
+
     def toJSON(self):
         return [
             datetime.timestamp(self.start_date_time),
@@ -47,6 +53,9 @@ class DateTimeRange:
             end_date_time = self.end_date_time
         else:
             end_date_time = other.end_date_time
+
+        if start_date_time == end_date_time:
+            return None
 
         return DateTimeRange(start_date_time, end_date_time)
 

@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from data_objects.date_time_range import DateTimeRange
+
 class RawRecord:
 
     def __init__(self, voltage, current):
@@ -23,7 +25,7 @@ class Record:
 
             # only time of input record is used, timing doesn't need to be exactly between records
             # could lead to misuse, if input and output records have different times
-            self.recorded_time = input_record.recorded_time
+            self.recorded_time = DateTimeRange(input_record.recorded_time, input_record.recorded_time)
         else:
             raise ValueError('Input and output records must be RawRecord objects')
 
@@ -39,7 +41,8 @@ class Record:
         self.interval = interval
 
         if recorded_time is None:
-            self.recorded_time = datetime.now().replace(microsecond = 0)
+            now = datetime.now().replace(microsecond = 0)
+            self.recorded_time = DateTimeRange(now, now)
         else:
             self.recorded_time = recorded_time
 
@@ -51,14 +54,19 @@ class Record:
     def output_power(self):
         return round(self.output_current * self.voltage, 2)
 
+    @property
+    def recorded_time_avg(self):
+        if self.interval == 1:
+            return self.recorded_time.start_date_time
+        else:
+            return self.recorded_time.average()
+
     def compress(records, sort = True):
-        if sort: records.sort(key = lambda x: x.recorded_time)
+        if sort: records.sort(key = lambda x: x.recorded_time.start_date_time)
 
-        start_date_time = records[0].recorded_time
-        end_date_time = records[-1].recorded_time
-
-        average_delta = (end_date_time - start_date_time) / 2
-        average_date_time = start_date_time + average_delta
+        start_date_time = records[0].recorded_time.start_date_time
+        end_date_time = records[-1].recorded_time.end_date_time
+        recorded_time = DateTimeRange(start_date_time, end_date_time)
 
         average_voltage = 0
         average_input_current = 0
@@ -77,8 +85,8 @@ class Record:
             average_voltage,
             average_input_current,
             average_output_current,
-            interval = len(records),
-            recorded_time = average_date_time
+            interval = len(records) * records[0].interval,
+            recorded_time = recorded_time
         )
 
     def to_dict(self):
@@ -87,5 +95,5 @@ class Record:
             'input_current': self.input_current,
             'output_current': self.output_current,
             'interval': self.interval,
-            'recorded_time': self.recorded_time.isoformat()
+            'recorded_time': self.recorded_time
         }

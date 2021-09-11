@@ -8,8 +8,6 @@ from data_objects.date_time_range import DateTimeRange
 
 class DataEntity:
 
-    DATE_TIME_FORMAT = '%d.%m.%Y %H:%M:%S'
-
     def __init__(self, arg = 1):
         if isinstance(arg, str):
             self.initExistingEntity(arg)
@@ -73,12 +71,12 @@ class DataEntity:
         if self.interval is None:
             self.interval = records[0].interval
 
-        if self.interval == 1:
-            start_date_time = records[0].recorded_time
-            end_date_time = records[-1].recorded_time
+        if self.range is None:
+            start_date_time = records[0].recorded_time.start_date_time
         else:
-            start_date_time = records[0].recorded_time - timedelta(seconds = (self.interval / 2))
-            end_date_time = records[-1].recorded_time + timedelta(seconds = (self.interval / 2))
+            start_date_time = self.range.start_date_time
+
+        end_date_time = records[-1].recorded_time.end_date_time
 
         self.range = DateTimeRange(start_date_time, end_date_time)
 
@@ -88,10 +86,10 @@ class DataEntity:
                 end_date_time.strftime('%d-%m-%Y_%H%M%S') + ".csv"
         else:
             # check if new records are within allowed bounds
-            if start_date_time > records[0].recorded_time:
+            if start_date_time > records[0].recorded_time.start_date_time:
                 raise ValueError("Records older than begin of entity")
             # latest record must be older all other records of the entity
-            if end_date_time > records[-1].recorded_time:
+            if end_date_time > records[-1].recorded_time.end_date_time:
                 raise ValueError("Records older than end of entity")
 
             # check if new records follow the exsiting timeline
@@ -110,9 +108,17 @@ class DataEntity:
 
         # add new records to file
         with open(str(DB_PATH) + "/" + self.name, 'a') as f:
-            for record in records:
-                f.write(record.recorded_time.strftime(DataEntity.DATE_TIME_FORMAT) + "," + str(record.voltage) + ","
-                    + str(record.input_current) + "," + str(record.output_current) + "\n")
+            if self.interval == 1:
+                for record in records:
+                    f.write(str(record.voltage) + "," + str(record.input_current) + ","
+                        + str(record.output_current) + "," 
+                        + str(int(datetime.timestamp(record.recorded_time.start_date_time))) + "\n")
+            else:
+                for record in records:
+                    f.write(str(record.voltage) + "," + str(record.input_current) + ","
+                        + str(record.output_current) + ","
+                        + str(int(datetime.timestamp(record.recorded_time.start_date_time))) + ","
+                        + str(int(datetime.timestamp(record.recorded_time.end_date_time))) + "\n")
 
         self.record_count += len(records)
         return True
@@ -129,12 +135,21 @@ class DataEntity:
         with open(str(DB_PATH) + "/" + self.name, 'r') as f:
             for line in f:
                 line_info = line.split(',')
-                recorded_time = datetime.strptime(line_info[0], '%d.%m.%Y %H:%M:%S')
+
+                if self.interval == 1:
+                    timestamp = datetime.fromtimestamp(int(line_info[3]))
+                    recorded_time = DateTimeRange(timestamp, timestamp)
+                else:
+                    recorded_time = DateTimeRange(
+                        datetime.fromtimestamp(int(line_info[3])),
+                        datetime.fromtimestamp(int(line_info[4]))
+                    )
+
                 if date_time_range.covers(recorded_time):
                     records.append(
                         Record(interval = self.interval, recorded_time = recorded_time,
-                            voltage = float(line_info[1]), input_current = float(line_info[2]),
-                            output_current = float(line_info[3])
+                            voltage = float(line_info[0]), input_current = float(line_info[1]),
+                            output_current = float(line_info[2])
                         )
                     )
         

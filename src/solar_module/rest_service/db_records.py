@@ -38,7 +38,7 @@ class DBRecords(Resource):
 
     for record_frame in records:
       for record in record_frame:
-        requested_frame["time"].append(datetime.timestamp(record.recorded_time) * 1000)
+        requested_frame["time"].append(datetime.timestamp(record.recorded_time_avg) * 1000)
         for unit in units:
           requested_frame[unit].append(getattr(record, unit))
 

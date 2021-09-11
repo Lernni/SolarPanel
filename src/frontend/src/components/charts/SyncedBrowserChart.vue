@@ -97,7 +97,7 @@ export default {
           },
           labels: {
             formatter: function(val) {
-              return val + " " + unit
+              return val.toFixed(2) + " " + unit
             }
           }
         }

@@ -65,9 +65,8 @@ class RecordHandler:
             raise ValueError("end_date_time must be greater than start_time")
 
         buffer_bottom = RecordHandler.read_cache.bottom()
-        logging.info("buffer bottom: " + str(buffer_bottom.recorded_time) if buffer_bottom is not None else "None")
         if buffer_bottom is not None:
-            buffer_start_time = buffer_bottom.recorded_time
+            buffer_start_time = buffer_bottom.recorded_time.start_date_time
 
             if end_date_time > buffer_start_time:
                 # requested time frame is located in cache (or parts of it)
@@ -87,8 +86,8 @@ class RecordHandler:
                     db_records = DatabaseHandler.get_records(DateTimeRange(start_date_time, buffer_start_time - timedelta(seconds = 1)))
 
                     # combine records
-                    last_db_time = db_records[-1].recorded_time
-                    first_cache_time = cache_records[0].recorded_time
+                    last_db_time = db_records[-1].recorded_time.end_date_time
+                    first_cache_time = cache_records[0].recorded_time.start_date_time
 
                     if last_db_time + timedelta(seconds = 1) == first_cache_time:
                         db_records[-1].extend(cache_records)
@@ -124,7 +123,7 @@ class RecordScheduler(Thread):
             voltage = raw_record.voltage,
             input_current = raw_record.current,
             output_current = 0,
-            recorded_time = raw_record.recorded_time
+            recorded_time = DateTimeRange(raw_record.recorded_time, raw_record.recorded_time)
         )
 
         RecordHandler.add_record(record)
