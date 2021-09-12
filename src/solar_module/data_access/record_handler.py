@@ -17,7 +17,6 @@ class RecordHandler:
     recording = False
     write_cache = []
     record_scheduler = None
-    cache_scheduler = None
 
 
     # control scheduler
@@ -28,13 +27,11 @@ class RecordHandler:
 
             DatabaseHandler.current_entity_index = None
             RecordHandler.record_scheduler.start()
-            RecordHandler.cache_scheduler.start()
 
     def stop_recording():
         if RecordHandler.recording:
             RecordHandler.recording = False
             RecordHandler.record_scheduler.stop()
-            RecordHandler.cache_scheduler.stop()
 
 
     # handle requests
@@ -105,41 +102,30 @@ class RecordScheduler(Thread):
         self.running = True
         self.name = "RecordScheduler"
 
-        schedule.every().second.do(self.create_record)
+        schedule.every(20).seconds.do(self.save_cache)
     
     def run(self):
         while self.running:
             # sleep as long as needed to run at an exact one second interval
             time.sleep(1.0 - time.time() % 1.0)
-
+            self.create_record()
             schedule.run_pending()
 
     def stop(self):
         self.running = False
 
     def create_record(self):
-        raw_record = Module.input_ina.measure()
+        raw_input_record = Module.input_ina.measure()
+        raw_output_record = Module.output_ina.measure()
+
         record = Record(
-            voltage = raw_record.voltage,
-            input_current = raw_record.current,
-            output_current = 0,
-            recorded_time = DateTimeRange(raw_record.recorded_time, raw_record.recorded_time)
+            voltage = (raw_input_record.voltage + raw_output_record.voltage) / 2,
+            input_current = raw_input_record.current,
+            output_current = raw_output_record.current,
+            recorded_time = DateTimeRange(raw_input_record.recorded_time, raw_input_record.recorded_time)
         )
 
         RecordHandler.add_record(record)
-
-class CacheScheduler(Thread):
-    def __init__(self):
-        Thread.__init__(self)
-        self.running = True
-        self.name = "CacheScheduler"
-
-        schedule.every(20).seconds.do(self.save_cache)
-    
-    def run(self):
-        while self.running:
-            schedule.run_pending()
-            time.sleep(1)
 
     def save_cache(self):
         logging.info("save cache")
@@ -155,4 +141,3 @@ class CacheScheduler(Thread):
 
 
 RecordHandler.record_scheduler = RecordScheduler()
-RecordHandler.cache_scheduler = CacheScheduler()
