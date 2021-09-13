@@ -8,8 +8,7 @@ services:
     depends_on:
       - solar_module
       - web_socket
-    ports: 
-      - 8080:80
+    network_mode: host
 
   # web socket
   web_socket:

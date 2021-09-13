@@ -30,6 +30,14 @@ var currentView = {}
 
 io.on('connection', (socket) => {
   console.log("user " + socket.id + " connected")
+  var address = socket.handshake.headers["x-real-ip"];
+  console.log('New connection from ' + address);
+
+  var device = "External"
+  if (address == "127.0.0.1") device = "Internal"
+
+  socket.emit("DEVICE_DEFINITION", {device: device})
+
   currentView[socket.id] = null
 
   for (const [key, value] of Object.entries(handlers)) {

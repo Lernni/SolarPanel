@@ -5,6 +5,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    device: "",
     records: {
       voltage: [],
       input_current: [],
@@ -15,6 +16,10 @@ export default new Vuex.Store({
   },
 
   mutations: {
+    SOCKET_DEVICE_DEFINITION(state, data) {
+      state.device = data.device
+    },
+    
     SOCKET_SPARKLINE_RECORDS(state, data) {
       state.records = data
       state.records.power = []

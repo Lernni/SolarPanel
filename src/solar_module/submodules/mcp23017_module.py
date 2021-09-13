@@ -8,7 +8,7 @@ class MCP23017Module(Submodule):
         super().__init__(name = "MCP23017", description = description)
 
         self.mcp = smbus2.SMBus(1)
-        self.mcp.write_byte_data(0x20, 0x15, 0x00)
+        self.mcp.write_byte_data(0x20, 0x01, 0x00)
 
     def set(self, address, on):
         try:
@@ -18,4 +18,4 @@ class MCP23017Module(Submodule):
         except: pass
 
     def reset(self):
-        self.mcp.write_byte_data(0x20, 0x15, 0x00)
+        self.mcp.write_byte_data(0x20, 0x01, 0x00)

@@ -15,4 +15,4 @@ docker-compose -f /home/lernni/SolarPanel/src/docker-compose.yml up -d
 
 echo "(4/4) - open browser window to localhost..."
 
-sudo startx /home/lernni/SolarPanel/src/local_client/start_browser.sh http://localhost:8080 &
+sudo startx /home/lernni/SolarPanel/src/local_client/start_browser.sh http://localhost &

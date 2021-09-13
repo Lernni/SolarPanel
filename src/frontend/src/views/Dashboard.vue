@@ -1,5 +1,6 @@
 <template>
   <div class="row">
+    {{ device }}
     <div class="col-lg-8 col-md-6">
       <div class="card-deck">
         <ParameterCard parameter="Spannung" unit="V" :seriesData=records.voltage />
@@ -40,8 +41,11 @@ export default {
     Battery
   },
   computed: {
-    records () {
+    records() {
       return this.$store.state.records
+    },
+    device() {
+      return this.$store.state.device
     }
   }
 }
