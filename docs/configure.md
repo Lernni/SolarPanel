@@ -79,6 +79,11 @@ sudo chmod g+rw /dev/i2c-1
 sudo usermod -aG i2c [benutzer]
 ```
 >siehe https://lexruee.ch/setting-i2c-permissions-for-non-root-users.html (Schritte 1-5)
+14. `src/local_client/start_solarpanel.sh` an die Datei `/etc/rc.local` anhängen:
+
+```
+/home/[benutzer]/SolarPanel/src/local_client/start_solarpanel.sh
+```
 
 ## Pakete installieren
 1. Git:
@@ -114,6 +119,14 @@ sudo apt-get install -y python-smbus
 sudo apt-get install -y i2c-tools
 ```
 - I2C-Interface manuell in `raspi-config` aktivieren
+
+## RTC einrichten
+> siehe https://www.raspberry-pi-geek.de/ausgaben/rpg/2015/03/echtzeituhr-modul-ds3231-sorgt-fuer-genaue-zeitangaben
+1. Folgende Zeile in `/etc/modules` einfügen:
+
+```
+i2c-bcm2708
+```
 
 ## Display einrichten
 1. Folgende Befehle ausführen:
