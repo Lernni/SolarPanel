@@ -10,6 +10,7 @@ from data_objects.record import Record
 from data_objects.date_time_range import DateTimeRange
 from data_access.database_handler import DatabaseHandler
 from module import Module
+from led_control import LEDControl, LED
 
 class RecordHandler:
     
@@ -115,6 +116,8 @@ class RecordScheduler(Thread):
         self.running = False
 
     def create_record(self):
+        LEDControl.set(LED.YELLOW, True)
+
         raw_input_record = Module.input_ina.measure()
         raw_output_record = Module.output_ina.measure()
 
@@ -126,8 +129,10 @@ class RecordScheduler(Thread):
         )
 
         RecordHandler.add_record(record)
+        LEDControl.set(LED.YELLOW, False)
 
     def save_cache(self):
+        LEDControl.set(LED.YELLOW, True)
         logging.info("save cache")
 
         # remember number of records that will be saved
@@ -139,5 +144,6 @@ class RecordScheduler(Thread):
                 logging.info(f"new write cache {RecordHandler.write_cache[record_count:]}")
                 RecordHandler.write_cache = RecordHandler.write_cache[record_count:]
 
-
+        LEDControl.set(LED.YELLOW, False)
+        
 RecordHandler.record_scheduler = RecordScheduler()

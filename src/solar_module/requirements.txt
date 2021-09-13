@@ -5,3 +5,4 @@ schedule
 pi-ina219
 Adafruit-PureIO
 Adafruit-GPIO
+smbus2
