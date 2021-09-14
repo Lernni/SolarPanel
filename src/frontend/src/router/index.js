@@ -8,33 +8,53 @@ import System from '../views/System.vue'
 import Settings from '../views/System/Settings.vue'
 import Events from '../views/System/Events.vue'
 import Info from '../views/System/Info.vue'
+import Login from '../views/Login.vue'
 
-import io from 'socket.io-client';
-
-const socket = io()
+import store from '../store'
+import { $socket } from '../main'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/login',
+    name: 'Login',
+    component: Login,
+    meta: {
+      requiresAuth: false
+    }
+  },
+  {
     path: '/',
     name: 'dashboard',
-    component: Dashboard
+    component: Dashboard,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/stats',
     name: 'records',
     component: Stats,
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: 'browser',
         name: 'browser',
-        component: Browser
+        component: Browser,
+        meta: {
+          requiresAuth: true
+        }
       },
       {
         path: 'export',
         name: 'export',
-        component: Export
+        component: Export,
+        meta: {
+          requiresAuth: true
+        }
       }
     ]
   },
@@ -42,21 +62,33 @@ const routes = [
     path: '/system',
     name: 'system',
     component: System,
+    meta: {
+      requiresAuth: true
+    },
     children: [
       {
         path: 'settings',
         name: 'settings',
-        component: Settings
+        component: Settings,
+        meta: {
+          requiresAuth: true
+        }
       },
       {
         path: 'events',
         name: 'events',
-        component: Events
+        component: Events,
+        meta: {
+          requiresAuth: true
+        }
       },
       {
         path: 'info',
         name: 'info',
-        component: Info
+        component: Info,
+        meta: {
+          requiresAuth: true
+        }
       }
     ]
   }
@@ -70,8 +102,12 @@ const router = new VueRouter({
 
 // eslint-disable-next-line no-unused-vars
 router.beforeEach((to, from, next) => {
-  socket.emit('navigate', to.name)
-  next()
+  if (!to.meta.requiresAuth || store.getters.isLoggedIn) {
+    $socket.emit('navigate', to.name)
+    return next()
+  }
+
+  return next('/login')
 })
 
 export default router

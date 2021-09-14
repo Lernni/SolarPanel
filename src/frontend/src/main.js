@@ -19,15 +19,24 @@ Vue.use(VueApexCharts)
 Vue.use(Vuelidate)
 Vue.use(VueKatex)
 
+const socket = io({
+  auth: {
+    token: localStorage.getItem('token')
+  }
+})
+
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: io(),
+  connection: socket,
   vuex: {
     store,
     actionPrefix: 'SOCKET_',
     mutationPrefix: 'SOCKET_',
   },
 }))
+
+export const $socket = socket
+Vue.prototype.$socket = socket
 
 Vue.config.productionTip = false
 Vue.component('apexchart', VueApexCharts)

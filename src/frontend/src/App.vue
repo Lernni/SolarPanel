@@ -1,7 +1,7 @@
 <template>
   <b-container fluid class="h-100 p-0">
     <b-row no-gutters class="h-100">
-      <b-col lg="auto">
+      <b-col lg="auto" v-show="isLoggedIn">
         <SideBar/>
       </b-col>
       <b-col>
@@ -21,6 +21,12 @@ export default {
   components : {
     SideBar,
     NavBar
+  },
+
+  computed: {
+    isLoggedIn() {
+      return this.$store.getters.isLoggedIn
+    }
   }
 }
 </script>

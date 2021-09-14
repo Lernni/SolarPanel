@@ -18,10 +18,12 @@ instrument(io, { auth: false })
 // event handlers
 const DashboardHandler = require('./handlers/dashboard');
 const BrowserHandler = require('./handlers/browser');
+const LoginHandler = require('./handlers/login');
 
 const handlers = {
   dashboard: new DashboardHandler(),
   browser: new BrowserHandler(),
+  login: new LoginHandler()
 }
 
 
@@ -32,6 +34,7 @@ io.on('connection', (socket) => {
   console.log("user " + socket.id + " connected")
   var address = socket.handshake.headers["x-real-ip"];
   console.log('New connection from ' + address);
+  console.log(socket.handshake.headers)
 
   var device = "External"
   if (address == "127.0.0.1") device = "Internal"
@@ -43,7 +46,7 @@ io.on('connection', (socket) => {
   for (const [key, value] of Object.entries(handlers)) {
     value.init(io, socket)
   }
-    
+
 
   socket.on('navigate', (view) => {
     if (currentView[socket.id] !== view) {
