@@ -1,4 +1,5 @@
 const { default: axios } = require('axios');
+const auth = require('../auth')
 
 class DashboardHandler {
   constructor() {
@@ -11,10 +12,13 @@ class DashboardHandler {
   }
 
   open() {
-    this.getLatestRecords()
-    this.setRefreshInterval()
-
-    console.log("dashboard active")
+    if (auth.isAuthenticated(this.socket)) {
+      this.getLatestRecords()
+      this.setRefreshInterval()
+      console.log("dashboard active")
+    } else {
+      this.socket.disconnect()
+    }
   }
 
   close() {

@@ -20,9 +20,14 @@ class LoginHandler {
 }
 
 const login = function (credentials) {
-  if (credentials.username === "admin" && credentials.password === "admin") {
+  if (credentials.username === "admin" && credentials.password === "admin1234") {
     return {
+      success: true,
       token: "adf7g8sdtfgi"
+    }
+  } else {
+    return {
+      success: false
     }
   }
 }

@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { $socket } from '../main'
+import $socket from '../scripts/socketInstance'
 
 Vue.use(Vuex)
 
@@ -19,8 +19,11 @@ export default new Vuex.Store({
 
   actions: {
     login({commit}, credentials) {
+      console.log("test test")
       return new Promise((resolve, reject) => {
+        console.log("test3t")
         $socket.emit("login", credentials, (response) => {
+          console.log("response: " + response)
           if (response.success) {
             localStorage.setItem('token', response.token)
             $socket.auth.token = response.token

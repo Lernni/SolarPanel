@@ -7,7 +7,7 @@ import VueApexCharts from 'vue-apexcharts'
 import VueSocketIO from 'vue-socket.io'
 import Vuelidate from 'vuelidate'
 import VueKatex from 'vue-katex';
-import io from 'socket.io-client'
+import $socket from './scripts/socketInstance'
 
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
@@ -19,24 +19,15 @@ Vue.use(VueApexCharts)
 Vue.use(Vuelidate)
 Vue.use(VueKatex)
 
-const socket = io({
-  auth: {
-    token: localStorage.getItem('token')
-  }
-})
-
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: socket,
+  connection: $socket,
   vuex: {
     store,
     actionPrefix: 'SOCKET_',
     mutationPrefix: 'SOCKET_',
   },
 }))
-
-export const $socket = socket
-Vue.prototype.$socket = socket
 
 Vue.config.productionTip = false
 Vue.component('apexchart', VueApexCharts)

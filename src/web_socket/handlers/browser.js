@@ -1,4 +1,5 @@
 const { default: axios } = require('axios');
+const auth = require('../auth')
 
 class BrowserHandler {
   constructor() {
@@ -13,9 +14,12 @@ class BrowserHandler {
   }
 
   open() {
-    this.dbEntitiesRange()
-
-    console.log("browser active")
+    if (auth.isAuthenticated(this.socket)) {
+      this.dbEntitiesRange()
+      console.log("browser active")
+    } else {
+      this.socket.disconnect()
+    }
   }
 
   close() {

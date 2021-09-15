@@ -35,7 +35,12 @@ export default {
   data() {
     return {
       loginLoader: false,
-      loginState: null
+      loginState: null,
+
+      form: {
+        username: null,
+        password: null,
+      }
     }
   },
 

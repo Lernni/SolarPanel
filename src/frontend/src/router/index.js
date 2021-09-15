@@ -11,14 +11,14 @@ import Info from '../views/System/Info.vue'
 import Login from '../views/Login.vue'
 
 import store from '../store'
-import { $socket } from '../main'
+import $socket from '../scripts/socketInstance'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/login',
-    name: 'Login',
+    name: 'login',
     component: Login,
     meta: {
       requiresAuth: false

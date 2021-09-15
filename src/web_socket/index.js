@@ -14,6 +14,7 @@ const io = new Server(server, {
 // init admin ui panel
 instrument(io, { auth: false })
 
+const auth = require('./auth');
 
 // event handlers
 const DashboardHandler = require('./handlers/dashboard');
@@ -32,15 +33,9 @@ var currentView = {}
 
 io.on('connection', (socket) => {
   console.log("user " + socket.id + " connected")
-  var address = socket.handshake.headers["x-real-ip"];
-  console.log('New connection from ' + address);
-  console.log(socket.handshake.headers)
 
-  var device = "External"
-  if (address == "127.0.0.1") device = "Internal"
-
-  socket.emit("DEVICE_DEFINITION", {device: device})
-
+  socket.emit("DEVICE_DEFINITION", {device: auth.getDevice(socket)})
+  
   currentView[socket.id] = null
 
   for (const [key, value] of Object.entries(handlers)) {
