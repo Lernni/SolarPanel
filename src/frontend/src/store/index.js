@@ -15,6 +15,11 @@ export default new Vuex.Store({
       power: [],
     },
     entities: [],
+    settings: {
+      // recording: true,
+      // input_shunt: 0.00001,
+      // output_shunt: 0.0031,
+    }
   },
 
   actions: {

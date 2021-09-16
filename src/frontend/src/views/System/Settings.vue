@@ -1,5 +1,27 @@
 <template>
-  <div>
+  <div class="settings">
+    <b-modal disabled v-model="showShutdownModal" title="System herunterfahren" header-bg-variant="danger" header-text-variant="light">
+      Soll das System jetzt heruntergefahren werden? Ein Fernzugriff ist dann nicht mehr möglich.
+
+      <template #modal-footer>
+        <b-button variant="secondary" @click="showShutdownModal = false">Abbrechen</b-button>
+        <b-button variant="danger" @click="shutdownEvent()">
+          <b-icon icon="power"></b-icon> Jetzt Herunterfahren
+        </b-button>
+      </template>
+    </b-modal>
+
+    <b-modal disabled v-model="showRestartModal" title="System neustarten" header-bg-variant="danger" header-text-variant="light">
+      Soll das System jetzt neugestartet werden? Ein Fernzugriff ist vorrübergehend nicht möglich.
+
+      <template #modal-footer>
+        <b-button variant="secondary" @click="showRestartModal = false">Abbrechen</b-button>
+        <b-button variant="danger" @click="restartEvent()">
+          <b-icon icon="arrow-clockwise"></b-icon> Jetzt Neustarten
+        </b-button>
+      </template>
+    </b-modal>
+
     <b-row class="justify-content-center">
       <b-col cols="6">
         <h2>Messung</h2>
@@ -7,18 +29,21 @@
         <b-form-group>
           <b-row align-v="center">
             <b-col>
-              <b-form-checkbox v-model="checked" name="check-button" switch size="lg">
+              <b-form-checkbox v-model="form.recording" name="check-button" switch size="lg">
                 <h4>Aufnahme der Messwerte</h4>
               </b-form-checkbox>
             </b-col>
             <b-col cols="auto">
               <h4>
-                <b-badge variant="danger" class="text-right">
+                <b-badge v-if="settings.recording" variant="danger" class="text-right">
                   <b-icon
                     icon="circle-fill"
                     animation="fade"
                   ></b-icon>
                   Aktiv
+                </b-badge>
+                <b-badge v-else variant="secondary" class="text-right">
+                  Inaktiv
                 </b-badge>
               </h4>
             </b-col>
@@ -28,8 +53,8 @@
             weiter bestimmt werden. Bleibt die Aufnahme über längeren Nutzungszeitraum inaktiv, sind die errechneten Werte für Ladezustand und Kapazität nicht mehr
             repräsentativ und sollten zurückgesetzt werden.
           </p>
-          <b-alert show variant="warning">
-            Durch das Pausieren der Aufnahme werden errechnete Ladezustand und Kapazität weniger repräsentativ!
+          <b-alert :show="showPauseWarning" variant="warning">
+            Durch das Pausieren der Aufnahme werden errechneter Ladezustand und Kapazität weniger repräsentativ!
           </b-alert>
         </b-form-group>
 
@@ -44,7 +69,7 @@
           <b-col>
             <b-form-group label="Eingangswiderstand">
               <b-input-group>
-                <b-form-input type="number"></b-form-input>
+                <b-form-input type="number" v-model="form.input_shunt" :step="form.input_shunt"></b-form-input>
 
                 <template #append>
                   <b-input-group-text>
@@ -57,7 +82,7 @@
           <b-col>
             <b-form-group label="Ausgangswiderstand">
               <b-input-group>
-                <b-form-input tyope="number"></b-form-input>
+                <b-form-input type="number" v-model="form.output_shunt" :step="form.output_shunt"></b-form-input>
 
                 <template #append>
                   <b-input-group-text>
@@ -68,17 +93,110 @@
             </b-form-group>
           </b-col>
         </b-row>
+        <hr>
+        <h2>System</h2>
+        <div class="text-center">
+          <b-button variant="danger" @click="showShutdownModal = true">
+            <b-icon icon="power"></b-icon> Herunterfahren
+          </b-button>
+          <b-button class="ml-3" variant="danger" @click="showRestartModal = true">
+            <b-icon icon="arrow-clockwise"></b-icon> Neustarten
+          </b-button>
+        </div>
+        <hr>
       </b-col>
     </b-row>
+
+    <b-card v-show="showConfirmBox" class="float-bottom">
+      <b-button @click="cancelChanges">Abbrechen</b-button>
+      <b-button @click="applyChanges" :disabled="submitLoader" class="ml-3" variant="primary">
+        <b-spinner v-show="submitLoader" type="grow" small></b-spinner>
+        Übernehmen
+      </b-button>
+    </b-card>
   </div>
 </template>
 
 <script>
+var _ = require('lodash');
+
 export default {
+  name: "Settings",
+  data() {
+    return {
+      form: _.clone(this.$store.state.settings),
+      showConfirmBox: false,
+      showPauseWarning: false,
+      showShutdownModal: false,
+      showRestartModal: false,
+      submitLoader: false,
+    }
+  },
+  computed: {
+    settings() {
+      return this.$store.state.settings;
+    }
+  },
+
+  watch: {
+    form: {
+      handler() {
+        this.showConfirmBox = true
+      },
+      deep: true
+    },
+    "form.recording"() {
+      console.log(this.form.recording);
+      if (this.settings.recording && !this.form.recording) {
+        this.showPauseWarning = true
+      }
+    }
+  },
+  
+  methods: {
+    restartEvent() {
+      this.$socket.emit("restart")
+      this.$store.dispatch("logout")
+      this.$router.push("/login")
+    },
+
+    shutdownEvent() {
+      this.$socket.emit("shutdown")
+      this.$store.dispatch("logout")
+      this.$router.push("/login")
+    },
+
+    cancelChanges() {
+      this.$router.go()
+    },
+    
+    applyChanges() {
+      this.submitLoader = true
+
+      this.$socket.emit("newSettings", this.form, () => {
+        this.$router.go()
+      })
+    }
+  }
 
 }
 </script>
 
 <style>
+.settings {
+  margin-bottom: 100px;
+}
 
+.float-bottom {
+  position: sticky !important;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 300px;
+  text-align: center;
+  border: none !important;
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  z-index: 1000;
+}
 </style>

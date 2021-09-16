@@ -15,7 +15,7 @@
               <b-form-input type="password" id="passwordInput" class="mb-2" v-model.trim="$v.form.password.$model" :state="validateState('password')"></b-form-input>
             </b-form-group>
             <b-button class="float-right" type="submit" variant="primary" :disabled="loginLoader">
-              <b-spinner v-show="loginLoader" small></b-spinner>
+              <b-spinner v-show="loginLoader" type="grow" small></b-spinner>
               Anmelden
             </b-button>
           </b-form>
