@@ -14,52 +14,78 @@ const io = new Server(server, {
 // init admin ui panel
 instrument(io, { auth: false })
 
-const auth = require('./auth');
-
 // event handlers
-const DashboardHandler = require('./handlers/dashboard');
-const BrowserHandler = require('./handlers/browser');
-const LoginHandler = require('./handlers/login');
+const dashboard = require('./handlers/dashboard')
+const browser = require('./handlers/browser')
+const login = {}
 
-const handlers = {
-  dashboard: new DashboardHandler(),
-  browser: new BrowserHandler(),
-  login: new LoginHandler()
+const handlers =  {
+  dashboard, browser, login
 }
 
+io.use((socket, next) => {
+  var clientIp = socket.handshake.headers['x-real-ip']
+  socket.emit('DEVICE_DEFINITION', {
+    device: (clientIp == '127.0.0.1') ? "Internal" : "External"
+  })
+  next()
+})
 
-// init handlers on connection and on navigation
-var currentView = {}
 
 io.on('connection', (socket) => {
-  console.log("user " + socket.id + " connected")
-
-  socket.emit("DEVICE_DEFINITION", {device: auth.getDevice(socket)})
-  
-  currentView[socket.id] = null
-
   for (const [key, value] of Object.entries(handlers)) {
-    value.init(io, socket)
+    if (value.init) value.init(io, socket)
   }
 
+  console.log('a user connected')
 
-  socket.on('navigate', (view) => {
-    if (currentView[socket.id] !== view) {
-      console.log("change view for " + socket.id + " to: " + view)
+  socket.use(([event, ...args], next) => {
+    console.log(`event: ${event}`, args)
+    
+    if (event == 'loginRequest') {
+      next() 
+    } else {
+      var clientIp = socket.handshake.headers['x-real-ip']
+      var token = socket.handshake.auth.token
+      console.log(clientIp, token)
 
-      if (currentView[socket.id] !== null) currentView[socket.id].close()
-      currentView[socket.id] = handlers[view]
-      currentView[socket.id].open()
+      if ((clientIp == '127.0.0.1') || (token == 'abcdefg')) {
+        next()
+      } else {
+        console.log('unauthorized')
+        next(new Error('unauthorized'))
+      }
+    }
+  })
+
+  socket.on('loginRequest', (credentials, callback) => {
+    if (credentials.username === "admin" && credentials.password === "admin1234") {
+      callback({
+        success: true,
+        token: "abcdefg"
+      })
+    } else {
+      callback({
+        success: false
+      })
+    }
+  })
+
+  socket.on('navigate', (fromPage, toPage) => {
+    
+    if (fromPage != null && handlers[fromPage].close) {
+      handlers[fromPage].close(io, socket)
+    }
+    
+    if (handlers[toPage].open) {
+      handlers[toPage].open(io, socket)
     }
   })
 
   socket.on('disconnect', () => {
     console.log("user " + socket.id + " disconnected")
-    if (currentView[socket.id] !== null) currentView[socket.id].close()
-    delete currentView[socket.id]
   })
-});
-
+})
 
 server.listen(4000, 'web_socket', () => {
   console.log('listening on port 4000');

@@ -55,6 +55,20 @@ export default {
     }
   },
 
+  computed: {
+    device() {
+      return this.$store.state.device
+    }
+  },
+
+  watch: {
+    device: function() {
+      if (this.device == 'Internal') {
+        this.$router.push('/')
+      }
+    }
+  },
+
   methods: {
     onSubmit(event) {
       if (this.validateSubmit(event)) this.postLogin()

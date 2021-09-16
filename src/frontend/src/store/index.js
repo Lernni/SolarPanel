@@ -19,10 +19,8 @@ export default new Vuex.Store({
 
   actions: {
     login({commit}, credentials) {
-      console.log("test test")
       return new Promise((resolve, reject) => {
-        console.log("test3t")
-        $socket.emit("login", credentials, (response) => {
+        $socket.emit("loginRequest", credentials, (response) => {
           console.log("response: " + response)
           if (response.success) {
             localStorage.setItem('token', response.token)
@@ -94,6 +92,6 @@ export default new Vuex.Store({
   },
 
   getters: {
-    isLoggedIn: state => !!state.token,
+    isLoggedIn: state => (!!state.token || (state.device == "Internal")),
   }
 })

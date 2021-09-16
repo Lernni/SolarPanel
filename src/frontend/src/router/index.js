@@ -103,7 +103,7 @@ const router = new VueRouter({
 // eslint-disable-next-line no-unused-vars
 router.beforeEach((to, from, next) => {
   if (!to.meta.requiresAuth || store.getters.isLoggedIn) {
-    $socket.emit('navigate', to.name)
+    $socket.emit('navigate', from.name, to.name)
     return next()
   }
 

@@ -1,55 +1,41 @@
 const { default: axios } = require('axios');
-const auth = require('../auth')
 
-class DashboardHandler {
-  constructor() {
-    this.timer = null
-  }
+var timer = []
 
-  init(socket, io) {
-    this.socket = socket
-    this.io = io
-  }
+module.exports = {
+  open: (io, socket) => {
+    timer[socket.id] = null
+    getLatestRecords(socket)
+    setRefreshInterval(socket)
+  },
 
-  open() {
-    if (auth.isAuthenticated(this.socket)) {
-      this.getLatestRecords()
-      this.setRefreshInterval()
-      console.log("dashboard active")
-    } else {
-      this.socket.disconnect()
-    }
-  }
-
-  close() {
-    clearInterval(this.timer)
-    this.timer = null
-  }
-
-
-  getLatestRecords() {
-    axios.get("http://solar_module:5001/latest/60")
-    .then((response) => {
-        console.log(response.data);
-        this.socket.emit("SPARKLINE_RECORDS", response.data);
-    })
-    .catch((error) => {
-        console.log(error);
-    });
-  }
-
-  setRefreshInterval() {
-    this.timer = setInterval(() => {
-      axios.get("http://solar_module:5001/latest")
-      .then((response) => {
-          console.log(response.data);
-          this.socket.emit("SPARKLINE_UPDATE", response.data);
-      })
-      .catch((error) => {
-          console.log(error);
-      });
-    }, 1000)
-  }
+  close: (io, socket) => {
+    console.log(timer)
+    clearInterval(timer[socket.id])
+    delete timer[socket.id]
+  },
 }
 
-module.exports = DashboardHandler
+const getLatestRecords = (socket) => {
+  axios.get("http://solar_module:5001/latest/60")
+  .then((response) => {
+    console.log(response.data)
+    socket.emit("SPARKLINE_RECORDS", response.data)
+  })
+  .catch((error) => {
+    console.log(error)
+  })
+}
+
+const setRefreshInterval = (socket) => {
+  timer[socket.id] = setInterval(() => {
+    axios.get("http://solar_module:5001/latest")
+    .then((response) => {
+      console.log(response.data);
+      socket.emit("SPARKLINE_UPDATE", response.data)
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  }, 1000)
+}
