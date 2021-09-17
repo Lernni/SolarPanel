@@ -1,6 +1,6 @@
 from enum import Enum
 
-from module import Module
+from hardware_access.module import Module
 
 class LED(Enum):
     GREEN = 0x04

@@ -3,7 +3,7 @@ import logging
 from data_access.database_handler import DatabaseHandler
 from data_access.record_handler import RecordHandler
 from rest_service.rest import flask_app
-from module import Module
+from hardware_access.module import Module
 
 logging.basicConfig(
         level=logging.INFO,
@@ -20,7 +20,7 @@ logging.info("analyze database...")
 DatabaseHandler.init()
 
 logging.info("start recording...")
-RecordHandler.start_recording()
+RecordHandler.init()
 
 if __name__ == '__main__':
     flask_app.run(debug = True, use_reloader = False, host = '0.0.0.0', port = 5001)

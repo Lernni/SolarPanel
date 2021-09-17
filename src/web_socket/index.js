@@ -18,9 +18,10 @@ instrument(io, { auth: false })
 const dashboard = require('./handlers/dashboard')
 const browser = require('./handlers/browser')
 const login = {}
+const settings = require('./handlers/settings')
 
 const handlers =  {
-  dashboard, browser, login
+  dashboard, browser, login, settings
 }
 
 io.use((socket, next) => {

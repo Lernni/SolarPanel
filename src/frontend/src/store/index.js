@@ -94,6 +94,10 @@ export default new Vuex.Store({
         })
       }
     },
+
+    SOCKET_SETTINGS_UPDATE(state, data) {
+      state.settings = data
+    }
   },
 
   getters: {

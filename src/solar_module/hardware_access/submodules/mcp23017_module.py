@@ -1,6 +1,6 @@
 import smbus2
 
-from submodules.submodule import Submodule
+from hardware_access.submodules.submodule import Submodule
 
 class MCP23017Module(Submodule):
 

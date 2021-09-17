@@ -9,8 +9,9 @@ from data_objects.record_buffer import RecordBuffer
 from data_objects.record import Record
 from data_objects.date_time_range import DateTimeRange
 from data_access.database_handler import DatabaseHandler
-from module import Module
-from led_control import LEDControl, LED
+from config.config import Config
+from hardware_access.module import Module
+from hardware_access.led_control import LEDControl, LED
 
 class RecordHandler:
     
@@ -19,14 +20,18 @@ class RecordHandler:
     write_cache = []
     record_scheduler = None
 
+    def init():
+        with Config() as parser:
+            if parser.getboolean("system", "recording"):
+                RecordHandler.start_recording()
 
     # control scheduler
-
     def start_recording():
         if not RecordHandler.recording:
             RecordHandler.recording = True
 
             DatabaseHandler.current_entity_index = None
+            RecordHandler.record_scheduler = RecordScheduler()
             RecordHandler.record_scheduler.start()
 
     def stop_recording():
