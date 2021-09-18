@@ -78,7 +78,7 @@ class RecordHandler:
                 if start_date_time >= buffer_start_time:
                     # requested time frame is entirely in cache
                     logging.info("request entirely in cache")
-                    return [RecordHandler.read_cache.get_records(date_time_range)]
+                    return RecordHandler.read_cache.get_records(date_time_range)
                 
                 else:
                     # only some of the requested time frame is in cache
@@ -86,21 +86,29 @@ class RecordHandler:
                     cache_records = RecordHandler.read_cache.get_records(date_time_range)
 
                     # get remaining records from database
-                    db_records = DatabaseHandler.get_records(DateTimeRange(start_date_time, buffer_start_time - timedelta(seconds = 1)))
+                    db_records = []
+                    if start_date_time < buffer_start_time - timedelta(seconds = 1):
+                        db_records = DatabaseHandler.get_records(DateTimeRange(start_date_time, buffer_start_time - timedelta(seconds = 1)))
 
                     # combine records
-                    last_db_time = db_records[-1].recorded_time.end_date_time
-                    first_cache_time = cache_records[0].recorded_time.start_date_time
+                    combined_records = []
+                    if len(db_records) > 0:
+                        for frame in db_records:
+                            combined_records.extend(frame)
 
-                    if last_db_time + timedelta(seconds = 1) == first_cache_time:
-                        db_records[-1].extend(cache_records)
+                        combined_records.extend(cache_records)
+                        return combined_records
                     else:
-                        db_records.append(cache_records)
-                    
-                    return db_records
+                        return cache_records
 
         # requested time frame is not in cache, get data from database
-        return DatabaseHandler.get_records(date_time_range)
+        combined_records = []
+        db_records = DatabaseHandler.get_records(date_time_range)
+        if len(db_records) > 0:
+            for frame in db_records:
+                combined_records.extend(frame)
+
+        return combined_records
 
 class RecordScheduler(Thread):
     def __init__(self):

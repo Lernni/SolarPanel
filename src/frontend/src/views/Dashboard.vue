@@ -41,14 +41,20 @@ export default {
     Battery
   },
 
+  data() {
+    return {
+      records: {}
+    }
+  },
+
   mounted() {
     // eslint-disable-next-line no-unused-vars
     this.$socket.emit("getLatestRecords", (response) => {
-      // this.records = response.records
-      // this.records.power = []
-      // for (let i = 0; i < this.records.voltage.length; i++) {
-      //   this.records.power[i] = this.records.voltage[i] * this.records.records.input_current[i]
-      // }
+      this.records = response.records
+      this.records.power = []
+      for (let i = 0; i < this.records.voltage.length; i++) {
+        this.records.power[i] = (Math.round(this.records.voltage[i] * this.records.input_current[i] * 100) / 100).toFixed(2)
+      }
 
       this.getLatestRecord()
     })
@@ -58,17 +64,19 @@ export default {
     async getLatestRecord() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       this.$socket.emit("getLatestRecord", (response) => {
-        this.records.voltage = this.records.voltage.slice(1)
+        
         this.records.voltage.push(response.record.voltage)
-
-        this.records.input_current = this.records.input_current.slice(1)
         this.records.input_current.push(response.record.input_current)
-
-        this.records.output_current = this.records.output_current.slice(1)
         this.records.output_current.push(response.record.output_current)
+        var power = (Math.round(response.record.voltage * response.record.input_current * 100) / 100).toFixed(2)
+        this.records.power.push(power)
 
-        this.records.power = this.records.power.slice(1)
-        this.records.power.push(response.record.voltage * response.record.input_current)
+        if (this.records.voltage.length >= 60) {
+          this.records.voltage = this.records.voltage.slice(1)
+          this.records.input_current = this.records.input_current.slice(1)
+          this.records.output_current = this.records.output_current.slice(1)
+          this.records.power = this.records.power.slice(1)
+        }
 
         this.getLatestRecord()
       })
