@@ -124,7 +124,8 @@ export default {
   name: "Settings",
   data() {
     return {
-      form: _.clone(this.$store.state.settings),
+      form: {},
+      settings: {},
       showConfirmBox: false,
       showPauseWarning: false,
       showShutdownModal: false,
@@ -132,19 +133,21 @@ export default {
       submitLoader: false,
     }
   },
-  computed: {
-    settings() {
-      return this.$store.state.settings;
-    }
+
+  mounted() {
+    this.$socket.emit("getSettings", (response) => {
+      this.settings = response.settings
+      this.form = _.clone(this.settings)
+      this.$watch("form", {
+        handler() {
+          this.showConfirmBox = true
+        },
+        deep: true
+      })
+    })
   },
 
   watch: {
-    form: {
-      handler() {
-        this.showConfirmBox = true
-      },
-      deep: true
-    },
     "form.recording"() {
       console.log(this.form.recording);
       if (this.settings.recording && !this.form.recording) {

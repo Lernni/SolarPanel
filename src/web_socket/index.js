@@ -17,11 +17,10 @@ instrument(io, { auth: false })
 // event handlers
 const dashboard = require('./handlers/dashboard')
 const browser = require('./handlers/browser')
-const login = {}
 const settings = require('./handlers/settings')
 
 const handlers =  {
-  dashboard, browser, login, settings
+  dashboard, browser, settings
 }
 
 io.use((socket, next) => {
@@ -35,7 +34,7 @@ io.use((socket, next) => {
 
 io.on('connection', (socket) => {
   for (const [key, value] of Object.entries(handlers)) {
-    if (value.init) value.init(io, socket)
+    value(io, socket)
   }
 
   console.log('a user connected')
@@ -69,17 +68,6 @@ io.on('connection', (socket) => {
       callback({
         success: false
       })
-    }
-  })
-
-  socket.on('navigate', (fromPage, toPage) => {
-    
-    if (fromPage != null && handlers[fromPage].close) {
-      handlers[fromPage].close(io, socket)
-    }
-    
-    if (handlers[toPage].open) {
-      handlers[toPage].open(io, socket)
     }
   })
 

@@ -273,6 +273,24 @@ export default {
         clearInterval(interval)
       }
     }, 50)
+
+    this.$socket.emit("getDBEntities", (response) => {
+      this.loadingEntities = false
+      this.entities = []
+
+      for (let i = 0; i < response.data.length; i++) {
+        this.entities.push({
+          x: "records",
+          y: [response.data[i][0] * 1000, response.data[i][1] * 1000],
+        })
+      }
+
+      this.$refs.timeline.updateChart(this.entities)
+      this.dateTimeRange = {
+        min: this.entities[0].y[0],
+        max: this.entities[this.entities.length - 1].y[1]
+      }
+    })
   },
 
   computed: {
@@ -364,10 +382,6 @@ export default {
       return this.$v.units.selected.required
     },
 
-    entities() {
-      return this.$store.state.entities
-    },
-
     interval() {
       var interval = Math.floor(((this.dateTimeRange.max - this.dateTimeRange.min) / 1000) / 100)
       return (interval < 1) ? 1 : interval
@@ -387,31 +401,13 @@ export default {
       deep: true
     },
 
-    entities: {
-      // eslint-disable-next-line no-unused-vars
-      handler: function(newVal, oldVal) {
-        const interval = setInterval(() => {
-          if (this.$refs.timeline) {
-            this.loadingEntities = false
-            this.$refs.timeline.updateChart(newVal)
-            this.dateTimeRange = {
-              min: this.entities[0].y[0],
-              max: this.entities[this.entities.length - 1].y[1]
-            }
-            clearInterval(interval)
-          }
-        }, 50)
-      },
-      deep: true
-    },
-
     "units.selected"() {
       this.checkForUpdateRequest()
     }
   },
 
-  sockets: {
-    DB_RECORDS: function(data) {
+  methods: {
+    setDBRecords(data) {
       if (this.loadingRequest) {
         this.browserSeries = []
 
@@ -455,10 +451,8 @@ export default {
         this.$refs.syncedBrowserChart.updateChart(this.browserSeries)
         this.loadingRequest = false
       }
-    }
-  },
+    },
 
-  methods: {
     getChartOptions(title, unit, lineType, color) {
       return {
         title: title,
@@ -493,7 +487,9 @@ export default {
       this.updateAvailable = false
       this.loadingRequest = true
       this.browserSeries = []
-      this.$socket.emit("browserRequest", this.dateTimeRange, this.units.selected, this.interval)
+      this.$socket.emit("browserRequest", this.dateTimeRange, this.units.selected, this.interval, (response) => {
+        this.setDBRecords(response.data)
+      })
     }
   }
 }
