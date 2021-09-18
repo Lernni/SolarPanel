@@ -16,7 +16,9 @@ class Module:
 			record_config = dict(parser.items("record_config"))
 			input_shunt = float(record_config["input_shunt"])
 			output_shunt = float(record_config["output_shunt"])
+			max_input_current = int(record_config["max_input_current"])
+			max_output_current = int(record_config["max_output_current"])
 
-		Module.input_ina = INA219Module(input_shunt, 0x40, "Input Current Module")
-		Module.output_ina = INA219Module(output_shunt, 0x41, "Output Current Module")
+		Module.input_ina = INA219Module(input_shunt, max_input_current, 0x40, "Input Current Module")
+		Module.output_ina = INA219Module(output_shunt, max_output_current, 0x41, "Output Current Module")
 		Module.mcp = MCP23017Module("LED Control Module")

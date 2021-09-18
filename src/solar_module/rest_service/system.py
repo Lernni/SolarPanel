@@ -9,7 +9,7 @@ from config import config
 
 class SystemShutdown(Resource):
   def post(self):
-    os.systen('echo "sudo shutdown -h now" > /data/host_cmd_interface')
+    os.system('echo "sudo shutdown -h now" > /data/host_cmd_interface')
     return
 
 class SystemRestart(Resource):
@@ -26,6 +26,8 @@ class Settings(Resource):
         "recording": parser.getboolean("system", "recording"),
         "input_shunt": float(parser["record_config"]["input_shunt"]),
         "output_shunt": float(parser["record_config"]["output_shunt"]),
+        "max_input_current": int(parser["record_config"]["max_input_current"]),
+        "max_output_current": int(parser["record_config"]["max_output_current"]),
       }
 
     return settings
@@ -38,6 +40,8 @@ class Settings(Resource):
       parser["record_config"] = {
         "input_shunt": str(new_config["input_shunt"]),
         "output_shunt": str(new_config["output_shunt"]),
+        "max_input_current": str(new_config["max_input_current"]),
+        "max_output_current": str(new_config["max_output_current"]),
       }
 
     config.reload()

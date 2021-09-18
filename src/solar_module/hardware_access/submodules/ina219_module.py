@@ -5,10 +5,10 @@ from hardware_access.submodules.submodule import Submodule
 
 class INA219Module(Submodule):
 
-    def __init__(self, shunt_ohms, address, description):
+    def __init__(self, shunt_ohms, max_current, address, description):
         super().__init__(name = "INA219", description = description)
         
-        self.ina = INA219(shunt_ohms, 0.4, address = address)
+        self.ina = INA219(shunt_ohms, max_current, address = address)
         self.ina.configure(self.ina.RANGE_16V, self.ina.GAIN_1_40MV)
 
         self.state = Submodule.State.IDLE
