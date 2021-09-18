@@ -39,6 +39,7 @@
                   <b-icon
                     icon="circle-fill"
                     animation="fade"
+                    scale="0.8"
                   ></b-icon>
                   Aktiv
                 </b-badge>
@@ -58,13 +59,16 @@
           </b-alert>
         </b-form-group>
 
-        <h2>Messwiderstände</h2>
+        <hr>
+
+        <h2>Kalibrierung der Messmodule</h2>
+
+        <!-- Kalibierung der Messwiderstände -->
+        <h4>Messwiderstände (Shuntwerte)</h4>
         <p class="text-justify">
           Die beiden Messwiderstände (Shuntwerte) für Eingangs- und Ausgangsstrom können automatisch durch eine Kalibrierung ermittelt oder manuell angepasst werden. 
         </p>
 
-        <!-- Kalibierung der Messwiderstände -->
-        <h4>Widerstandswerte</h4>
         <b-row>
           <b-col>
             <b-form-group label="Eingangswiderstand">
@@ -93,7 +97,44 @@
             </b-form-group>
           </b-col>
         </b-row>
+
+        <!-- Kalibierung der maximal zu erwartenden Ströme -->
+        <h4>Maximalströme</h4>
+        <p class="text-justify">
+          Das Maximum der zu erwartenden Eingangs- bzw. Ausgangsströme hat Einfluss auf die Einrichtung der Messmodule und kann die Genauigkeit der Messung erhöhen. 
+        </p>
+
+        <b-row>
+          <b-col>
+            <b-form-group label="Maximaler Eingangsstrom">
+              <b-input-group>
+                <b-form-input type="number" v-model="form.max_input_current"></b-form-input>
+
+                <template #append>
+                  <b-input-group-text>
+                    <katex-element expression="A"/>
+                  </b-input-group-text>
+                </template>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+          <b-col>
+            <b-form-group label="Maximaler Ausgangsstrom">
+              <b-input-group>
+                <b-form-input type="number" v-model="form.max_output_current"></b-form-input>
+
+                <template #append>
+                  <b-input-group-text>
+                    <katex-element expression="A"/>
+                  </b-input-group-text>
+                </template>
+              </b-input-group>
+            </b-form-group>
+          </b-col>
+        </b-row>
+
         <hr>
+
         <h2>System</h2>
         <div class="text-center">
           <b-button variant="danger" @click="showShutdownModal = true">
