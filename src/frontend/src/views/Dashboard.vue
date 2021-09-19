@@ -44,7 +44,7 @@ export default {
   data() {
     return {
       records: {},
-      stopUpdating: false
+      updateTimer: null,
     }
   },
 
@@ -62,26 +62,25 @@ export default {
   },
 
   methods: {
-    async getLatestRecord() {
+    getLatestRecord() {
       if (!this.stopUpdating) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        this.$socket.emit("getLatestRecord", (response) => {
-          
-          this.records.voltage.push(response.record.voltage)
-          this.records.input_current.push(response.record.input_current)
-          this.records.output_current.push(response.record.output_current)
-          var power = (Math.round(response.record.voltage * response.record.input_current * 100) / 100).toFixed(2)
-          this.records.power.push(power)
+        this.updateTimer = setInterval(() => {
+          this.$socket.emit("getLatestRecord", (response) => {
+            
+            this.records.voltage.push(response.record.voltage)
+            this.records.input_current.push(response.record.input_current)
+            this.records.output_current.push(response.record.output_current)
+            var power = (Math.round(response.record.voltage * response.record.input_current * 100) / 100).toFixed(2)
+            this.records.power.push(power)
 
-          if (this.records.voltage.length >= 60) {
-            this.records.voltage = this.records.voltage.slice(1)
-            this.records.input_current = this.records.input_current.slice(1)
-            this.records.output_current = this.records.output_current.slice(1)
-            this.records.power = this.records.power.slice(1)
-          }
-
-          this.getLatestRecord()
-        })
+            if (this.records.voltage.length >= 60) {
+              this.records.voltage = this.records.voltage.slice(1)
+              this.records.input_current = this.records.input_current.slice(1)
+              this.records.output_current = this.records.output_current.slice(1)
+              this.records.power = this.records.power.slice(1)
+            }
+          })
+        }, 1000)
       }
     }
   },
@@ -93,7 +92,9 @@ export default {
   },
 
   beforeDestroy() {
-    this.stopUpdating = true
+    if (this.updateTimer) {
+      clearInterval(this.updateTimer)
+    }
   }
 }
 </script>
