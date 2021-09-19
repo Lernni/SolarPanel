@@ -1,7 +1,7 @@
 import os
 from datetime import datetime, timedelta
 
-from data_access.globals import DB_PATH
+from globals import DB_PATH
 from data_objects.record import Record
 from data_objects.date_time_range import DateTimeRange
 

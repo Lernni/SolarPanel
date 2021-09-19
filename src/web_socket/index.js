@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const { instrument } = require("@socket.io/admin-ui")
+require("console-stamp")(console)
 
 const app = express();
 const server = http.createServer(app);

@@ -9,6 +9,8 @@ services:
       - solar_module
       - web_socket
     network_mode: host
+    volumes:
+      - ~/solarpanel_data:/data
 
   # web socket
   web_socket:
@@ -20,6 +22,9 @@ services:
       - solar_module
     ports:
       - 4000:4000
+    volumes:
+      - ~/solarpanel_data:/data
+    command: bash -c "mkdir -p /data/logs && node index.js > /data/logs/web_socket.log 2>&1"
 
   # provides measurement data
   solar_module:

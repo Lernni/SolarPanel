@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 
-from data_access.globals import DB_PATH
+from globals import DB_PATH
 from data_access.data_entity import DataEntity
 from data_objects.date_time_range import DateTimeRange
 from data_objects.record import Record

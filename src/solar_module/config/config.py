@@ -3,7 +3,7 @@ import os
 import traceback
 from shutil import copyfile
 
-from data_access.globals import CONFIG_TEMPLATE_PATH, CONFIG_PATH
+from globals import CONFIG_TEMPLATE_PATH, CONFIG_PATH
 
 
 def reload():
