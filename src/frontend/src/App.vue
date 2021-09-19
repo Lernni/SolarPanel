@@ -24,13 +24,21 @@ export default {
     NavBar
   },
 
-  mounted() {
-    Screensaver()
-  },
-
   computed: {
     isLoggedIn() {
       return this.$store.getters.isLoggedIn
+    },
+
+    device() {
+      return this.$store.state.device
+    }
+  },
+
+  watch: {
+    device: function() {
+      if (this.device == 'Internal') {
+        Screensaver()
+      }
     }
   }
 }
