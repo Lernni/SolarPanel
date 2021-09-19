@@ -84,6 +84,14 @@ sudo usermod -aG i2c [benutzer]
 ```
 /home/[benutzer]/SolarPanel/src/local_client/start_solarpanel.sh
 ```
+15. Logindaten in die Datei `/solarpanel_data/config/login_credentials.json` schreiben:
+```json
+{
+    "username": "[username]",
+    "password": "[password]",
+    "token": "[token]"
+}
+```
 
 ## Pakete installieren
 1. Git:

@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const { instrument } = require("@socket.io/admin-ui")
+const fs = require('fs');
 require("console-stamp")(console)
 
 const app = express();
@@ -14,6 +15,19 @@ const io = new Server(server, {
 
 // init admin ui panel
 instrument(io, { auth: false })
+
+// login credentials
+try {
+  if (!fs.existsSync('/data/config/login_credentials.json')) {
+    fs.copyFile('./login_credentials.template.json', '/data/config/login_credentials.json', (error) => {
+      if (error) throw error;
+    })
+  }
+} catch(error) {
+  console.log(error)
+}
+
+const systemCredentials = require('/data/config/login_credentials.json')
 
 // event handlers
 const dashboard = require('./handlers/dashboard')
@@ -50,7 +64,7 @@ io.on('connection', (socket) => {
       var token = socket.handshake.auth.token
       console.log(clientIp + " tries to make a request")
 
-      if ((clientIp == '127.0.0.1') || (token == 'abcdefg')) {
+      if ((clientIp == '127.0.0.1') || (token == systemCredentials.token)) {
         next()
       } else {
         console.log(clientIp + " with id " + socket.id + " is not unauthorized")
@@ -60,10 +74,11 @@ io.on('connection', (socket) => {
   })
 
   socket.on('loginRequest', (credentials, callback) => {
-    if (credentials.username === "admin" && credentials.password === "admin1234") {
+    if (credentials.username === systemCredentials.username
+      && credentials.password === systemCredentials.password) {
       callback({
         success: true,
-        token: "abcdefg"
+        token: systemCredentials.token
       })
     } else {
       callback({
