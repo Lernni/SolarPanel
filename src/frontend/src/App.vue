@@ -15,12 +15,17 @@
 <script>
 import SideBar from './components/SideBar.vue'
 import NavBar from './components/NavBar.vue'
+import Screensaver from './scripts/screensaver'
 
 export default {
   name: 'App',
   components : {
     SideBar,
     NavBar
+  },
+
+  mounted() {
+    Screensaver()
   },
 
   computed: {
