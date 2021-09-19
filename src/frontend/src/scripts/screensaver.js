@@ -1,5 +1,5 @@
 var timer
-const timeeout = 5 * 1000
+const timeeout = 5 * 60 * 1000
 
 module.exports = () => {
   document.addEventListener("mouseup", () => {
