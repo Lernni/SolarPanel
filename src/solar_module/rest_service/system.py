@@ -1,5 +1,4 @@
 import os
-import logging
 import json
 
 from flask_restx import Resource

@@ -302,8 +302,6 @@ export default {
         date = new Date(date)
         var startDateTime = new Date(this.dateTimeRange.min)
 
-        console.log(date)
-        console.log(date.getYear())
         startDateTime.setFullYear(date.getFullYear())
         startDateTime.setMonth(date.getMonth())
         startDateTime.setDate(date.getDate())

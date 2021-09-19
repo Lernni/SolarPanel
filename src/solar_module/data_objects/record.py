@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime
 
 from data_objects.date_time_range import DateTimeRange

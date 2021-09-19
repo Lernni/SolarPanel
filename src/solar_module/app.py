@@ -19,7 +19,7 @@ Module.init()
 logging.info("analyze database...")
 DatabaseHandler.init()
 
-logging.info("start recording...")
+logging.info("load record handler...")
 RecordHandler.init()
 
 if __name__ == '__main__':

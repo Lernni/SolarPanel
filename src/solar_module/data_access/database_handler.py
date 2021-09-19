@@ -10,7 +10,7 @@ class DatabaseHandler:
 
   entities = []
   current_entity_index = None
-  RECORD_LIMIT = 40
+  RECORD_LIMIT = 3600
 
   def init():
 
@@ -49,7 +49,6 @@ class DatabaseHandler:
 
       current_entity = DatabaseHandler.entities[DatabaseHandler.current_entity_index]
 
-      logging.info(str(current_entity.record_count) + " + " + str(len(records))) 
       if current_entity.record_count + len(records) < DatabaseHandler.RECORD_LIMIT:
         return current_entity.add_records(records)
       else:

@@ -1,5 +1,4 @@
 import time
-import logging
 from threading import Thread
 from datetime import datetime, timedelta
 
@@ -46,7 +45,6 @@ class RecordHandler:
         if isinstance(record, Record):
             RecordHandler.write_cache.append(record)
             RecordHandler.read_cache.add(record)
-            logging.info(f"Len: Write cache {len(RecordHandler.write_cache)}")
         else:
             raise TypeError("RecordHandler.add() requires a Record object")
     
@@ -60,7 +58,6 @@ class RecordHandler:
             return RecordHandler.get_records(DateTimeRange(start_date_time, end_date_time))
 
     def get_records(date_time_range):
-        logging.info(date_time_range)
         end_date_time = date_time_range.end_date_time
         start_date_time = date_time_range.start_date_time
 
@@ -74,15 +71,12 @@ class RecordHandler:
             if end_date_time > buffer_start_time:
                 # requested time frame is located in cache (or parts of it)
 
-                logging.info("start: " + str(start_date_time) + " buffer_start: " + str(buffer_start_time))
                 if start_date_time >= buffer_start_time:
                     # requested time frame is entirely in cache
-                    logging.info("request entirely in cache")
                     return RecordHandler.read_cache.get_records(date_time_range)
                 
                 else:
                     # only some of the requested time frame is in cache
-                    logging.info("only some of the requested time frame is in cache")
                     cache_records = RecordHandler.read_cache.get_records(date_time_range)
 
                     # get remaining records from database
@@ -146,7 +140,6 @@ class RecordScheduler(Thread):
 
     def save_cache(self):
         LEDControl.set(LED.YELLOW, True)
-        logging.info("save cache")
 
         # remember number of records that will be saved
         # in case of the operation taking a long time, this makes sure no new records are lost
@@ -154,7 +147,6 @@ class RecordScheduler(Thread):
         record_count = len(RecordHandler.write_cache)
         if record_count > 0:
             if DatabaseHandler.add_records(RecordHandler.write_cache):
-                logging.info(f"new write cache {RecordHandler.write_cache[record_count:]}")
                 RecordHandler.write_cache = RecordHandler.write_cache[record_count:]
 
         LEDControl.set(LED.YELLOW, False)

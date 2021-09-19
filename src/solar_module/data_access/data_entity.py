@@ -1,5 +1,4 @@
 import os
-import logging
 from datetime import datetime, timedelta
 
 from data_access.globals import DB_PATH
@@ -93,8 +92,7 @@ class DataEntity:
                 raise ValueError("Records older than end of entity")
 
             # check if new records follow the exsiting timeline
-            new_calculated_from = end_date_time + timedelta(seconds = self.interval)
-            logging.info(f"berechneter nächster Wert: {new_calculated_from}, nächster Wert: {records[0].recorded_time}")
+            # new_calculated_from = end_date_time + timedelta(seconds = self.interval)
             # if new_calculated_from != records[0].recorded_time:
                 # raise ValueError("Records do not follow timeline")
 
@@ -111,12 +109,14 @@ class DataEntity:
             if self.interval == 1:
                 for record in records:
                     f.write(str(record.voltage) + "," + str(record.input_current) + ","
-                        + str(record.output_current) + "," 
+                        + str(record.output_current) + ","
+                        + "0.0,"
                         + str(int(datetime.timestamp(record.recorded_time.start_date_time))) + "\n")
             else:
                 for record in records:
                     f.write(str(record.voltage) + "," + str(record.input_current) + ","
                         + str(record.output_current) + ","
+                        + "0.0,"
                         + str(int(datetime.timestamp(record.recorded_time.start_date_time))) + ","
                         + str(int(datetime.timestamp(record.recorded_time.end_date_time))) + "\n")
 
@@ -137,12 +137,12 @@ class DataEntity:
                 line_info = line.split(',')
 
                 if self.interval == 1:
-                    timestamp = datetime.fromtimestamp(int(line_info[3]))
+                    timestamp = datetime.fromtimestamp(int(line_info[4]))
                     recorded_time = DateTimeRange(timestamp, timestamp)
                 else:
                     recorded_time = DateTimeRange(
-                        datetime.fromtimestamp(int(line_info[3])),
-                        datetime.fromtimestamp(int(line_info[4]))
+                        datetime.fromtimestamp(int(line_info[4])),
+                        datetime.fromtimestamp(int(line_info[5]))
                     )
 
                 if date_time_range.covers(recorded_time):

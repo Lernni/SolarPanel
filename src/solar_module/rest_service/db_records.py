@@ -1,8 +1,7 @@
-import logging, json
+import json
 from datetime import datetime
 
 from flask_restx import Resource, reqparse
-from flask import request
 
 from data_access.database_handler import DatabaseHandler
 from data_objects.date_time_range import DateTimeRange

@@ -190,7 +190,6 @@ export default {
 
   watch: {
     "form.recording"() {
-      console.log(this.form.recording);
       if (this.settings.recording && !this.form.recording) {
         this.showPauseWarning = true
       }

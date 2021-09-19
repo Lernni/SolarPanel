@@ -4,7 +4,6 @@ module.exports = (io, socket) => {
   socket.on("getLatestRecords", (callback) => {
     axios.get("http://solar_module:5001/latest/60")
     .then((response) => {
-      console.log(response.data)
       callback({
         records: response.data
       })
@@ -17,7 +16,6 @@ module.exports = (io, socket) => {
   socket.on("getLatestRecord", (callback) => {
     axios.get("http://solar_module:5001/latest")
     .then((response) => {
-      console.log(response.data);
       callback({
         record: response.data
       })

@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
     value(io, socket)
   }
 
-  console.log('a user connected')
+  console.log('user ' + socket.id + ' connected')
 
   socket.use(([event, ...args], next) => {
     console.log(`event: ${event}`, args)
@@ -47,12 +47,12 @@ io.on('connection', (socket) => {
     } else {
       var clientIp = socket.handshake.headers['x-real-ip']
       var token = socket.handshake.auth.token
-      console.log(clientIp, token)
+      console.log(clientIp + " tries to make a request")
 
       if ((clientIp == '127.0.0.1') || (token == 'abcdefg')) {
         next()
       } else {
-        console.log('unauthorized')
+        console.log(clientIp + " with id " + socket.id + " is not unauthorized")
         next(new Error('unauthorized'))
       }
     }

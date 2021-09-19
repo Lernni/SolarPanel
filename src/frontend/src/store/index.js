@@ -14,7 +14,6 @@ export default new Vuex.Store({
     login({commit}, credentials) {
       return new Promise((resolve, reject) => {
         $socket.emit("loginRequest", credentials, (response) => {
-          console.log("response: " + response)
           if (response.success) {
             localStorage.setItem('token', response.token)
             $socket.auth.token = response.token
