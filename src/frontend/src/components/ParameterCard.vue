@@ -1,12 +1,10 @@
 <template>
-  <div class="card">
-    <div class="card-body">
-      <h5 class="card-title">{{parameter}}</h5>
-      <slot></slot>
-      <h2 class="text-right">{{seriesData[seriesData.length - 1]}} {{unit}}</h2>
-      <Sparkline ref="sparkline" :height=100 :series="series" :unit="unit"/>
-    </div>
-  </div>
+  <b-card>
+    <h5 class="card-title">{{parameter}}</h5>
+    <slot></slot>
+    <h2 class="text-right">{{seriesData[seriesData.length - 1]}} {{unit}}</h2>
+    <Sparkline ref="sparkline" :height=100 :series="series" :unit="unit"/>
+  </b-card>
 </template> 
 
 <script>
@@ -62,6 +60,7 @@ export default {
     .card {
       flex: 1 0 0% !important;
       margin: 0;
+      max-width: 300px;
 
       h5, h2 {
         display: block;

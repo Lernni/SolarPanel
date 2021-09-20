@@ -225,7 +225,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .settings {
   margin-bottom: 100px;
 }

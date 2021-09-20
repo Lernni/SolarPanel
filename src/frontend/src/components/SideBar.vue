@@ -1,51 +1,18 @@
 <template>
   <div id="sidebar" class="bg-light h-100">
-    <b-navbar-brand>
-      
-    </b-navbar-brand>
     <b-nav vertical pills>
-      <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'dashboard' }">
-        <!-- <sun-icon class="tab-icon"></sun-icon> -->
-        <div class="tab-title">
-          Dashboard
-        </div>
-      </router-link>
-      <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Messwerte' }">
-        <!-- <activity-icon class="tab-icon"></activity-icon> -->
-        <div class="tab-title">Messwerte</div>
-      </router-link>
-      <nav class="nav nav-pills flex-lg-column" role="tablist">
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'browser' }">
-          <!-- <database-icon class="tab-icon"></database-icon> -->
-          <div class="tab-title">Browser</div>
-        </router-link>
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Export' }">
-          <!-- <log-out-icon class="tab-icon"></log-out-icon> -->
-          <div class="tab-title">Export</div>
-        </router-link>
-      </nav>
-      <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'System' }">
-        <!-- <sliders-icon class="tab-icon"></sliders-icon> -->
-        <div class="tab-title">System</div>
-      </router-link>
-      <nav class="nav nav-pills flex-lg-column" role="tablist">
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'settings' }">
-          <!-- <sliders-icon class="tab-icon"></sliders-icon> -->
-          <div class="tab-title">Einstellungen</div>
-        </router-link>
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Ereignisse' }">
-          <!-- <bell-icon class="tab-icon"></bell-icon> -->
-          <div class="tab-title">
-            Ereignisse
-          </div>
-        </router-link>
-        <router-link class="nav-link" data-toggle="pill" role="tab" :to="{ name: 'Systeminfo' }">
-          <!-- <info-icon class="tab-icon"></info-icon> -->
-          <div class="tab-title">
-            Systeminfo
-          </div>
-        </router-link>
-      </nav>
+      <b-nav-item :to="{ name: 'dashboard' }" exact exact-active-class="active">
+        <b-icon icon="brightness-high-fill"></b-icon>
+        Dashboard
+      </b-nav-item>
+      <b-nav-item :to="{ name: 'browser' }" exact exact-active-class="active">
+        <b-icon icon="bar-chart-fill"></b-icon>
+        Messwerte
+      </b-nav-item>
+      <b-nav-item :to="{ name: 'settings' }" exact exact-active-class="active">
+        <b-icon icon="sliders"></b-icon>
+        Einstellungen
+      </b-nav-item>
     </b-nav>
   </div>
 </template>
@@ -58,7 +25,7 @@ export default {
 
 <style scoped>
 
-  #sidebar .nav-link {
+  /* #sidebar .nav-link {
     -webkit-user-drag: none;
     padding: 10px 40px 10px 40px;
     margin-left: 50px;
@@ -96,10 +63,10 @@ export default {
   .tab-icon {
     width: 35px;
     height: 35px;
-  }
+  } */
 
   @media (min-width: 992px) {
-    .nav {
+    /* .nav {
       width: auto;
     }
 
@@ -133,7 +100,7 @@ export default {
       position: relative;
       display: block !important;
       width: auto;
-    }
+    } */
   }
 
 </style>

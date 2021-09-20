@@ -29,7 +29,3 @@ export default {
   name: 'System'
 }
 </script>
-
-<style>
-
-</style>

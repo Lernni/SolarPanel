@@ -37,7 +37,3 @@ export default {
   name: 'Stats'
 }
 </script>
-
-<style>
-
-</style>

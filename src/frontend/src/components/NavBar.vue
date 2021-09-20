@@ -1,7 +1,9 @@
 <template>
-  <nav class="navbar navbar-light bg-light d-none d-lg-flex">
-    <span class="navbar-brand mb-0 h1">{{title}}</span>
-  </nav>
+  <b-navbar id="navbar" variant="light">
+    <b-navbar-brand>
+      {{ title }}
+    </b-navbar-brand>
+  </b-navbar>
 </template>
 
 <script>
@@ -12,7 +14,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

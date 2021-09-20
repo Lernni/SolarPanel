@@ -1,0 +1,40 @@
+$navbar-height: 55px;
+$sidebar-width: 180px;
+
+html, body {
+  height: 100%;
+  user-select: auto;
+}
+
+#header {
+  z-index: 1000;
+
+  #navbar {
+    height: $navbar-height;
+  }
+}
+
+#content {
+  margin-top: $navbar-height;
+
+  #sidebar {
+    width: $sidebar-width;
+
+    .nav {
+      padding: 0.5rem;
+
+      .nav-item {
+        padding-bottom: 0.25rem;
+
+        .b-icon {
+          margin-right: 0.5rem;
+        }
+      }
+    }
+  }
+
+  #router-view {
+    overflow: hidden;
+    margin: 15px 15px 15px $sidebar-width;
+  }
+}

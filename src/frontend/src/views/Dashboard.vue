@@ -1,15 +1,14 @@
 <template>
-  <div class="row">
-    {{ device }}
-    <div class="col-lg-8 col-md-6">
-      <div class="card-deck">
+  <b-row>
+    <b-col>
+      <b-card-group deck>
         <ParameterCard parameter="Spannung" unit="V" :seriesData=records.voltage />
-        <ParameterCard parameter="Eingangsstrom" unit="mA" color="#E91E63" :seriesData=records.input_current />
+        <ParameterCard parameter="Eingangsstrom" unit="A" color="#E91E63" :seriesData=records.input_current />
         <ParameterCard parameter="Ausgangsstrom" unit="A" color="#E91E63" :seriesData=records.output_current />
         <ParameterCard parameter="Eingangsleistung" unit="W" color="#546E7A" :seriesData=records.power />
-      </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
+      </b-card-group>
+    </b-col>
+    <!-- <div class="col-lg-4 col-md-6">
       <ParameterCard parameter="Ladezustand" color="#00ebb9">
         <div class="row battery-info no-gutters">
           <div class="col-lg-3 col-md-4">
@@ -25,20 +24,20 @@
           </div>
         </div>
       </ParameterCard>
-    </div>
-  </div>
+    </div> -->
+  </b-row>
 
 </template>
 
 <script>
 import ParameterCard from '../components/ParameterCard.vue'
-import Battery from '../components/Battery.vue'
+// import Battery from '../components/Battery.vue'
 
 export default {
   name: 'Dashboard',
   components: {
     ParameterCard,
-    Battery
+    // Battery
   },
 
   data() {
@@ -100,22 +99,22 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.battery-info {
-  margin-bottom: 25px;
-  margin-top: 25px;
+// .battery-info {
+//   margin-bottom: 25px;
+//   margin-top: 25px;
 
-  h4, h2 {
-    text-align: right;
-  }
+//   h4, h2 {
+//     text-align: right;
+//   }
 
-  h2, h4, h5 {
-    display: block;
-    float: none;
-  }
-}
+//   h2, h4, h5 {
+//     display: block;
+//     float: none;
+//   }
+// }
 
-.battery {
-  margin-left: auto;
-  margin-right: auto;
-}
+// .battery {
+//   margin-left: auto;
+//   margin-right: auto;
+// }
 </style>

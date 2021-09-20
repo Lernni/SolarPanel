@@ -1,11 +1,15 @@
 <template>
   <b-container fluid class="h-100 p-0">
-    <b-row no-gutters class="h-100">
-      <b-col lg="auto" v-show="isLoggedIn">
+    <b-row no-gutters>
+      <b-col id="header" class="position-fixed">
+        <NavBar title="SolarPanel"/>
+      </b-col>
+    </b-row>
+    <b-row id="content" no-gutters align-v="stretch" class="w-100">
+      <b-col lg="auto" v-show="isLoggedIn" class="h-100 position-fixed">
         <SideBar/>
       </b-col>
-      <b-col>
-        <NavBar title="SolarPanel"/>
+      <b-col id="router-view" :class="isLoggedIn ? '' : 'm-3'">
         <router-view/>
       </b-col>
     </b-row>
@@ -45,15 +49,10 @@ export default {
 </script>
 
 <style lang="scss">
-  html, body, #app {
-    height: 100%;
-    user-select: none;
-  }
-
-  .content {
-    height: 90%;
-    padding: 15px !important;
-  }
+  // html, body, #app {
+  //   height: 100%;
+  //   user-select: none;
+  // }
 
   /*.nav-link {
     font-size: 25px;
@@ -64,15 +63,5 @@ export default {
     padding-left: 5px;
     vertical-align: middle;
   }*/
-
-  @media (min-width: 992px) {
-    html, body, #app {
-      user-select: auto;
-    }
-
-    .content {
-      height: 100%
-    }
-  }
 
 </style>
