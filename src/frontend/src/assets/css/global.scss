@@ -1,40 +1,98 @@
 $navbar-height: 55px;
 $sidebar-width: 180px;
 
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+
+
 html, body {
   height: 100%;
   user-select: auto;
 }
 
-#header {
-  z-index: 1000;
-
+#navbar-box {
+  height: $navbar-height;
+  
   #navbar {
+    position: fixed;
     height: $navbar-height;
+    width: 100%;
+    z-index: 2;
   }
 }
 
-#content {
-  margin-top: $navbar-height;
+#sidebar-column {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
 
+#sidebar-box {
+  height: auto;
+  width: 100%;
+  
   #sidebar {
-    width: $sidebar-width;
+    height: auto;
+    width: 100%;
 
     .nav {
       padding: 0.5rem;
+      margin-left: auto;
+      margin-right: auto;
+      width: max-content;
 
       .nav-item {
-        padding-bottom: 0.25rem;
+        padding-bottom: 0;
+        margin-left: 20px;
+        margin-right: 20px;
 
-        .b-icon {
-          margin-right: 0.5rem;
+        .nav-link {
+          padding-left: 40px;
+          padding-right: 40px;
+          -webkit-user-drag: none;
+
+          .b-icon {
+            margin-right: 0;
+          }
         }
       }
     }
   }
+}
 
-  #router-view {
-    overflow: hidden;
-    margin: 15px 15px 15px $sidebar-width;
+#router-view {
+  margin: 15px;
+}
+
+
+@media (min-width: $breakpoint-sm) {
+  #sidebar-box #sidebar .nav .nav-item {
+    margin: 0;
+
+    .nav-link {
+      padding: 0.5rem 1rem;
+      
+      .b-icon {
+        margin-right: 0.5rem !important;
+      }
+    }
+  }
+}
+
+
+@media (min-width: $breakpoint-md) {
+  #sidebar-box {
+    height: 100%;
+    width: $sidebar-width;
+    
+    #sidebar {
+      position: fixed;
+      height: 100%;
+      width: $sidebar-width;
+
+      .nav .nav-item {
+        padding-bottom: 0.25rem;
+      }
+    }
   }
 }

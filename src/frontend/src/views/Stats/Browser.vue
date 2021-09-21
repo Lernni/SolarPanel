@@ -1,9 +1,9 @@
 <template>
   <div>
     <b-row class="justify-content-center">
-      <b-col cols="11">
+      <b-col xl="10">
         <b-card no-body>
-          <b-tabs pills card vertical nav-wrapper-class="col-2" class="flex-nowrap">
+          <b-tabs pills card :vertical="$screen.lg" nav-wrapper-class="xl-2" class="flex-nowrap">
             <PillTab caption="Zeitraum" :done="timeRangeDone" :disabled="loadingRequest">
               <template #tab-content>
                 <div v-show="timeRangeDone">
@@ -18,8 +18,8 @@
 
               Alle Zeitangaben sind in mitteleuropäischer Winterzeit.
               <br><br>
-              <b-row>
-                <b-col cols="6">
+              <b-row class="justify-content-center">
+                <b-col cols="12">
                   <b-skeleton-wrapper :loading="loadingEntities">
                     <template #loading>
                       <b-skeleton-img no-aspect height="150px"></b-skeleton-img>
@@ -28,67 +28,69 @@
                   <!-- Timeline must be outside of skeleton-wrapper, because Timeline will be undefined otherwise, as long as loadingEntities = true -->
                   <Timeline v-show="!loadingEntities" @updateDateTimeRange="updateDateTimeRange" ref="timeline" :seriesData="entities" />
                 </b-col>
-                <b-col>
-                  <b-row>
-                    <b-col>
-                      <label for="start-datepicker">Startdatum</label>
-                      <b-form-datepicker
-                        id="start-datepicker"
-                        v-model="startDate"
-                        class="mb-2"
-                        locale="de-DE"
-                        :start-weekday="1"
-                        :max="endDate"
-                        labelHelp=""
-                        labelNoDateSelected="Kein Datum ausgewählt"
-                        :state="timeRangeDone"
-                      ></b-form-datepicker>
-                    </b-col>
-                    <b-col>
-                      <label for="start-timepicker">Startzeit</label>
-                      <b-form-input
-                        id="input"
-                        v-model="startTime"
-                        type="time"
-                        class="mb-2"
-                        :state="timeRangeDone"
-                      ></b-form-input>
-                    </b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col>
-                      <label for="end-datepicker">Enddatum</label>
-                      <b-form-datepicker
-                        id="end-datepicker"
-                        v-model="endDate"
-                        class="mb-2"
-                        locale="de-DE"
-                        :start-weekday="1"
-                        :min="startDate"
-                        :max="maxDate"
-                        labelHelp=""
-                        labelNoDateSelected="Kein Datum ausgewählt"
-                        :state="timeRangeDone"
-                      ></b-form-datepicker>
-                    </b-col>
-                    <b-col>
-                      <label for="end-timepicker">Endzeit</label>
-                      <b-form-input
-                        id="end-timepicker"
-                        v-model="endTime"
-                        type="time"
-                        class="mb-2"
-                        :state="timeRangeDone"
-                      ></b-form-input>
-                    </b-col>
-                  </b-row>
-                  <b-row>
-                    <b-col>
-                      <b-form-invalid-feedback :state="timeRangeDone">
-                        Enddatum muss größer als Startdatum sein!
-                      </b-form-invalid-feedback>
-                    </b-col>
-                  </b-row>
+                <b-col xl="10" class="mt-3">
+                  <div>
+                    <b-row>
+                      <b-col>
+                        <label for="start-datepicker">Startdatum</label>
+                        <b-form-datepicker
+                          id="start-datepicker"
+                          v-model="startDate"
+                          class="mb-2"
+                          locale="de-DE"
+                          :start-weekday="1"
+                          :max="endDate"
+                          labelHelp=""
+                          labelNoDateSelected="Kein Datum ausgewählt"
+                          :state="timeRangeDone"
+                        ></b-form-datepicker>
+                      </b-col>
+                      <b-col>
+                        <label for="start-timepicker">Startzeit</label>
+                        <b-form-input
+                          id="input"
+                          v-model="startTime"
+                          type="time"
+                          class="mb-2"
+                          :state="timeRangeDone"
+                        ></b-form-input>
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col>
+                        <label for="end-datepicker">Enddatum</label>
+                        <b-form-datepicker
+                          id="end-datepicker"
+                          v-model="endDate"
+                          class="mb-2"
+                          locale="de-DE"
+                          :start-weekday="1"
+                          :min="startDate"
+                          :max="maxDate"
+                          labelHelp=""
+                          labelNoDateSelected="Kein Datum ausgewählt"
+                          :state="timeRangeDone"
+                        ></b-form-datepicker>
+                      </b-col>
+                      <b-col>
+                        <label for="end-timepicker">Endzeit</label>
+                        <b-form-input
+                          id="end-timepicker"
+                          v-model="endTime"
+                          type="time"
+                          class="mb-2"
+                          :state="timeRangeDone"
+                        ></b-form-input>
+                      </b-col>
+                    </b-row>
+                    <b-row>
+                      <b-col>
+                        <b-form-invalid-feedback :state="timeRangeDone">
+                          Enddatum muss größer als Startdatum sein!
+                        </b-form-invalid-feedback>
+                      </b-col>
+                    </b-row>
+                  </div>
                 </b-col>
               </b-row>
             </PillTab>
@@ -124,7 +126,7 @@
               </b-row>
             </PillTab>
 
-            <b-tab :disabled="!timeRangeDone || !unitsDone" @click="handleRequestClick">
+            <b-tab :disabled="!timeRangeDone || !unitsDone" @click="handleRequestClick" title-item-class="align-self-center">
               <template #title>
                 <b-row align-v="center">
                   <b-col cols="auto" class="pr-0 d-flex align-items-center">
@@ -500,5 +502,13 @@ export default {
   .col-2-5 {
     flex: 0 0 20%;
     max-width: 20%;
+  }
+
+  @media (max-width: 1520px) {
+    .time-options {
+      flex: 0 0 100%;
+      max-width: 100%;
+      width: 100%;
+    }
   }
 </style>

@@ -97,24 +97,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-// .battery-info {
-//   margin-bottom: 25px;
-//   margin-top: 25px;
-
-//   h4, h2 {
-//     text-align: right;
-//   }
-
-//   h2, h4, h5 {
-//     display: block;
-//     float: none;
-//   }
-// }
-
-// .battery {
-//   margin-left: auto;
-//   margin-right: auto;
-// }
-</style>

@@ -7,6 +7,7 @@ import VueApexCharts from 'vue-apexcharts'
 import VueSocketIO from 'vue-socket.io'
 import Vuelidate from 'vuelidate'
 import VueKatex from 'vue-katex';
+import VueScreen from 'vue-screen';
 import $socket from './scripts/socketInstance'
 
 import 'bootstrap/dist/css/bootstrap.css';
@@ -18,6 +19,7 @@ Vue.use(BootstrapVueIcons)
 Vue.use(VueApexCharts)
 Vue.use(Vuelidate)
 Vue.use(VueKatex)
+Vue.use(VueScreen, 'bootstrap')
 
 Vue.use(new VueSocketIO({
   debug: true,

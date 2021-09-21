@@ -1,16 +1,18 @@
 <template>
-  <b-container fluid class="h-100 p-0">
+  <b-container fluid class="p-0">
     <b-row no-gutters>
-      <b-col id="header" class="position-fixed">
+      <b-col id="header">
         <NavBar title="SolarPanel"/>
       </b-col>
     </b-row>
-    <b-row id="content" no-gutters align-v="stretch" class="w-100">
-      <b-col lg="auto" v-show="isLoggedIn" class="h-100 position-fixed">
+    <b-row id="content" no-gutters>
+      <b-col md="auto" v-show="isLoggedIn" id="sidebar-column">
         <SideBar/>
       </b-col>
-      <b-col id="router-view" :class="isLoggedIn ? '' : 'm-3'">
-        <router-view/>
+      <b-col id="router-view">
+        <b-container :fluid="$screen.sm">
+          <router-view/>
+        </b-container>
       </b-col>
     </b-row>
   </b-container>
@@ -49,19 +51,5 @@ export default {
 </script>
 
 <style lang="scss">
-  // html, body, #app {
-  //   height: 100%;
-  //   user-select: none;
-  // }
-
-  /*.nav-link {
-    font-size: 25px;
-  }*/
-
-  /*.tab-title {
-    display: inline;
-    padding-left: 5px;
-    vertical-align: middle;
-  }*/
-
+  /* */
 </style>
