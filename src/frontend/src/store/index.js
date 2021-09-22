@@ -7,7 +7,7 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     device: '',
-    token: localStorage.getItem('token') || '',
+    token: localStorage.getItem('token') || 'abc',
   },
 
   actions: {

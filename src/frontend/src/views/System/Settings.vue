@@ -23,7 +23,7 @@
     </b-modal>
 
     <b-row class="justify-content-center">
-      <b-col cols="11" lg="10" xl="9">
+      <b-col cols="12" lg="10" xl="9">
         <h2>Messung</h2>
         <!-- Aufnahme der Messwerte -->
         <b-form-group>

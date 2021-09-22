@@ -1,18 +1,18 @@
 <template>
 <div id="sidebar-box">
   <div id="sidebar" class="bg-light">
-    <b-nav :vertical="$screen.md" pills>
+    <b-nav :vertical="$screen.md && $screen.width != 800" pills>
       <b-nav-item :to="{ name: 'dashboard' }" exact exact-active-class="active">
         <b-icon icon="brightness-high-fill"></b-icon>
-        <div class="d-none d-sm-inline">Dashboard</div>
+        <div class="d-none d-sm-inline item-caption">Dashboard</div>
       </b-nav-item>
       <b-nav-item :to="{ name: 'browser' }" exact exact-active-class="active">
         <b-icon icon="bar-chart-fill"></b-icon>
-        <div class="d-none d-sm-inline">Messwerte</div>
+        <div class="d-none d-sm-inline item-caption">Messwerte</div>
       </b-nav-item>
       <b-nav-item :to="{ name: 'settings' }" exact exact-active-class="active">
         <b-icon icon="sliders"></b-icon>
-        <div class="d-none d-sm-inline">Einstellungen</div>
+        <div class="d-none d-sm-inline item-caption">Einstellungen</div>
       </b-nav-item>
     </b-nav>
   </div>
@@ -21,6 +21,9 @@
 
 <script>
 export default {
-  name: 'SideBar'
+  name: 'SideBar',
+  computed: {
+
+  }
 }
 </script>
