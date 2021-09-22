@@ -1,6 +1,8 @@
 $navbar-height: 55px;
 $sidebar-width: 180px;
 
+$breakpoint-mobile-m: 375px;
+$breakpoint-mobile-l: 430px;
 $breakpoint-sm: 576px;
 $breakpoint-md: 768px;
 
@@ -22,9 +24,10 @@ html, body {
 }
 
 #sidebar-column {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  bottom: 0;
   z-index: 1000;
+  order: 1;
 }
 
 #sidebar-box {
@@ -43,8 +46,6 @@ html, body {
 
       .nav-item {
         padding-bottom: 0;
-        margin-left: 20px;
-        margin-right: 20px;
 
         .nav-link {
           padding-left: 40px;
@@ -64,8 +65,28 @@ html, body {
   margin: 15px;
 }
 
+@media (min-width: $breakpoint-mobile-m) {
+  #sidebar-box #sidebar .nav .nav-item {
+    margin-left: 5px;
+    margin-right: 5px;
+  }
+}
+
+@media (min-width: $breakpoint-mobile-l) {
+  #sidebar-box #sidebar .nav .nav-item {
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+}
+
 
 @media (min-width: $breakpoint-sm) {
+  #sidebar-column {
+    position: sticky;
+    order: 0;
+    top: 0;
+  }
+
   #sidebar-box #sidebar .nav .nav-item {
     margin: 0;
 
