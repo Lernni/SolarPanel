@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="browser">
     <b-row class="justify-content-center">
       <b-col xl="10">
         <b-card no-body>
@@ -19,7 +19,7 @@
               Alle Zeitangaben sind in mitteleuropäischer Winterzeit.
               <br><br>
               <b-row class="justify-content-center">
-                <b-col cols="12">
+                <b-col class="d-none d-sm-block" cols="12">
                   <b-skeleton-wrapper :loading="loadingEntities">
                     <template #loading>
                       <b-skeleton-img no-aspect height="150px"></b-skeleton-img>
@@ -31,7 +31,7 @@
                 <b-col xl="10" class="mt-3">
                   <div>
                     <b-row>
-                      <b-col>
+                      <b-col cols="12" sm="6">
                         <label for="start-datepicker">Startdatum</label>
                         <b-form-datepicker
                           id="start-datepicker"
@@ -57,7 +57,7 @@
                       </b-col>
                     </b-row>
                     <b-row>
-                      <b-col>
+                      <b-col cols="12" sm="6">
                         <label for="end-datepicker">Enddatum</label>
                         <b-form-datepicker
                           id="end-datepicker"
@@ -103,7 +103,7 @@
               Ausgewählte Messgrößen können im Diagramm beliebig ein- und ausgeblendet werden.
               <br><br>
               <b-row>
-                <b-col cols="2">
+                <b-col cols="6" xl="4">
                   <b-form-group>
                     <b-form-checkbox-group
                       id="unit-group1"
@@ -120,6 +120,7 @@
                       v-model="units.selected"
                       :options="units.options.slice(3, 6)"
                       stacked
+                      disabled
                     ></b-form-checkbox-group>
                   </b-form-group>
                 </b-col>
@@ -269,30 +270,32 @@ export default {
   },
 
   mounted() {
-    const interval = setInterval(() => {
-      if (this.$refs.timeline) {
-        this.$refs.timeline.zoomX(this.dateTimeRange.min, this.dateTimeRange.max)
-        clearInterval(interval)
-      }
-    }, 50)
-
-    this.$socket.emit("getDBEntities", (response) => {
-      this.loadingEntities = false
-      this.entities = []
-
-      for (let i = 0; i < response.data.length; i++) {
-        this.entities.push({
-          x: "records",
-          y: [response.data[i][0] * 1000, response.data[i][1] * 1000],
-        })
-      }
-
-      this.$refs.timeline.updateChart(this.entities)
-      this.dateTimeRange = {
-        min: this.entities[0].y[0],
-        max: this.entities[this.entities.length - 1].y[1]
-      }
-    })
+    if (this.device == "External") {
+      const interval = setInterval(() => {
+        if (this.$refs.timeline) {
+          this.$refs.timeline.zoomX(this.dateTimeRange.min, this.dateTimeRange.max)
+          clearInterval(interval)
+        }
+      }, 50)
+  
+      this.$socket.emit("getDBEntities", (response) => {
+        this.loadingEntities = false
+        this.entities = []
+  
+        for (let i = 0; i < response.data.length; i++) {
+          this.entities.push({
+            x: "records",
+            y: [response.data[i][0] * 1000, response.data[i][1] * 1000],
+          })
+        }
+  
+        this.$refs.timeline.updateChart(this.entities)
+        this.dateTimeRange = {
+          min: this.entities[0].y[0],
+          max: this.entities[this.entities.length - 1].y[1]
+        }
+      })
+    }
   },
 
   computed: {
@@ -385,6 +388,10 @@ export default {
     interval() {
       var interval = Math.floor(((this.dateTimeRange.max - this.dateTimeRange.min) / 1000) / 100)
       return (interval < 1) ? 1 : interval
+    },
+
+    device() {
+      return this.$store.state.device
     }
   },
 
@@ -495,20 +502,36 @@ export default {
 }
 </script>
 
-<style>
-  h5 {
-    margin-bottom: 0 !important;
+<style lang="scss">
+  #browser {
+    h5 {
+      margin-bottom: 0 !important;
+    }
+    .col-2-5 {
+      flex: 0 0 20%;
+      max-width: 20%;
+    }
+
+    .nav {
+      justify-content: center;
+    }
   }
-  .col-2-5 {
-    flex: 0 0 20%;
-    max-width: 20%;
+
+  @media (min-width: 992px) {
+    #browser {
+      .nav {
+        justify-content: flex-start;
+      }
+    }
   }
 
   @media (max-width: 1520px) {
-    .time-options {
-      flex: 0 0 100%;
-      max-width: 100%;
-      width: 100%;
+    #browser {
+      .time-options {
+        flex: 0 0 100%;
+        max-width: 100%;
+        width: 100%;
+      }
     }
   }
 </style>

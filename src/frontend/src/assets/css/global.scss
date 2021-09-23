@@ -63,6 +63,7 @@ html, body {
 
 #router-view {
   margin: 15px;
+  padding-bottom: 50px;
 }
 
 @media (min-width: $breakpoint-mobile-m) {
@@ -97,6 +98,10 @@ html, body {
         margin-right: 0.5rem !important;
       }
     }
+  }
+
+  .router-view {
+    padding-bottom: 0;
   }
 }
 
@@ -157,10 +162,6 @@ html, body {
           padding-bottom: 0;
           margin-left: 10px;
           margin-right: 10px;
-
-          .item-caption {
-            display: none !important;
-          }
   
           .nav-link {
             padding-left: 40px;

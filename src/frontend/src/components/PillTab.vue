@@ -27,7 +27,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
   .variant-success > .active {
     background-color: var(--success) !important;
     color: white;
