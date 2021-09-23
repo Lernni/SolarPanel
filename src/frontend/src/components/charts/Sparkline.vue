@@ -1,5 +1,5 @@
 <template>
-  <apexchart ref="chart" :series="series" class="sparkline" type="area" :height="height" :options="chartOptions"/>
+  <apexchart ref="chart" :series="series" :height="height" class="sparkline" type="area" :options="chartOptions"/>
 </template>
 
 <script>
@@ -20,13 +20,7 @@ export default {
             enabled: true
           },
           animations: {
-            enabled: true,
-            easing: 'linear',
-            speed: 1000,
-            dynamicAnimation: {
-              enabled: true,
-              speed: 1000
-            }
+            enabled: false,
           }
         },
         dataLabels: {
@@ -36,26 +30,7 @@ export default {
           curve: 'smooth'
         },
         tooltip: {
-          style: {
-            fontSize: "14px"
-          },
-          x: {
-            formatter: function(value) {
-              var secondsPassed = 60 - value + 1
-              if (secondsPassed == 1) {
-                return "vor einer Sekunde"
-              } else if (secondsPassed == 60) {
-                return "vor einer Minute"
-              } else {
-                return "vor " + secondsPassed + " Sekunden"
-              }
-            }
-          },
-          y: {
-            formatter: function(value) {
-              return value + " " + this.unit
-            }.bind(this)
-          }
+          enabled: false
         }
       }
     }

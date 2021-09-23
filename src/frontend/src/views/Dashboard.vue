@@ -72,7 +72,7 @@ export default {
             var power = (Math.round(response.record.voltage * response.record.input_current * 100) / 100).toFixed(2)
             this.records.power.push(power)
 
-            if (this.records.voltage.length >= 60) {
+            if (this.records.voltage.length >= 3 * 60) {
               this.records.voltage = this.records.voltage.slice(1)
               this.records.input_current = this.records.input_current.slice(1)
               this.records.output_current = this.records.output_current.slice(1)
