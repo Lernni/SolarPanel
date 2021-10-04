@@ -39,7 +39,7 @@ const handlers =  {
 }
 
 io.use((socket, next) => {
-  var clientIp = socket.handshake.headers['x-real-ip']
+  var clientIp = socket.handshake.headers['x-forwarded-for']
   socket.emit('DEVICE_DEFINITION', {
     device: (clientIp == '127.0.0.1') ? "Internal" : "External"
   })
@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
     if (event == 'loginRequest') {
       next() 
     } else {
-      var clientIp = socket.handshake.headers['x-real-ip']
+      var clientIp = socket.handshake.headers['x-forwarded-for']
       var token = socket.handshake.auth.token
       console.log(clientIp + " tries to make a request")
 
