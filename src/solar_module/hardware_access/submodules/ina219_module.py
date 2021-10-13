@@ -9,7 +9,7 @@ class INA219Module(Submodule):
         super().__init__(name = "INA219", description = description)
         
         self.ina = INA219(shunt_ohms, max_current, address = address)
-        self.ina.configure(self.ina.RANGE_16V, self.ina.GAIN_1_40MV)
+        self.ina.configure(voltage_range = self.ina.RANGE_16V, bus_adc = self.ina.ADC_128SAMP, shunt_adc = self.ina.ADC_128SAMP)
 
         self.state = Submodule.State.IDLE
     
