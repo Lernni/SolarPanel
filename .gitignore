@@ -3,7 +3,9 @@ build.sh
 .DS_Store
 node_modules
 dist
-
+.venv
+__pycache__
+cache
 
 # local env files
 .env.local

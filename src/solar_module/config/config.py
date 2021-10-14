@@ -3,7 +3,7 @@ import os
 import traceback
 from shutil import copyfile
 
-from globals import CONFIG_TEMPLATE_PATH, CONFIG_PATH
+from globals import CONFIG_TEMPLATE_PATH, CONFIG_DIR_PATH
 
 
 def reload():
@@ -17,8 +17,8 @@ def reload():
 class Config:
 	def __init__(self):
 		self.parser = configparser.ConfigParser()
-		self.config_dest = os.path.join(CONFIG_PATH, 'config.ini')
-		CONFIG_PATH.mkdir(parents = True, exist_ok = True)
+		self.config_dest = os.path.join(CONFIG_DIR_PATH, "config.ini")
+		CONFIG_DIR_PATH.mkdir(parents = True, exist_ok = True)
 
 		if not os.path.isfile(self.config_dest):
 			copyfile(CONFIG_TEMPLATE_PATH, self.config_dest)

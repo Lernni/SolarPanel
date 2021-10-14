@@ -1,6 +1,7 @@
 from hardware_access.submodules.ina219_module import INA219Module
 from hardware_access.submodules.mcp23017_module import MCP23017Module
 from config.config import Config
+from globals import DEBUG
 
 class Module:
 

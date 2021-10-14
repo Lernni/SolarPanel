@@ -2,15 +2,15 @@ const { default: axios } = require('axios');
 
 module.exports = (io, socket) => {
   socket.on("restart", () => {
-    axios.post("http://solar_module:5001/system/restart")
+    axios.post("/system/restart")
   })
 
   socket.on("shutdown", () => {
-    axios.post("http://solar_module:5001/system/shutdown")
+    axios.post("/system/shutdown")
   })
 
   socket.on("newSettings", (settings, callback) => {
-    axios.post("http://solar_module:5001/system/settings", settings)
+    axios.post("/system/settings", settings)
     .then(() => {
       callback()
     })
@@ -21,7 +21,7 @@ module.exports = (io, socket) => {
   })
   
   socket.on("getSettings", (callback) => {
-    axios.get("http://solar_module:5001/system/settings")
+    axios.get("/system/settings")
     .then((response) => {
       callback({
         settings: response.data

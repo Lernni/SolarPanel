@@ -3,31 +3,46 @@ const http = require('http');
 const { Server } = require('socket.io');
 const { instrument } = require("@socket.io/admin-ui")
 const fs = require('fs');
+const { default: axios } = require('axios');
 require("console-stamp")(console)
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["https://admin.socket.io/"]
+    origin: ["http://localhost:8080", "https://admin.socket.io/"]
   }
 });
+
+if (process.env.NODE_ENV == 'production') {
+  axios.defaults.baseURL = "http://solar_module:5001"
+} else {
+  axios.defaults.baseURL = "http://localhost:5001"
+}
 
 // init admin ui panel
 instrument(io, { auth: false })
 
+// login credential paths
+const LOGIN_CREDENTIALS_APP_PATH = '/data/config/login_credentials.json'
+const LOGIN_CREDENTIALS_TEMPLATE_PATH = './login_credentials.template.json'
+const HOST_NAME = (process.env.NODE_ENV == 'production') ? 'web_socket' : 'localhost'
+
 // login credentials
-try {
-  if (!fs.existsSync('/data/config/login_credentials.json')) {
-    fs.copyFile('./login_credentials.template.json', '/data/config/login_credentials.json', (error) => {
-      if (error) throw error;
-    })
+
+if (process.env.NODE_ENV == 'production') {
+  try {
+    if (!fs.existsSync(LOGIN_CREDENTIALS_APP_PATH)) {
+      fs.copyFile(LOGIN_CREDENTIALS_TEMPLATE_PATH, LOGIN_CREDENTIALS_APP_PATH, (error) => {
+        if (error) throw error;
+      })
+    }
+  } catch(error) {
+    console.log(error)
   }
-} catch(error) {
-  console.log(error)
 }
 
-const systemCredentials = require('/data/config/login_credentials.json')
+const systemCredentials = require((process.env.NODE_ENV == 'production') ? LOGIN_CREDENTIALS_APP_PATH : LOGIN_CREDENTIALS_TEMPLATE_PATH)
 
 // event handlers
 const dashboard = require('./handlers/dashboard')
@@ -92,6 +107,6 @@ io.on('connection', (socket) => {
   })
 })
 
-server.listen(4000, 'web_socket', () => {
+server.listen(4000, HOST_NAME, () => {
   console.log('listening on port 4000');
 });

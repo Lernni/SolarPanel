@@ -2,7 +2,7 @@ const { default: axios } = require('axios');
 
 module.exports = (io, socket) => {
   socket.on("browserRequest", (range, units, interval, callback) => {
-    axios.get("http://solar_module:5001/db/records", {
+    axios.get("/db/records", {
       params: {
         range: range,
         units: units,
@@ -20,7 +20,7 @@ module.exports = (io, socket) => {
   })
   
   socket.on("getDBEntities", (callback) => {
-    axios.get("http://solar_module:5001/db/entities/simple")
+    axios.get("/db/entities/simple")
     .then((response) => {
       callback({
         data: response.data

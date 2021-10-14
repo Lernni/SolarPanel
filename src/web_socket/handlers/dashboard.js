@@ -2,7 +2,7 @@ const { default: axios } = require('axios');
 
 module.exports = (io, socket) => {
   socket.on("getLatestRecords", (callback) => {
-    axios.get("http://solar_module:5001/latest/180")
+    axios.get("/latest/180")
     .then((response) => {
       callback({
         records: response.data
@@ -14,7 +14,7 @@ module.exports = (io, socket) => {
   })
   
   socket.on("getLatestRecord", (callback) => {
-    axios.get("http://solar_module:5001/latest")
+    axios.get("/latest")
     .then((response) => {
       callback({
         record: response.data
