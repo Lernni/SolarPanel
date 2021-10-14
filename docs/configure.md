@@ -128,6 +128,21 @@ sudo apt-get install -y i2c-tools
 ```
 - I2C-Interface manuell in `raspi-config` aktivieren
 
+5. vnStat:
+```
+cd ~
+git clone https://github.com/vergoh/vnstat-docker.git
+docker build -t vergoh/vnstat .
+docker run -d \
+    --restart=unless-stopped \
+    --network=host \
+    -e HTTP_PORT=8685 \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v /etc/timezone:/etc/timezone:ro \
+    --name vnstat \
+    vergoh/vnstat
+```
+
 ## RTC einrichten
 > siehe https://www.raspberry-pi-geek.de/ausgaben/rpg/2015/03/echtzeituhr-modul-ds3231-sorgt-fuer-genaue-zeitangaben
 1. Folgende Zeile in `/etc/modules` einfügen:
