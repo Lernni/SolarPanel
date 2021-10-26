@@ -1,0 +1,42 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "SolarPanel - Debug Mode",
+            "type": "shell",
+            "dependsOn": ["SolarModule - Debug Mode", "WebSocket - Debug Mode", "Frontend - Debug Mode"]
+        },
+        {
+            "label": "SolarModule - Debug Mode",
+            "type": "shell",
+            "presentation": {
+                "group": "test",
+                "reveal": "always",
+                "panel": "new"
+            },
+            "command": "cd ${workspaceFolder}/src/solar_module && source ./.venv/bin/activate && DEBUG=true python -m app --wait-for-client --multiprocess -m flask run && deactivate"
+        },
+        {
+            "label": "WebSocket - Debug Mode",
+            "type": "shell",
+            "presentation": {
+                "group": "test",
+                "reveal": "always",
+                "panel": "new"
+            },
+            "command": "cd ${workspaceFolder}/src/web_socket && NODE_ENV=debug node index.js"
+        },
+        {
+            "label": "Frontend - Debug Mode",
+            "type": "shell",
+            "presentation": {
+                "group": "test",
+                "reveal": "always",
+                "panel": "new"
+            },
+            "command": "cd ${workspaceFolder}/src/frontend && npm run serve"
+        }
+    ]
+}
