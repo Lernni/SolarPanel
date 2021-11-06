@@ -4,12 +4,19 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "SolarPanel - Debug Mode",
+            "label": ">>> SolarPanel - Start Dev Mode",
             "type": "shell",
-            "dependsOn": ["SolarModule - Debug Mode", "WebSocket - Debug Mode", "Frontend - Debug Mode"]
+            "dependsOn": ["SolarModule - Dev Mode", "WebSocket - Dev Mode", "Frontend - Dev Mode"]
         },
         {
-            "label": "SolarModule - Debug Mode",
+            "label": ">>> SolarPanel - Create Dev Environment",
+            "type": "shell",
+            "command": "cd ${workspaceFolder}/docs && ./create_dev_env.sh",
+        },
+
+
+        {
+            "label": "SolarModule - Dev Mode",
             "type": "shell",
             "presentation": {
                 "group": "test",
@@ -19,7 +26,7 @@
             "command": "cd ${workspaceFolder}/src/solar_module && source ./.venv/bin/activate && DEBUG=true python -m app --wait-for-client --multiprocess -m flask run && deactivate"
         },
         {
-            "label": "WebSocket - Debug Mode",
+            "label": "WebSocket - Dev Mode",
             "type": "shell",
             "presentation": {
                 "group": "test",
@@ -29,7 +36,7 @@
             "command": "cd ${workspaceFolder}/src/web_socket && NODE_ENV=debug node index.js"
         },
         {
-            "label": "Frontend - Debug Mode",
+            "label": "Frontend - Dev Mode",
             "type": "shell",
             "presentation": {
                 "group": "test",
