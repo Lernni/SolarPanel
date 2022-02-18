@@ -20,11 +20,11 @@ class RecordBuffer:
         bottom_record = next((record for record in self._buffer if record is not None), None)
         return bottom_record
 
-    def get_records(self, date_time_range):
+    def get_records(self, start_date, end_date):
         records = []
         for record in self._buffer:
             if record is None: continue
-            if date_time_range.covers(record.recorded_time):
+            if start_date <= record.recorded_time <= end_date:
                 records.append(record)
 
         return records

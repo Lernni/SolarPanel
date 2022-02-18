@@ -2,7 +2,7 @@ import random
 
 from ina219 import INA219, DeviceRangeError
 
-from data_objects.record import RawRecord
+from data_objects.raw_record import RawRecord
 from hardware_access.submodules.submodule import Submodule
 from globals import DEBUG
 
