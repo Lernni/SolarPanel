@@ -1,55 +1,69 @@
-import json
 from datetime import datetime
 
 from flask_restx import Resource, reqparse
+import pandas as pd
+import numpy as np
 
-from data_access.database_handler import DatabaseHandler
-from data_objects.date_time_range import DateTimeRange
+import data_access.database_handler as db
+
+
+MAX_RECORDS = 100
 
 parser = reqparse.RequestParser()
-parser.add_argument("range")
+parser.add_argument("start_time")
+parser.add_argument("end_time")
 parser.add_argument("units[]", action="append")
-parser.add_argument("interval", type=int)
-
-def wrap_records(records, units):
-  wrapped_data = {
-      "time": []
-    }
-
-  requested_frame = {
-    "time": []
-  }
-
-  for unit in units:
-    wrapped_data[unit] = []
-    requested_frame[unit] = []
-
-  for record_frame in records:
-    for record in record_frame:
-      requested_frame["time"].append(datetime.timestamp(record.recorded_time_avg) * 1000)
-      for unit in units:
-        requested_frame[unit].append(getattr(record, unit))
-
-    wrapped_data["time"].append(requested_frame["time"])
-    requested_frame["time"] = []
-
-    for unit in units:
-      wrapped_data[unit].append(requested_frame[unit])
-      requested_frame[unit] = []
-
-  return wrapped_data
 
 
 class DBRecords(Resource):
   def get(self):
     args = parser.parse_args()
-    date_time_range = json.loads(args["range"])
     units = args["units[]"]
-    interval = args["interval"]
+    
+    # convert timestamps from frontend to pandas datetime objects
+    start_time = pd.to_datetime(datetime.fromtimestamp(int(args["start_time"]) / 1000))
+    end_time = pd.to_datetime(datetime.fromtimestamp(int(args["end_time"]) / 1000))
 
-    records = DatabaseHandler.get_records(
-      DateTimeRange(datetime.fromtimestamp(date_time_range["min"] / 1000), datetime.fromtimestamp(date_time_range["max"] / 1000)),
-      interval
+    db.repartition()
+    df = db.load()
+
+    mask = (
+      (df.index >= start_time) &
+      (df.index <= end_time)
     )
 
-    return wrap_records(records, units)
+    # locate requested records that meet condition of mask
+    marked_frame = df.loc[mask, units]
+
+    # check if the requested time range contains any records
+    if len(marked_frame.index) == 0: return []
+
+    # resample records to match the requested time interval, if necessary
+    if len(marked_frame.index) > MAX_RECORDS:
+      resample_freq = len(marked_frame.index) // MAX_RECORDS
+      marked_frame = marked_frame.resample(str(resample_freq) + "S").mean()
+
+      # drop nan rows from resampled dataframe
+      marked_frame = marked_frame.dropna()
+
+      # find gaps in resampled dataframe
+      marked_frame["timestamp"] = marked_frame.index
+      marked_frame["gap"] = marked_frame["timestamp"].diff().dt.seconds > resample_freq
+      marked_frame["gap"] = marked_frame["gap"].cumsum()
+
+    # get row indices where each section starts (where gaps occur)
+    gk = marked_frame.groupby("gap")["timestamp"].count().cumsum()
+    split_rows = gk.compute().tolist()
+
+    # make dataframe structure and types ready for expected data format
+    marked_frame = marked_frame[units].reset_index().compute()
+    marked_frame["timestamp"] = marked_frame["timestamp"].values.astype("datetime64[s]").astype("int")
+    marked_frame[units] = marked_frame[units].applymap('{:,.2f}'.format)
+
+    # split dataframe into sections and convert them to lists
+    marked_frames = np.split(marked_frame, split_rows, axis=0)
+    requested_list = []
+    for i in range(len(marked_frames) - 1):
+      requested_list.append(marked_frames[i].to_numpy().tolist())
+
+    return requested_list

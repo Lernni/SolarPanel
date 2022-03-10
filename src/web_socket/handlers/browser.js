@@ -1,12 +1,10 @@
 const { default: axios } = require('axios');
 
 module.exports = (io, socket) => {
-  socket.on("browserRequest", (range, units, interval, callback) => {
+  socket.on("browserRequest", ({start_time, end_time, units}, callback) => {
     axios.get("/db/records", {
       params: {
-        range: range,
-        units: units,
-        interval: interval
+        start_time, end_time, units
       }
     })
     .then((response) => {
@@ -19,8 +17,12 @@ module.exports = (io, socket) => {
     })
   })
   
-  socket.on("getDBEntities", (callback) => {
-    axios.get("/db/entities/simple")
+  socket.on("getDBSections", ({start_time, end_time}, callback) => {
+    axios.get("/db/sections", {
+      params: {
+        start_time, end_time
+      }
+    })
     .then((response) => {
       callback({
         data: response.data
