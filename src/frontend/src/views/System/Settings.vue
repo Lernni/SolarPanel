@@ -81,7 +81,7 @@
 
                     <template #append>
                       <b-input-group-text>
-                        <katex-element expression="\mu\Omega"/>
+                        <katex-element expression="\Omega"/>
                       </b-input-group-text>
                     </template>
                   </b-input-group>
@@ -94,7 +94,7 @@
 
                     <template #append>
                       <b-input-group-text>
-                        <katex-element expression="\mu\Omega"/>
+                        <katex-element expression="\Omega"/>
                       </b-input-group-text>
                     </template>
                   </b-input-group>
