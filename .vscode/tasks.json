@@ -10,7 +10,8 @@
                 "SolarModule - Dev Mode",
                 "WebSocket - Dev Mode",
                 "Frontend - Dev Mode"
-            ]
+            ],
+            "problemMatcher": []
         },
         {
             "label": ">>> SolarPanel - Create Dev Environment",

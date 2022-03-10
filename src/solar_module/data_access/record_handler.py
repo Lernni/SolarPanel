@@ -155,7 +155,7 @@ class RecordScheduler(Thread):
 
         record_count = len(RecordHandler.write_cache)
         if record_count > 0:
-            if db.add_record_list(RecordHandler.write_cache):
+            if db.append_records(RecordHandler.write_cache):
                 RecordHandler.write_cache = RecordHandler.write_cache[record_count:]
 
         LEDControl.set(LED.YELLOW, False)
