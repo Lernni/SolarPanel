@@ -22,6 +22,7 @@ export default {
           type: 'rangeBar',
           toolbar: {
             tools: {
+              reset: false,
               download: false
             }
           },
@@ -42,10 +43,12 @@ export default {
             }.bind(this),
 
             // eslint-disable-next-line no-unused-vars
-            dataPointSelection: function(event, chartContext, config) {
-              var dataPointRange = this.series[0].data[config.dataPointIndex].y
-              this.$refs.timeline.zoomX(dataPointRange[0], dataPointRange[1])
-            }.bind(this)
+            // dataPointSelection: function(event, chartContext, config) {
+            //   this.$refs.timeline.zoomX(
+            //     chartContext.rangeBar.seriesRangeStart[config.dataPointIndex],
+            //     chartContext.rangeBar.seriesRangeEnd[config.dataPointIndex]
+            //   )
+            // }.bind(this)
           }
         },
         plotOptions: {

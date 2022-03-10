@@ -31,6 +31,16 @@ const fixChartOptions = {
       group: "synced-charts",
       locales: [de],
       defaultLocale: "de",
+      animations: {
+        easing: "linear",
+        animateGradually: {
+          enabled: false,
+          delay: 0
+        },
+        dynamicAnimation: {
+          enabled: false,
+        }
+      },
     },
     xaxis: {
       type: 'datetime',

@@ -26,7 +26,7 @@
                     </template>
                   </b-skeleton-wrapper>
                   <!-- Timeline must be outside of skeleton-wrapper, because Timeline will be undefined otherwise, as long as loadingEntities = true -->
-                  <Timeline v-show="!loadingEntities" @updateDateTimeRange="updateDateTimeRange" ref="timeline" :seriesData="entities" />
+                  <Timeline v-show="!loadingEntities" @updateDateTimeRange="updateDateTimeRange" ref="timeline" />
                 </b-col>
                 <b-col xl="10" class="mt-3">
                   <div>
@@ -35,11 +35,11 @@
                         <label for="start-datepicker">Startdatum</label>
                         <b-form-datepicker
                           id="start-datepicker"
-                          v-model="startDate"
+                          v-model="startDateModel"
                           class="mb-2"
                           locale="de-DE"
                           :start-weekday="1"
-                          :max="endDate"
+                          :max="dateTimeRange.end"
                           labelHelp=""
                           labelNoDateSelected="Kein Datum ausgewählt"
                           :state="timeRangeDone"
@@ -49,7 +49,7 @@
                         <label for="start-timepicker">Startzeit</label>
                         <b-form-input
                           id="input"
-                          v-model="startTime"
+                          v-model="startTimeModel"
                           type="time"
                           class="mb-2"
                           :state="timeRangeDone"
@@ -61,12 +61,12 @@
                         <label for="end-datepicker">Enddatum</label>
                         <b-form-datepicker
                           id="end-datepicker"
-                          v-model="endDate"
+                          v-model="endDateModel"
                           class="mb-2"
                           locale="de-DE"
                           :start-weekday="1"
-                          :min="startDate"
-                          :max="maxDate"
+                          :min="dateTimeRange.start"
+                          :max="currentMEZTime.toDate()"
                           labelHelp=""
                           labelNoDateSelected="Kein Datum ausgewählt"
                           :state="timeRangeDone"
@@ -76,7 +76,7 @@
                         <label for="end-timepicker">Endzeit</label>
                         <b-form-input
                           id="end-timepicker"
-                          v-model="endTime"
+                          v-model="endTimeModel"
                           type="time"
                           class="mb-2"
                           :state="timeRangeDone"
@@ -93,7 +93,7 @@
                   </div>
                 </b-col>
               </b-row>
-            </PillTab>
+            </PillTab> 
 
             <PillTab caption="Messgrößen" :done="unitsDone" :disabled="loadingRequest">
               <template #tab-content>
@@ -179,12 +179,12 @@
                       :chartsData="browserSeries"
                     />
 
-                    <!--<OverlapBrowserChart
+                    <!-- <OverlapBrowserChart
                       v-show="chartType.selected == 'one'"
                       ref="overlapBrowserChart"
                       @updateDateTimeRange="checkForUpdateRequest"
                       :seriesData="browserSeries"
-                    />-->
+                    /> -->
                   </div>
 
                 </b-overlay>
@@ -203,32 +203,30 @@ import Timeline from '../../components/charts/Timeline.vue'
 import SyncedBrowserChart from '../../components/charts/SyncedBrowserChart.vue'
 //import OverlapBrowserChart from '../../components/charts/OverlapBrowserChart.vue'
 import { required } from 'vuelidate/lib/validators'
-
-const Formatter = {
-  toTime: function(dateTime) {
-    return ("0" + new Date(dateTime).getHours()).slice(-2) + ":" + ("0" + new Date(dateTime).getMinutes()).slice(-2)
-  }
-}
+import moment from 'moment-timezone'
 
 export default {
   name: "Browser",
   components: {
-      PillTab, Timeline, SyncedBrowserChart, //OverlapBrowserChart
+      PillTab, Timeline, SyncedBrowserChart //OverlapBrowserChart
   },
+
   data() {
     return {
 
-      maxDate: new Date(),
       enableZoomEvents: true,
       loadingEntities: true,
       firstRequest: true,
       loadingRequest: false,
       updateAvailable: false,
 
+      currentMEZTime: moment.utc().add(1, 'h'),
+      mStartTime: moment.utc(),
+      mEndTime: moment.utc(),
 
       dateTimeRange: {
-        min: Date.now(),
-        max: Date.now(),
+        start: Date.now(),
+        end: Date.now()
       },
 
       units: {
@@ -259,9 +257,10 @@ export default {
     dateTimeRange: {
       minValue: value => {
         if (value === undefined) return false
-        return value.max > value.min
+        return value.end > value.start
       }
     },
+
     units: {
       selected: {
         required
@@ -270,15 +269,24 @@ export default {
   },
 
   mounted() {
+    this.mStartTime = this.currentMEZTime.clone().subtract(1, 'days')
+    this.mEndTime = this.currentMEZTime.clone()
+
+    this.dateTimeRange.start = this.mStartTime.toDate()
+    this.dateTimeRange.end = this.mEndTime.toDate()
+
     if (this.device == "External") {
       const interval = setInterval(() => {
         if (this.$refs.timeline) {
-          this.$refs.timeline.zoomX(this.dateTimeRange.min, this.dateTimeRange.max)
+          this.$refs.timeline.zoomX(this.dateTimeRange.start, this.dateTimeRange.end)
           clearInterval(interval)
         }
       }, 50)
-  
-      this.$socket.emit("getDBEntities", (response) => {
+
+      this.$socket.emit("getDBSections", {
+        start_time: this.mStartTime.valueOf(),
+        end_time: this.mEndTime.valueOf()
+      }, (response) => {
         this.loadingEntities = false
         this.entities = []
   
@@ -290,74 +298,72 @@ export default {
         }
   
         this.$refs.timeline.updateChart(this.entities)
-        this.dateTimeRange = {
-          min: this.entities[0].y[0],
-          max: this.entities[this.entities.length - 1].y[1]
-        }
+
+        this.mStartTime = moment.utc(this.entities[0].y[0])
+        this.mEndTime = moment.utc(this.entities[this.entities.length - 1].y[1])
+
+        this.dateTimeRange.start = this.mStartTime.valueOf()
+        this.dateTimeRange.end = this.mEndTime.valueOf()
       })
     }
   },
 
   computed: {
-    startDate: {
-      get: function() {
-        return new Date(this.dateTimeRange.min)
+    startDateModel: {
+      get() {
+        return this.mStartTime.toDate()
       },
-      set: function(date) {
-        date = new Date(date)
-        var startDateTime = new Date(this.dateTimeRange.min)
+      set(date) {
+        let pickedDate = moment.utc(date)
+        this.mStartTime = this.mStartTime
+          .year(pickedDate.year())
+          .month(pickedDate.month())
+          .date(pickedDate.date())
 
-        startDateTime.setFullYear(date.getFullYear())
-        startDateTime.setMonth(date.getMonth())
-        startDateTime.setDate(date.getDate())
-
-        this.dateTimeRange.min = startDateTime.getTime()
+        this.dateTimeRange.start = this.mStartTime.valueOf()
       }
     },
 
-    startTime: {
-      get: function() {
-        return Formatter.toTime(this.dateTimeRange.min)
+    endDateModel: {
+      get() {
+        return this.mEndTime.toDate()
       },
-      set: function(time) {
-        var splittedTime = time.split(':')
-        var startDateTime = new Date(this.dateTimeRange.min)
+      set(date) {
+        let pickedDate = moment.utc(date)
+        this.mEndTime = this.mEndTime
+          .year(pickedDate.year())
+          .month(pickedDate.month())
+          .date(pickedDate.date())
 
-        startDateTime.setHours(splittedTime[0])
-        startDateTime.setMinutes(splittedTime[1])
-
-        this.dateTimeRange.min = startDateTime.getTime()
+        this.dateTimeRange.end = this.mEndTime.valueOf()
       }
     },
 
-    endDate: {
-      get: function() {
-        return new Date(this.dateTimeRange.max)
+    startTimeModel: {
+      get() {
+        return this.mStartTime.format("HH:mm")
       },
-      set: function(date) {
-        date = new Date(date)
-        var endDateTime = new Date(this.dateTimeRange.max)
+      set(time) {
+        let pickedTime = moment(time, "HH:mm")
+        this.mStartTime = this.mStartTime
+          .hours(pickedTime.hours())
+          .minutes(pickedTime.minutes())
 
-        endDateTime.setFullYear(date.getFullYear())
-        endDateTime.setMonth(date.getMonth())
-        endDateTime.setDate(date.getDate())
-
-        this.dateTimeRange.max = endDateTime.getTime()
+        this.dateTimeRange.start = this.mStartTime.valueOf()
       }
     },
-
-    endTime: {
-      get: function() {
-        return Formatter.toTime(this.dateTimeRange.max)
+    
+    endTimeModel: {
+      get() {
+        return this.mEndTime.format("HH:mm")
       },
-      set: function(time) {
-        var splittedTime = time.split(':')
-        var endDateTime = new Date(this.dateTimeRange.max)
+      set(time) {
+        let pickedTime = moment(time, "HH:mm")
+        this.mEndTime = this.mEndTime
+          .hours(pickedTime.hours())
+          .minutes(pickedTime.minutes())
 
-        endDateTime.setHours(splittedTime[0])
-        endDateTime.setMinutes(splittedTime[1])
-
-        this.dateTimeRange.max = endDateTime.getTime()
+        this.dateTimeRange.end = this.mEndTime.valueOf()
       }
     },
 
@@ -371,7 +377,10 @@ export default {
 
     timeRangeSubtext: function() {
       if (this.timeRangeDone) {
-        return [new Date(this.dateTimeRange.min).toLocaleString(), new Date(this.dateTimeRange.max).toLocaleString()]
+        return [
+          this.mStartTime.format("DD.MM.YYYY HH:mm"),
+          this.mEndTime.format("DD.MM.YYYY HH:mm")
+        ]
       } else {
         return "Auswahl treffen"
       }
@@ -385,11 +394,6 @@ export default {
       return this.$v.units.selected.required
     },
 
-    interval() {
-      var interval = Math.floor(((this.dateTimeRange.max - this.dateTimeRange.min) / 1000) / 100)
-      return (interval < 1) ? 1 : interval
-    },
-
     device() {
       return this.$store.state.device
     }
@@ -400,7 +404,7 @@ export default {
       // eslint-disable-next-line no-unused-vars
       handler: function(newVal, oldVal) {
         this.enableZoomEvents = false
-        this.$refs.timeline.zoomX(newVal.min, newVal.max)
+        this.$refs.timeline.zoomX(newVal.start, newVal.end)
         this.enableZoomEvents = true
 
         this.checkForUpdateRequest()
@@ -418,34 +422,35 @@ export default {
       if (this.loadingRequest) {
         this.browserSeries = []
 
+
         let chartOptions = {}
 
-        for (let unit of this.units.selected) {
-          switch (unit) {
+        for (let i = 0; i < this.units.selected.length; i++) {
+          switch (this.units.selected[i]) {
             case "voltage":
               chartOptions = this.getChartOptions("Spannung", "V", "line", "#2E93FA")
               break
             case "input_current":
-              chartOptions = this.getChartOptions("Eingangsstrom", "mA", "line", "#E91E63")
+              chartOptions = this.getChartOptions("Eingangsstrom", "A", "line", "#E91E63")
               break
             case "output_current":
-              chartOptions = this.getChartOptions("Ausgangsstrom", "mA", "line", "#E91E63")
+              chartOptions = this.getChartOptions("Ausgangsstrom", "A", "line", "#E91E63")
               break
           }
 
-          chartOptions.name = unit
+          chartOptions.name = this.units.selected[i]
           let seriesData = []
 
-          for (let i = 0, len = data.time.length; i < len; i++) {
-            for (let j = 0, len2 = data.time[i].length; j < len2; j++) {
+          for (let section of data) {
+            for (let record of section) {
               seriesData.push({
-                x: data.time[i][j],
-                y: data[unit][i][j]
+                x: record[0] * 1000,
+                y: record[i + 1]
               })
             }
 
             seriesData.push({
-              x: data.time[i][data.time[i].length - 1] + 1,
+              x: section[section.length - 1][0] * 1000 + 1,
               y: null
             })
           }
@@ -475,7 +480,11 @@ export default {
 
     updateDateTimeRange(range) {
       if (this.enableZoomEvents) {
-        this.dateTimeRange = range
+        this.mStartTime = moment.utc(range.min)
+        this.mEndTime = moment.utc(range.max)
+
+        this.dateTimeRange.start = this.mStartTime.valueOf()
+        this.dateTimeRange.end = this.mEndTime.valueOf()
       }
     },
 
@@ -494,7 +503,13 @@ export default {
       this.updateAvailable = false
       this.loadingRequest = true
       this.browserSeries = []
-      this.$socket.emit("browserRequest", this.dateTimeRange, this.units.selected, this.interval, (response) => {
+
+      this.$socket.emit("browserRequest",
+        {
+          start_time: this.mStartTime.subtract(1, "hours").valueOf(),
+          end_time: this.mEndTime.subtract(1, "hours").valueOf(),
+          units: this.units.selected
+        }, (response) => {
         this.setDBRecords(response.data)
       })
     }
