@@ -73,7 +73,7 @@ class RecordScheduler(Thread):
         # otherwise, scheduler would wait for save_cache to finish, which takes a couple seconds
         # in this time, no record would be created
         
-        self.save_job = schedule.every(20).seconds.do(RecordHandler.run_threaded, self.save_cache)
+        self.save_job = schedule.every(20).seconds.do(RecordScheduler.run_threaded, self.save_cache)
 
     def run_threaded(job_func):
         job_thread = Thread(target = job_func, name = "SaveCacheThread")
@@ -101,7 +101,7 @@ class RecordScheduler(Thread):
             (raw_input_record.voltage + raw_output_record.voltage) / 2,
             raw_input_record.current,
             raw_output_record.current,
-            0
+            float(0)
         ]
 
         RecordHandler.add_record(record)
