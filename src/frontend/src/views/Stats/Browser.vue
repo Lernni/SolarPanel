@@ -39,7 +39,7 @@
                           class="mb-2"
                           locale="de-DE"
                           :start-weekday="1"
-                          :max="dateTimeRange.end"
+                          :max="Date(dateTimeRange.end)"
                           labelHelp=""
                           labelNoDateSelected="Kein Datum ausgewählt"
                           :state="timeRangeDone"
@@ -65,7 +65,7 @@
                           class="mb-2"
                           locale="de-DE"
                           :start-weekday="1"
-                          :min="dateTimeRange.start"
+                          :min="Date(dateTimeRange.start)"
                           :max="currentMEZTime.toDate()"
                           labelHelp=""
                           labelNoDateSelected="Kein Datum ausgewählt"
@@ -482,9 +482,6 @@ export default {
       if (this.enableZoomEvents) {
         this.mStartTime = moment.utc(range.min)
         this.mEndTime = moment.utc(range.max)
-
-        this.dateTimeRange.start = this.mStartTime.valueOf()
-        this.dateTimeRange.end = this.mEndTime.valueOf()
       }
     },
 
