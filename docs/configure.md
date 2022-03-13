@@ -82,7 +82,7 @@ sudo usermod -aG i2c [benutzer]
 14. `src/local_client/start_solarpanel.sh` an die Datei `/etc/rc.local` anhängen:
 
 ```
-/home/[benutzer]/SolarPanel/src/local_client/start_solarpanel.sh
+/home/[benutzer]/SolarPanel/src/local_client/start_solarpanel.sh 2>&1 | tee /home/[benutzer]/startup.log
 ```
 15. Logindaten in die Datei `/solarpanel_data/config/login_credentials.json` schreiben:
 ```json
