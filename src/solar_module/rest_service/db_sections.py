@@ -29,10 +29,10 @@ class DBSections(Resource):
     )
 
     # locate requested timestamps that meet condition of mask
-    marked_frame = df.loc[mask, []]
+    marked_frame = df.loc[mask, []].compute()
     marked_frame = marked_frame.reset_index()
 
-    # group all continous sections of timestamps
+    # group all continuous sections of timestamps
     marked_frame["gap"] = marked_frame["timestamp"].diff().dt.seconds > 1
     marked_frame["gap"] = marked_frame["gap"].cumsum()
 
@@ -40,5 +40,5 @@ class DBSections(Resource):
     gk = marked_frame.groupby("gap").agg({"timestamp" : [np.min, np.max]})
 
     # convert gk dataframe to 2D array of unix timestamps
-    record_groups = gk.compute().to_numpy().astype("datetime64[s]").astype("int").tolist()
+    record_groups = gk.to_numpy().astype("datetime64[s]").astype("int").tolist()
     return record_groups

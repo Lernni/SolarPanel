@@ -41,7 +41,7 @@ class DBRecords(Resource):
     # resample records to match the requested time interval, if necessary
     if len(marked_frame.index) > MAX_RECORDS:
       resample_freq = len(marked_frame.index) // MAX_RECORDS
-      marked_frame = marked_frame.resample(str(resample_freq) + "S").mean()
+      marked_frame = marked_frame.compute().resample(str(resample_freq) + "S").mean()
 
       # drop nan rows from resampled dataframe
       marked_frame = marked_frame.dropna()
@@ -52,11 +52,10 @@ class DBRecords(Resource):
       marked_frame["gap"] = marked_frame["gap"].cumsum()
 
     # get row indices where each section starts (where gaps occur)
-    gk = marked_frame.groupby("gap")["timestamp"].count().cumsum()
-    split_rows = gk.compute().tolist()
+    split_rows = marked_frame.groupby("gap")["timestamp"].count().cumsum().tolist()
 
     # make dataframe structure and types ready for expected data format
-    marked_frame = marked_frame[units].reset_index().compute()
+    marked_frame = marked_frame[units].reset_index()
     marked_frame["timestamp"] = marked_frame["timestamp"].values.astype("datetime64[s]").astype("int")
     marked_frame[units] = marked_frame[units].applymap('{:,.2f}'.format)
 
