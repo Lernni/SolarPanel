@@ -7,7 +7,7 @@ import numpy as np
 import data_access.database_handler as db
 
 
-MAX_RECORDS = 100
+MAX_RECORDS = 150
 
 parser = reqparse.RequestParser()
 parser.add_argument("start_time")

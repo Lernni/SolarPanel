@@ -30,7 +30,7 @@ def repartition():
   if not dask_busy:
     try:
       df = dd.read_parquet(DB_PATH)
-      df = df.repartition(partition_size="20MB")
+      df = df.repartition(freq="1W")
       dd.to_parquet(df, DB_TEMP_PATH)
 
       shutil.rmtree(DB_PATH)
