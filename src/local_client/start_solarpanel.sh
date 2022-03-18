@@ -25,7 +25,7 @@ chown -R lenny /home/lenny/solarpanel_data
 /bin/su -c "docker-compose -f /home/lenny/SolarPanel/src/docker-compose.yml up -d" - lenny
 
 echo "(5/6) - open ngrok tunnels..."
-/home/lenny/ngrok start --config=/home/lenny/ngrok.yml --all > /dev/null &
+/home/lenny/ngrok start --config=/home/lenny/.ngrok2/ngrok.yml --all > /dev/null &
 
 echo "(6/6) - open browser window to localhost..."
 

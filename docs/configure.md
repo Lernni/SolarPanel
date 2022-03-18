@@ -1,31 +1,17 @@
 # Erstkonfiguration Raspberry Pi
-## Installieren von Raspberry Pi OS auf einem USB Flash Drive
+## Installieren von Raspberry Pi OS
 
-> Eine einfache Installation direkt auf den USB Flash Drive ist zurzeit noch nicht möglich (siehe https://www.raspberrypi.org/documentation/hardware/raspberrypi/bootmodes/bootflow_2711.md)
-
->Anleitung: https://www.tomshardware.com/how-to/boot-raspberry-pi-4-usb
-
->Achtung: Die SD-Karte sollte mindestens genauso groß sein, wie das USB Flash Drive, ansonsten wird dem Flash Drive weniger Speicher zugewiesen, als eigentlich zur Verfügung steht. In dem Fall sollte die Partition manuell vergrößert werden (siehe https://www.yourhelpcenter.de/2017/08/raspberry-pi-eine-partition-erweitern/ ; Bei der Meldung 'partition #2 contains a ext4 signature. Want to remove it?' 'Yes' auswählen)
-
-1. Raspberry Pi OS Lite (32 Bit) auf eine SD Karte über Raspberry Pi Imager schreiben
+1. Raspberry Pi OS Lite (64 Bit) auf eine SD Karte über Raspberry Pi Imager schreiben
 2. Auf dem Datenträger die Datei `ssh` erstellen, um SSH zu aktivieren
-3. `sudo raspi-config` aufrufen und Hostname ändern (System Options > Hostname) + Neustart
-4. Folgende Befehle ausführen:
+3. Raspberry Pi mit Datenträger starten
+4. `sudo raspi-config` aufrufen und Hostname ändern (System Options > Hostname) + Neustart
+5. Folgende Befehle ausführen:
 ```
 sudo apt update
 sudo apt full-upgrade
-sudo rpi-update
 sudo reboot
-sudo rpi-eeprom-update -d -a
 ```
->Falls der letzte Befehl ein Update durchführt, danach neustarten. Wahrscheinlich überflüssiger Befehl, da schon mit in den vorherigen Befehlen inbegriffen.
-5. `sudo raspi-config` aufrufen: 
-* Advanced Options > Bootloader Version > Latest > Reset boot ROM to defaults? > No
-* Advanced Options > Boot Order > USB
-* Finish > Reboot? > No
-6. Raspi herunterfahren
-7. SD Karte auf USB Flash Drive klonen (mit balenaEtcher)
-8. Raspi nur mit USB Flash Drive starten
+
 
 ## Einrichten des Raspberry Pi
 >Anleitung: https://projects.raspberrypi.org/en/projects/raspberry-pi-setting-up/4
@@ -38,29 +24,34 @@ sudo rpi-eeprom-update -d -a
 2. Neuen Nutzer anlegen und dessen SSH-Passwort ändern:
 >Anleitung: https://www.pcwelt.de/a/so-machen-sie-den-raspberry-pi-sicherer,3449552
 ```
-sudo useradd -m [benutzer] -G sudo
-sudo passwd [benutzer]
+sudo useradd -m [user] -G sudo
+sudo passwd [user]
 ```
 3. Nutzer 'pi' deaktivieren:
 ```
 sudo passwd --lock pi
 ```
-4. Anmeldung über SSH als 'root' unterbinden (`#PermitRootLogin no`) und Port ändern
+4. Anmeldung über SSH als 'root' unterbinden (`PermitRootLogin no`) und Port ändern (`Port [number]`)
 ```
 sudo nano /etc/ssh/sshd_config
 ```
-5. SSH-Dienst neustarten:
+5. SSH-Dienst neustarten und Raspberry Pi neustarten:
 ```
 sudo /etc/init.d/ssh restart
+sudo reboot
 ```
-6. `ssh-keygen` auf PC ausführen, der auf den Raspi per SSH zugreifen soll. (Alles mit Enter bestätigen, die Schlüssel befinden sich dann im Ordner '.ssh')
-7. Den Ordner 'home/[benutzer]/.ssh' und darin die Datei `authorized_keys` anlegen:
+6. `ssh-keygen` auf PC ausführen, der auf den Raspi per SSH zugreifen soll. (Alles mit Enter bestätigen, die Schlüssel befinden sich dann im Ordner '~/.ssh')
+7. Auf dem Raspberry Pi das Verzeichnis '~/[user]/.ssh' anlegen und darin die Datei `authorized_keys` erstellen:
 ```
+cd ~
 mkdir .ssh
 cd .ssh
 touch authorized_keys
 ```
-8. Die Datei `id_rsa.pub` mittels scp ins 'home/[benutzer]/.ssh' Verzeichnis kopieren
+8. Auf dem PC Die Datei `id_rsa.pub` mittels scp ins '~/[user]/.ssh' Verzeichnis auf den Raspberry kopieren
+```
+scp -P [port] ~/.ssh/id_rsa.pub [user]@[hostname]:~/.ssh/
+```
 9. Den Inhalt der Datei an `authorized_keys` anhängen:
 ```
 cat id_rsa.pub >> authorized_keys
@@ -71,67 +62,71 @@ cat id_rsa.pub >> authorized_keys
 sudo /etc/init.d/ssh restart
 ```
 12. VSCode Extension 'Remote - SSH' installieren und Verbindung dauerhaft hinzufügen
-13. I2C für Non-Root User einrichten
-```
-sudo groupadd i2c
-sudo chown :i2c /dev/i2c-1
-sudo chmod g+rw /dev/i2c-1
-sudo usermod -aG i2c [benutzer]
-```
->siehe https://lexruee.ch/setting-i2c-permissions-for-non-root-users.html (Schritte 1-5)
-14. `src/local_client/start_solarpanel.sh` an die Datei `/etc/rc.local` anhängen:
 
-```
-/home/[benutzer]/SolarPanel/src/local_client/start_solarpanel.sh 2>&1 | tee /home/[benutzer]/startup.log
-```
-15. Logindaten in die Datei `/solarpanel_data/config/login_credentials.json` schreiben:
-```json
-{
-    "username": "[username]",
-    "password": "[password]",
-    "token": "[token]"
-}
-```
 
 ## Pakete installieren
-1. Git:
+1. **Git**
 ```
 sudo apt install git
 git config --global user.name "Lernni"
 git config --global user.email "Lernni@users.noreply.github.com"
+cd ~
 git clone https://github.com/Lernni/SolarPanel.git
 ```
-2. Docker:
+2. **Docker**
 ```
 curl -fsSL https://get.docker.com | sh
-sudo usermod -aG docker lernni
+sudo usermod -aG docker ${USER}
 sudo apt-get install python3-pip
 sudo pip3 install docker-compose
+docker-compose --version
 ```
-3. fail2ban:
+3. **fail2ban**
 ```
-sudo apt-get install fail2ban
+sudo apt install fail2ban
 cd /etc/fail2ban
 sudo cp jail.conf jail.local
 sudo nano jail.local
 ```
 
->Unter '[sshd]' Änderungen vornehmen, wie siehe https://pimylifeup.com/raspberry-pi-fail2ban/ , Schritt 9 
+4. Unter Abschnitt '[sshd]' Änderungen vornehmen, wie siehe https://pimylifeup.com/raspberry-pi-fail2ban/ (Schritt 9):
+
+```
+[sshd]
+port    = [ssh_port_number]
+logpath = %(sshd_log)s
+backend = %(sshd_backend)s
+enabled = true
+filter = sshd
+bantime = 600
+maxretry = 3
+```
+
+5. Fail2Ban Service neustarten
 
 ```
 sudo service fail2ban restart
 ```
-4. I2C:
+6. **I2C**
 ```
-sudo apt-get install -y python-smbus
-sudo apt-get install -y i2c-tools
+sudo apt install -y python3-smbus i2c-tools
 ```
-- I2C-Interface manuell in `raspi-config` aktivieren
+7. I2C-Interface manuell in `raspi-config` aktivieren (Interface Options > I2C > Yes)
 
-5. vnStat:
+8. I2C für Non-Root User einrichten
+```
+sudo groupadd i2c
+sudo chown :i2c /dev/i2c-1
+sudo chmod g+rw /dev/i2c-1
+sudo usermod -aG i2c ${USER}
+```
+>siehe https://lexruee.ch/setting-i2c-permissions-for-non-root-users.html (Schritte 1-5)
+
+9. **vnStat**
 ```
 cd ~
 git clone https://github.com/vergoh/vnstat-docker.git
+sudo chmod 666 /var/run/docker.sock
 docker build -t vergoh/vnstat .
 docker run -d \
     --restart=unless-stopped \
@@ -143,6 +138,17 @@ docker run -d \
     vergoh/vnstat
 ```
 
+10. **ngrok**
+```
+cd ~
+wget https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-arm64.zip
+unzip ngrok-stable-linux-arm64.zip
+./ngrok --version
+sudo rm ngrok-stable-linux-arm64.zip
+./ngrok authtoken [auth token]
+```
+
+
 ## RTC einrichten
 > siehe https://www.raspberry-pi-geek.de/ausgaben/rpg/2015/03/echtzeituhr-modul-ds3231-sorgt-fuer-genaue-zeitangaben
 1. Folgende Zeile in `/etc/modules` einfügen:
@@ -150,8 +156,7 @@ docker run -d \
 ```
 i2c-bcm2708
 ```
-
-## Display einrichten
+## Grafiktreiber
 1. Folgende Befehle ausführen:
 ```
 cd ~
@@ -160,6 +165,13 @@ chmod -R 755 LCD-show
 cd LCD-show/
 ```
 >siehe http://www.lcdwiki.com/4inch_HDMI_Display-C
+2. `./MPI4008-show` auführen
+3. `sudo reboot` ausführen
+
+
+<details closed>
+<summary>Alternative Installation auf USB-Flash-Drive</summary>
+
 2. `sudo reboot` aus `MPI4008-show` und `system_backup.sh` entfernen
 3. `./MPI4008-show` auführen
 4. `/boot/cmdline.txt` ersetzen mit:
@@ -170,14 +182,21 @@ console=serial0,115200 console=tty1 root=PARTUUID=592acc1f-02 rootfstype=ext4 el
 
 >siehe https://github.com/goodtft/LCD-show/issues/276
 5. `sudo reboot` ausführen
-6. Folgende Befehle ausführen:
+
+</details>
+
+## Anzeige einrichten
+
+1. Folgende Befehle ausführen:
 ```
-sudo apt-get install --no-install-recommends xinit
-sudo apt install xserver-xorg-video-fbdev
-sudo apt-get install -y chromium-browser matchbox
+sudo apt install -y --no-install-recommends xinit
+sudo apt install -y xserver-xorg-video-fbdev chromium-browser matchbox
+sudo mv /usr/share/X11/xorg.conf.d/99-fbturbo.conf ~
+sudo ln -s /usr/lib/chromium-browser/swiftshader/libGLESv2.so /usr/lib/chromium-browser/
+sudo ln -s /usr/lib/chromium-browser/swiftshader/libEGL.so /usr/lib/chromium-browser/
 ```
 >Vielleicht auch in `sudo raspi-config` eine bestimmte Displayauflösung auswählen, statt Standardauflösung
-7. Schriftart 'Segoe UI' installieren:
+2. Schriftart 'Segoe UI' installieren:
 ```
 cd /usr/share/fonts/truetype
 sudo mkdir segoe
@@ -187,18 +206,30 @@ sudo unzip segoe_ui.zip
 sudo rm segoe_ui.zip
 fc-cache
 fc-list
+cd ~
 ```
 >siehe https://www.fontmirror.com/segoe-ui
-8. `nano start_browser.sh` erstellen mit:
+
+3. In `/etc/X11/xinit/xserverrc` die Option `-nocursor` anfügen
+
+
+## SolarPanel einrichten
+1. Aktuelle Version herunterladen
 ```
-#!/bin/sh
-xset -dpms # disable DPMS (Energy Star) features.
-xset s off # disable screen saver
-xset s noblank # don't blank the video device
-matchbox-window-manager &
-chromium-browser --no-pings --incognito --noerrdialogs --disable-infobars --no-sandbox --kiosk $1
+cd ~/SolarPanel
+git pull
 ```
->Alle Chromium Commandline-Options: https://peter.sh/experiments/chromium-command-line-switches/
-9. Skript ausführbar machen: `sudo chmod +x start_browser.sh`
-10. In `/etc/X11/xinit/xserverrc` die Option `-nocursor` anfügen
-11. Skript starten: `sudo startx ./start_browser.sh http://localhost:8080`
+
+2. `src/local_client/start_solarpanel.sh` an die Datei `/etc/rc.local` anhängen:
+
+```
+/home/[user]/SolarPanel/src/local_client/start_solarpanel.sh 2>&1 | tee /home/[user]/startup.log
+```
+3. Logindaten in die Datei `/solarpanel_data/config/login_credentials.json` schreiben:
+```json
+{
+    "username": "[username]",
+    "password": "[password]",
+    "token": "[token]"
+}
+```
