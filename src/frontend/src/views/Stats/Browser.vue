@@ -26,11 +26,11 @@
                         <label for="start-datepicker">Startdatum</label>
                         <b-form-datepicker
                           id="start-datepicker"
-                          v-model="startDateModel"
+                          v-model="startDate"
                           class="mb-2"
                           locale="de-DE"
                           :start-weekday="1"
-                          :max="Date(dateTimeRange.end)"
+                          :max="maxStartDate"
                           labelHelp=""
                           labelNoDateSelected="Kein Datum ausgewählt"
                           :state="timeRangeDone"
@@ -40,7 +40,7 @@
                         <label for="start-timepicker">Startzeit</label>
                         <b-form-input
                           id="input"
-                          v-model="startTimeModel"
+                          v-model="startTime"
                           type="time"
                           class="mb-2"
                           :state="timeRangeDone"
@@ -52,12 +52,12 @@
                         <label for="end-datepicker">Enddatum</label>
                         <b-form-datepicker
                           id="end-datepicker"
-                          v-model="endDateModel"
+                          v-model="endDate"
                           class="mb-2"
                           locale="de-DE"
                           :start-weekday="1"
-                          :min="Date(dateTimeRange.start)"
-                          :max="currentMEZTime.toDate()"
+                          :min="minEndDate"
+                          :max="new Date()"
                           labelHelp=""
                           labelNoDateSelected="Kein Datum ausgewählt"
                           :state="timeRangeDone"
@@ -67,7 +67,7 @@
                         <label for="end-timepicker">Endzeit</label>
                         <b-form-input
                           id="end-timepicker"
-                          v-model="endTimeModel"
+                          v-model="endTime"
                           type="time"
                           class="mb-2"
                           :state="timeRangeDone"
@@ -203,21 +203,20 @@ export default {
 
   data() {
     return {
-
-      enableZoomEvents: true,
       loadingEntities: true,
       firstRequest: true,
       loadingRequest: false,
       updateAvailable: false,
-
-      currentMEZTime: moment.utc().add(1, 'h'),
-      mStartTime: moment.utc(),
-      mEndTime: moment.utc(),
+      timeRangeSubtext: 'Auswahl treffen',
+      timeRangeDone: true,
 
       dateTimeRange: {
-        start: Date.now(),
-        end: Date.now()
+        start: moment.utc().add(1, 'h').subtract(1, 'd').set({seconds: 0}),
+        end: moment.utc().add(1, 'h').set({seconds: 0})
       },
+
+      maxStartDate: moment.utc().add(1, 'h').subtract(1, 'd').toDate(),
+      minEndDate: moment.utc().add(1, 'h').toDate(),
 
       units: {
         selected: [],
@@ -244,13 +243,6 @@ export default {
   },
 
   validations: {
-    dateTimeRange: {
-      minValue: value => {
-        if (value === undefined) return false
-        return value.end > value.start
-      }
-    },
-
     units: {
       selected: {
         required
@@ -259,69 +251,67 @@ export default {
   },
 
   mounted() {
-    this.mStartTime = this.currentMEZTime.clone().subtract(1, 'days')
-    this.mEndTime = this.currentMEZTime.clone()
-
-    this.dateTimeRange.start = this.mStartTime.toDate()
-    this.dateTimeRange.end = this.mEndTime.toDate()
+    this.dateTimeRangeUpdate()
   },
 
   computed: {
-    startDateModel: {
+    startDate: {
       get() {
-        return this.mStartTime.toDate()
+        return this.dateTimeRange.start.toDate()
       },
       set(date) {
         let pickedDate = moment.utc(date)
-        this.mStartTime = this.mStartTime
-          .year(pickedDate.year())
-          .month(pickedDate.month())
-          .date(pickedDate.date())
-
-        this.dateTimeRange.start = this.mStartTime.valueOf()
+        this.dateTimeRange.start.set({
+          year: pickedDate.year(),
+          month: pickedDate.month(),
+          date: pickedDate.date()
+        })
+        this.dateTimeRangeUpdate()
       }
     },
 
-    endDateModel: {
+    endDate: {
       get() {
-        return this.mEndTime.toDate()
+        return this.dateTimeRange.end.toDate()
       },
       set(date) {
         let pickedDate = moment.utc(date)
-        this.mEndTime = this.mEndTime
-          .year(pickedDate.year())
-          .month(pickedDate.month())
-          .date(pickedDate.date())
-
-        this.dateTimeRange.end = this.mEndTime.valueOf()
+        this.dateTimeRange.end.set({
+          year: pickedDate.year(),
+          month: pickedDate.month(),
+          date: pickedDate.date()
+        })
+        this.dateTimeRangeUpdate()
       }
     },
 
-    startTimeModel: {
+    startTime: {
       get() {
-        return this.mStartTime.format("HH:mm")
+        return this.dateTimeRange.start.format("HH:mm")
       },
       set(time) {
         let pickedTime = moment(time, "HH:mm")
-        this.mStartTime = this.mStartTime
-          .hours(pickedTime.hours())
-          .minutes(pickedTime.minutes())
-
-        this.dateTimeRange.start = this.mStartTime.valueOf()
+        this.dateTimeRange.start.set({
+          hour: pickedTime.hour(),
+          minute: pickedTime.minute(),
+          seconds: 0,
+        })
+        this.dateTimeRangeUpdate()
       }
     },
     
-    endTimeModel: {
+    endTime: {
       get() {
-        return this.mEndTime.format("HH:mm")
+        return this.dateTimeRange.end.format("HH:mm")
       },
       set(time) {
         let pickedTime = moment(time, "HH:mm")
-        this.mEndTime = this.mEndTime
-          .hours(pickedTime.hours())
-          .minutes(pickedTime.minutes())
-
-        this.dateTimeRange.end = this.mEndTime.valueOf()
+        this.dateTimeRange.end.set({
+          hour: pickedTime.hour(),
+          minute: pickedTime.minute(),
+          seconds: 0,
+        })
+        this.dateTimeRangeUpdate()
       }
     },
 
@@ -331,21 +321,6 @@ export default {
       } else {
         return "Auswahl treffen"
       }
-    },
-
-    timeRangeSubtext: function() {
-      if (this.timeRangeDone) {
-        return [
-          this.mStartTime.format("DD.MM.YYYY HH:mm"),
-          this.mEndTime.format("DD.MM.YYYY HH:mm")
-        ]
-      } else {
-        return "Auswahl treffen"
-      }
-    },
-
-    timeRangeDone: function() {
-      return this.$v.dateTimeRange.minValue
     },
 
     unitsDone: function() {
@@ -358,14 +333,6 @@ export default {
   },
 
   watch: {
-    dateTimeRange: {
-      // eslint-disable-next-line no-unused-vars
-      handler: function(newVal, oldVal) {
-        this.checkForUpdateRequest()
-      },
-      deep: true
-    },
-
     "units.selected"() {
       this.checkForUpdateRequest()
     }
@@ -431,10 +398,21 @@ export default {
       }
     },
 
-    updateDateTimeRange(range) {
-      if (this.enableZoomEvents) {
-        this.mStartTime = moment.utc(range.min)
-        this.mEndTime = moment.utc(range.max)
+    dateTimeRangeUpdate() {
+      this.maxStartDate = this.dateTimeRange.end.toDate()
+      this.minEndDate = this.dateTimeRange.start.toDate()
+      this.timeRangeDone = this.dateTimeRange.start < this.dateTimeRange.end
+      this.setTimeRangeSubtext()
+    },
+
+    setTimeRangeSubtext() {
+      if (this.timeRangeDone) {
+        this.timeRangeSubtext = [
+          this.dateTimeRange.start.format("DD.MM.YYYY HH:mm"),
+          this.dateTimeRange.end.format("DD.MM.YYYY HH:mm")
+        ]
+      } else {
+        this.timeRangeSubtext = "Auswahl treffen"
       }
     },
 
@@ -456,8 +434,8 @@ export default {
 
       this.$socket.emit("browserRequest",
         {
-          start_time: this.mStartTime.subtract(1, "hours").valueOf(),
-          end_time: this.mEndTime.subtract(1, "hours").valueOf(),
+          start_time: this.dateTimeRange.start.format("YYYY-MM-DD_HH-mm"),
+          end_time: this.dateTimeRange.end.format("YYYY-MM-DD_HH-mm"),
           units: this.units.selected
         }, (response) => {
         this.setDBRecords(response.data)

@@ -21,8 +21,8 @@ class DBRecords(Resource):
     units = args["units[]"]
     
     # convert timestamps from frontend to pandas datetime objects
-    start_time = datetime.fromtimestamp(int(args["start_time"]) / 1000)
-    end_time = datetime.fromtimestamp(int(args["end_time"]) / 1000)
+    start_time = datetime.strptime(args["start_time"], "%Y-%m-%d_%H-%M")
+    end_time = datetime.strptime(args["end_time"], "%Y-%m-%d_%H-%M")
 
     # get matching record resolution for request
     time_delta_seconds = int(timedelta.total_seconds(end_time - start_time))
