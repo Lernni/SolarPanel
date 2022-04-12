@@ -6,6 +6,3 @@ pi-ina219
 Adafruit-PureIO
 Adafruit-GPIO
 smbus2
-dask
-pandas
-pyarrow

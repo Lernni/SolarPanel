@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+import math
 
 from flask_restx import Resource, reqparse
-import pandas as pd
-import numpy as np
 
-import data_access.database_handler as db
+from data_access.database_handler import DatabaseHandler
+from globals import MAX_RECORD_COUNT, RESOLUTION_DEPTH
 
 
 MAX_RECORDS = 150
@@ -21,48 +21,75 @@ class DBRecords(Resource):
     units = args["units[]"]
     
     # convert timestamps from frontend to pandas datetime objects
-    start_time = pd.to_datetime(datetime.fromtimestamp(int(args["start_time"]) / 1000))
-    end_time = pd.to_datetime(datetime.fromtimestamp(int(args["end_time"]) / 1000))
+    start_time = datetime.fromtimestamp(int(args["start_time"]) / 1000)
+    end_time = datetime.fromtimestamp(int(args["end_time"]) / 1000)
 
-    db.repartition()
-    df = db.load()
+    # get matching record resolution for request
+    time_delta_seconds = int(timedelta.total_seconds(end_time - start_time))
+    if time_delta_seconds == 0: return []
 
-    mask = (
-      (df.index >= start_time) &
-      (df.index <= end_time)
-    )
+    resolution = time_delta_seconds // MAX_RECORDS
+    if resolution == 0: resolution = 1
 
-    # locate requested records that meet condition of mask
-    marked_frame = df.loc[mask, units]
+    partition_index = math.log2(resolution)
 
-    # check if the requested time range contains any records
-    if len(marked_frame.index) == 0: return []
+    if not partition_index.is_integer():
+      partition_index = int(math.ceil(partition_index))
+      resolution = int(math.pow(2, partition_index))
 
-    # resample records to match the requested time interval, if necessary
-    if len(marked_frame.index) > MAX_RECORDS:
-      resample_freq = len(marked_frame.index) // MAX_RECORDS
-      marked_frame = marked_frame.compute().resample(str(resample_freq) + "S").mean()
+      if partition_index > RESOLUTION_DEPTH:
+        partition_index = RESOLUTION_DEPTH
+        resolution = MAX_RECORD_COUNT
 
-      # drop nan rows from resampled dataframe
-      marked_frame = marked_frame.dropna()
+    partition_index = int(partition_index)
 
-      # find gaps in resampled dataframe
-      marked_frame["timestamp"] = marked_frame.index
-      marked_frame["gap"] = marked_frame["timestamp"].diff().dt.seconds > resample_freq
-      marked_frame["gap"] = marked_frame["gap"].cumsum()
 
-    # get row indices where each section starts (where gaps occur)
-    split_rows = marked_frame.groupby("gap")["timestamp"].count().cumsum().tolist()
+    # get records from db
+    sub_partitions = DatabaseHandler.partitions[partition_index]
+    if len(sub_partitions) == 0: return []
 
-    # make dataframe structure and types ready for expected data format
-    marked_frame = marked_frame[units].reset_index()
-    marked_frame["timestamp"] = marked_frame["timestamp"].values.astype("datetime64[s]").astype("int")
-    marked_frame[units] = marked_frame[units].applymap('{:,.2f}'.format)
+    start_partition_index = None
+    end_partition_index = None
 
-    # split dataframe into sections and convert them to lists
-    marked_frames = np.split(marked_frame, split_rows, axis=0)
-    requested_list = []
-    for i in range(len(marked_frames) - 1):
-      requested_list.append(marked_frames[i].to_numpy().tolist())
+    # Search for partitions that match the time range and mark the first and last match in the list
 
-    return requested_list
+    for i in range(len(sub_partitions)):
+      if sub_partitions[i].start_time >= start_time and sub_partitions[i].start_time <= end_time:
+        if start_partition_index is None:
+          start_partition_index = i
+
+      elif start_partition_index is not None:
+        end_partition_index = i - 1
+        break
+
+    # No partition containing the start time means that all partitions are before the start time,
+    #   so no partition is included
+    # No partition containing the end time means that all partitions after the start partition are included
+
+    if start_partition_index is None: return []
+    if end_partition_index is None: end_partition_index = len(sub_partitions) - 1
+
+    # Iterate through all relevant partitions and gather the records in sections
+
+    sections = []
+    records = []
+    for i in range(start_partition_index, end_partition_index + 1):
+      new_records = sub_partitions[i].get_records(start_time, end_time)
+
+      for j in range(len(new_records)):
+        record_data = []
+        for unit in units:
+          record_data.append(new_records[j].data[unit])
+
+        new_records[j] = [int(new_records[j].timestamp.replace(tzinfo = timezone.utc).timestamp())]
+        new_records[j].extend(record_data)
+          
+      if len(records) == 0:
+        records = new_records
+      elif new_records[0][0] == records[-1][0] + resolution:
+        records.extend(new_records)
+      else:
+        sections.append(records)
+        records = new_records
+
+    return sections

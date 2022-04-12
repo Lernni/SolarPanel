@@ -1,6 +1,6 @@
 import logging
 
-import data_access.database_handler as db
+from data_access.database_handler import DatabaseHandler
 from data_access.record_handler import RecordHandler
 from rest_service.rest import flask_app
 from hardware_access.module import Module
@@ -17,23 +17,21 @@ if not DEBUG:
   )
 else:
   logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format="%(asctime)s - %(message)s",
     datefmt="%d.%m.%Y %I:%M:%S %p"
   )
 
-logging.info("init application")
-
-logging.info("check module...")
+logging.info("checking modules...")
 Module.init()
 
-logging.info("analyze database...")
-db.init()
-db.repartition()
+logging.info("loading database...")
+DatabaseHandler.init()
 
-logging.info("load record handler...")
+logging.info("loading record handler...")
 RecordHandler.init()
 
+logging.info("starting flask app...")
+
 if __name__ == '__main__':
-  pass
   flask_app.run(debug = True, use_reloader = False, host = '0.0.0.0', port = 5001)
