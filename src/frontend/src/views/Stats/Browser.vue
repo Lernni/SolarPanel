@@ -19,15 +19,6 @@
               Alle Zeitangaben sind in mitteleuropäischer Winterzeit.
               <br><br>
               <b-row class="justify-content-center">
-                <b-col class="d-none d-sm-block" cols="12">
-                  <b-skeleton-wrapper :loading="loadingEntities">
-                    <template #loading>
-                      <b-skeleton-img no-aspect height="150px"></b-skeleton-img>
-                    </template>
-                  </b-skeleton-wrapper>
-                  <!-- Timeline must be outside of skeleton-wrapper, because Timeline will be undefined otherwise, as long as loadingEntities = true -->
-                  <Timeline v-show="!loadingEntities" @updateDateTimeRange="updateDateTimeRange" ref="timeline" />
-                </b-col>
                 <b-col xl="10" class="mt-3">
                   <div>
                     <b-row>
@@ -199,7 +190,6 @@
 
 <script>
 import PillTab from '../../components/PillTab.vue'
-import Timeline from '../../components/charts/Timeline.vue'
 import SyncedBrowserChart from '../../components/charts/SyncedBrowserChart.vue'
 //import OverlapBrowserChart from '../../components/charts/OverlapBrowserChart.vue'
 import { required } from 'vuelidate/lib/validators'
@@ -208,7 +198,7 @@ import moment from 'moment-timezone'
 export default {
   name: "Browser",
   components: {
-      PillTab, Timeline, SyncedBrowserChart //OverlapBrowserChart
+      PillTab, SyncedBrowserChart //OverlapBrowserChart
   },
 
   data() {
@@ -274,38 +264,6 @@ export default {
 
     this.dateTimeRange.start = this.mStartTime.toDate()
     this.dateTimeRange.end = this.mEndTime.toDate()
-
-    if (this.device == "External") {
-      const interval = setInterval(() => {
-        if (this.$refs.timeline) {
-          this.$refs.timeline.zoomX(this.dateTimeRange.start, this.dateTimeRange.end)
-          clearInterval(interval)
-        }
-      }, 50)
-
-      this.$socket.emit("getDBSections", {
-        start_time: this.mStartTime.valueOf(),
-        end_time: this.mEndTime.valueOf()
-      }, (response) => {
-        this.loadingEntities = false
-        this.entities = []
-  
-        for (let i = 0; i < response.data.length; i++) {
-          this.entities.push({
-            x: "records",
-            y: [response.data[i][0] * 1000, response.data[i][1] * 1000],
-          })
-        }
-  
-        this.$refs.timeline.updateChart(this.entities)
-
-        this.mStartTime = moment.utc(this.entities[0].y[0])
-        this.mEndTime = moment.utc(this.entities[this.entities.length - 1].y[1])
-
-        this.dateTimeRange.start = this.mStartTime.valueOf()
-        this.dateTimeRange.end = this.mEndTime.valueOf()
-      })
-    }
   },
 
   computed: {
@@ -403,10 +361,6 @@ export default {
     dateTimeRange: {
       // eslint-disable-next-line no-unused-vars
       handler: function(newVal, oldVal) {
-        this.enableZoomEvents = false
-        this.$refs.timeline.zoomX(newVal.start, newVal.end)
-        this.enableZoomEvents = true
-
         this.checkForUpdateRequest()
       },
       deep: true
@@ -421,7 +375,6 @@ export default {
     setDBRecords(data) {
       if (this.loadingRequest) {
         this.browserSeries = []
-
 
         let chartOptions = {}
 
