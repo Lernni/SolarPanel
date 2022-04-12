@@ -54,7 +54,7 @@ class DBRecords(Resource):
     # Search for partitions that match the time range and mark the first and last match in the list
 
     for i in range(len(sub_partitions)):
-      if sub_partitions[i].start_time >= start_time and sub_partitions[i].start_time <= end_time:
+      if sub_partitions[i].end_time >= start_time and sub_partitions[i].start_time <= end_time:
         if start_partition_index is None:
           start_partition_index = i
 
@@ -91,5 +91,7 @@ class DBRecords(Resource):
       else:
         sections.append(records)
         records = new_records
+
+    if len(records) != 0: sections.append(records)
 
     return sections
