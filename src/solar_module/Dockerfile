@@ -1,5 +1,7 @@
 FROM python:3.7 as base
 WORKDIR /app
+ARG CACHEBUST=1
+RUN echo "$CACHEBUST"
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .

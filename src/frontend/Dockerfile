@@ -1,5 +1,7 @@
 FROM node:14.16.0 as build-stage
 WORKDIR /app
+ARG CACHEBUST=1
+RUN echo "$CACHEBUST"
 COPY package*.json ./
 RUN npm install
 COPY . .
