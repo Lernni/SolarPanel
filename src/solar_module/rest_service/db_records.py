@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta, timezone
 import math
 
-from flask_restx import Resource, reqparse
+from flask_restx import Resource
+from flask import request
 
 from data_access.database_handler import DatabaseHandler
 from globals import MAX_RECORD_COUNT, RESOLUTION_DEPTH
@@ -9,20 +10,13 @@ from globals import MAX_RECORD_COUNT, RESOLUTION_DEPTH
 
 MAX_RECORDS = 150
 
-parser = reqparse.RequestParser()
-parser.add_argument("start_time")
-parser.add_argument("end_time")
-parser.add_argument("units[]", action="append")
-
-
 class DBRecords(Resource):
   def get(self):
-    args = parser.parse_args()
-    units = args["units[]"]
+    units = request.args.getlist("units[]")
     
     # convert timestamps from frontend to pandas datetime objects
-    start_time = datetime.strptime(args["start_time"], "%Y-%m-%d_%H-%M")
-    end_time = datetime.strptime(args["end_time"], "%Y-%m-%d_%H-%M")
+    start_time = datetime.strptime(request.args.get("start_time"), "%Y-%m-%d_%H-%M")
+    end_time = datetime.strptime(request.args.get("end_time"), "%Y-%m-%d_%H-%M")
 
     # get matching record resolution for request
     time_delta_seconds = int(timedelta.total_seconds(end_time - start_time))
@@ -52,6 +46,7 @@ class DBRecords(Resource):
     end_partition_index = None
 
     # Search for partitions that match the time range and mark the first and last match in the list
+    # TODO: count number of requested records in higher resolution and check if it is less than MAX_RECORDS
 
     for i in range(len(sub_partitions)):
       if sub_partitions[i].end_time >= start_time and sub_partitions[i].start_time <= end_time:
