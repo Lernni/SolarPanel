@@ -1,7 +1,6 @@
 flask
 flask_restx
 flask_cors
-schedule
 pi-ina219
 Adafruit-PureIO
 Adafruit-GPIO
