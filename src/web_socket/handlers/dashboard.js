@@ -5,7 +5,7 @@ module.exports = (io, socket) => {
     axios.get("/latest/180")
     .then((response) => {
       callback({
-        records: response.data
+        data: response.data
       })
     })
     .catch((error) => {
@@ -13,11 +13,11 @@ module.exports = (io, socket) => {
     })
   })
   
-  socket.on("getLatestRecord", (callback) => {
-    axios.get("/latest")
+  socket.on("getDashboardUpdate", (callback) => {
+    axios.get("/dashboard")
     .then((response) => {
       callback({
-        record: response.data
+        data: response.data
       })
     })
     .catch((error) => {

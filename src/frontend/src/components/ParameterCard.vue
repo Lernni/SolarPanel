@@ -2,8 +2,8 @@
   <b-card>
     <h5 class="card-title">{{parameter}}</h5>
     <slot></slot>
-    <div class="param-value text-right">{{seriesData[seriesData.length - 1]}} {{unit}}</div>
-    <Sparkline ref="sparkline" :height="height" :series="series" :unit="unit"/>
+    <div v-if="no_value == undefined" class="param-value text-right">{{seriesData[seriesData.length - 1]}} {{unit}}</div>
+    <Sparkline v-if="device == 'External'" ref="sparkline" :height="height" :series="series" :unit="unit"/>
   </b-card>
 </template> 
 
@@ -15,7 +15,7 @@ export default {
   components: {
     Sparkline
   },
-  props: ["parameter", "unit", "color", "seriesData"],
+  props: ["parameter", "unit", "color", "seriesData", "no_value"],
   data() {
     return {
       series: [{
@@ -33,6 +33,9 @@ export default {
       } else {
         return 100
       }
+    },
+    device() {
+      return this.$store.state.device
     }
   },
   watch: {
@@ -59,6 +62,7 @@ export default {
   }
 
   .card {
+    height: fit-content;
     width: 100%;
     flex: none !important;
     margin: 5px !important;
@@ -109,7 +113,7 @@ export default {
       
       .card-body {
         padding: 0.5rem;
-        padding-right: 12rem;
+        padding-right: 5rem;
       }
 
       .param-value {

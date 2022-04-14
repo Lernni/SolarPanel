@@ -8,7 +8,7 @@ from data_objects.record import Record
 from config.config import Config
 from hardware_access.module import Module
 from hardware_access.led_control import LEDControl, LED
-from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RECORD_COUNT
+from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RECORD_COUNT, LOW_BATTERY_THRESHOLD
 
 
 class RecordScheduler(Thread):
@@ -56,6 +56,12 @@ class RecordHandler:
   recording = False
   record_scheduler = None
 
+  current_capacity = None
+  current_soc = None
+  old_capacity = 0.0
+  old_soc = 0.0
+  charging_level = 0
+
 
   def init():
 
@@ -74,6 +80,7 @@ class RecordHandler:
     '''
     * If not already recording, starts recording.
     * Resets record cache and record count.
+    * Loads capacity and soc from config.
     '''
 
     logging.info("start recording...")
@@ -82,6 +89,15 @@ class RecordHandler:
       RecordHandler.record_cache = [[] for _ in range(RESOLUTION_DEPTH + 1)]
       RecordHandler.record_count = 0
       RecordHandler.record_scheduler = RecordScheduler(RecordHandler.create_record)
+
+      if RecordHandler.current_capacity is None:
+        with Config() as parser:
+          RecordHandler.current_capacity = parser.getfloat("record_data", "capacity")
+
+      if RecordHandler.current_soc is None:
+        with Config() as parser:
+          RecordHandler.current_soc = parser.getfloat("record_data", "soc")
+
       RecordHandler.record_scheduler.start()
       RecordHandler.recording = True
 
@@ -239,19 +255,56 @@ class RecordHandler:
 
     LEDControl.set(LED.YELLOW, True)
 
+    # measure voltage and current
     input_record = Module.input_ina.measure()
     output_record = Module.output_ina.measure()
 
+    # calculate state of charge (soc) and capacity
+    current_difference = (input_record.current - output_record.current) / 3600
+    RecordHandler.current_soc += current_difference
+
+    if RecordHandler.current_soc > RecordHandler.current_capacity:
+      RecordHandler.current_capacity = RecordHandler.current_soc
+
+    if RecordHandler.current_soc < 0:
+      RecordHandler.current_capacity += abs(RecordHandler.current_soc)
+      RecordHandler.current_soc = 0.0
+
+    # create record with new data and add it to cache
     record = Record(
       timestamp = input_record.recorded_time,
       data = {
         "voltage": round((input_record.voltage + output_record.voltage) / 2, 2),
         "input_current": round(input_record.current, 2),
         "output_current": round(output_record.current, 2),
-        "soc": round(float(0), 2)
+        "soc": round(RecordHandler.current_soc, 2)
       },
       resolution = 1
     )
 
     RecordHandler.add_record(record)
+
+    # save new capacity and soc to config file if necessary
+    if round(RecordHandler.current_capacity, 2) != RecordHandler.old_capacity:
+      with Config() as parser:
+        parser.set("record_data", "capacity", str(round(RecordHandler.current_capacity, 2)))
+
+    if round(RecordHandler.current_soc, 2) != RecordHandler.old_soc:
+      with Config() as parser:
+        parser.set("record_data", "soc", str(round(RecordHandler.current_soc, 2)))
+
+    RecordHandler.old_capacity = round(RecordHandler.current_capacity, 2)
+    RecordHandler.old_soc = round(RecordHandler.current_soc, 2)
+
+    # calculate current battery charging level
+    low_battery_level = True
+    if RecordHandler.current_capacity != 0:
+      RecordHandler.charging_level = math.trunc(RecordHandler.current_soc / RecordHandler.current_capacity * 100)
+      low_battery_level = RecordHandler.charging_level <= LOW_BATTERY_THRESHOLD
+
+    battery_charging = input_record.current > output_record.current
+
+    # update LED indicators
+    LEDControl.set(LED.RED, low_battery_level)
+    LEDControl.set(LED.GREEN, battery_charging)
     LEDControl.set(LED.YELLOW, False)

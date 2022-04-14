@@ -21,6 +21,12 @@ MAX_CACHE_SIZE = 512
 # After MAX_CACHE_SIZE records are in the cache, MAX_CACHE_SIZE / 2 records get saved
 
 
+# *** Evaluation Variables ***
+
+LOW_BATTERY_THRESHOLD = 20
+# Battery charging level in percent, below which the red LED is turned on, marking the battery level as low
+
+
 if DEBUG:
     DB_PATH = Path("./cache/db")
     CONFIG_DIR_PATH = Path("./cache/config")

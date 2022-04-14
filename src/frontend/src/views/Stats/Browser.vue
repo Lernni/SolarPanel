@@ -94,24 +94,13 @@
               Ausgewählte Messgrößen können im Diagramm beliebig ein- und ausgeblendet werden.
               <br><br>
               <b-row>
-                <b-col cols="6" xl="4">
+                <b-col>
                   <b-form-group>
                     <b-form-checkbox-group
                       id="unit-group1"
                       v-model="units.selected"
-                      :options="units.options.slice(0, 3)"
+                      :options="units.options"
                       stacked
-                    ></b-form-checkbox-group>
-                  </b-form-group>
-                </b-col>
-                <b-col>
-                  <b-form-group>
-                    <b-form-checkbox-group
-                      id="unit-group2"
-                      v-model="units.selected"
-                      :options="units.options.slice(3, 6)"
-                      stacked
-                      disabled
                     ></b-form-checkbox-group>
                   </b-form-group>
                 </b-col>
@@ -224,8 +213,6 @@ export default {
           { text: "Spannung (V)", value: "voltage" },
           { text: "Eingangsstrom (A)", value: "input_current" },
           { text: "Ausgangsstrom (A)", value: "output_current" },
-          { text: "Eingangsleistung (W)", value: "input_power" },
-          { text: "Ausgangsleistung (W)", value: "output_power" },
           { text: "Ladezustand (Ah)" , value: "soc" }
         ]
       },
@@ -355,6 +342,9 @@ export default {
               break
             case "output_current":
               chartOptions = this.getChartOptions("Ausgangsstrom", "A", "line", "#E91E63")
+              break
+            case "soc":
+              chartOptions = this.getChartOptions("Ladezustand", "Ah", "line", "#00EBB9")
               break
           }
 
