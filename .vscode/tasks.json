@@ -47,7 +47,7 @@
                 "reveal": "always",
                 "panel": "new"
             },
-            "command": "cd ${workspaceFolder}/src/frontend && npm run serve"
+            "command": "cd ${workspaceFolder}/src/frontend && pnpm dev"
         }
     ]
 }

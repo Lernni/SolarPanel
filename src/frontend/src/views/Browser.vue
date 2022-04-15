@@ -4,6 +4,6 @@
 
 <template>
   <div class="bg-gray-50">
-    Dashboard
+    Browser
   </div>
 </template>

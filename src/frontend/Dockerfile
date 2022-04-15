@@ -1,11 +1,12 @@
 FROM node:14.16.0 as build-stage
 WORKDIR /app
+RUN curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm
 ARG CACHEBUST=1
 RUN echo "$CACHEBUST"
-COPY package*.json ./
-RUN npm install
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile --prod
 COPY . .
-RUN npm run build
+RUN pnpm build
 
 FROM nginx:latest as production-stage
 RUN mkdir /app

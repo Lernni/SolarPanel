@@ -17,7 +17,7 @@ npm install
 cd ../../docs
 
 # Frontend einrichten
+pnpm env use -g lts
 cd ../src/frontend/
-npm install
-npm audit fix
+pnpm -r install
 cd ../../docs
