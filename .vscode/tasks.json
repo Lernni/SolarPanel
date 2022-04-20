@@ -47,7 +47,8 @@
                 "reveal": "always",
                 "panel": "new"
             },
-            "command": "cd ${workspaceFolder}/src/frontend && pnpm dev"
+            "command": "cd ${workspaceFolder}/src/frontend && pnpm dev",
+            "problemMatcher": []
         }
     ]
 }
