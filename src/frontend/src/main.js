@@ -3,6 +3,15 @@ import './tailwind.css'
 import App from './App.vue'
 import { routes } from './routes.js'
 import { createRouter, createWebHistory } from 'vue-router'
+import VueApexCharts from 'vue3-apexcharts'
+import MathJax, { initMathJax, renderByMathjax } from 'mathjax-vue3'
+
+function onMathJaxReady() {
+  const el = document.getElementById('mathjax-render-element')
+  renderByMathjax(el)
+}
+
+initMathJax({}, onMathJaxReady)
 
 const app = createApp(App)
 
@@ -12,4 +21,6 @@ const router = createRouter({
 })
 
 app.use(router)
+app.use(VueApexCharts)
+app.use(MathJax)
 app.mount('#app')

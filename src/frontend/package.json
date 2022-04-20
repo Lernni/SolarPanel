@@ -7,13 +7,20 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "katex": "^0.15.3",
+    "@vueuse/core": "^8.2.6",
+    "apexcharts": "^3.35.0",
+    "mathjax-vue3": "^1.0.1",
+    "nouislider": "^15.5.1",
     "pinia": "^2.0.13",
     "postcss": "^8.1.0",
     "prettier": "^2.6.2",
+    "sass": "^1.50.1",
+    "sass-loader": "^12.6.0",
     "socket.io-client": "^4.4.1",
     "vue": "^3.2.32",
-    "vue-router": "^4.0.14"
+    "vue-router": "^4.0.14",
+    "vue3-apexcharts": "^1.4.1",
+    "webpack": "^5.0.0"
   },
   "devDependencies": {
     "@headlessui/vue": "^1.5.0",
