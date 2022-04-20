@@ -8,6 +8,9 @@ module.exports = {
       fontFamily: {
         sans: ['"Inter var"', ...defaultTheme.fontFamily.sans],
       },
+      transitionProperty: {
+        'card-body': 'max-height, opacity, padding',
+      }
     },
   },
   plugins: [

@@ -13,7 +13,7 @@
         </h1>
       </div>
     </header>
-    <main>
+    <main class="flex justify-center">
       <router-view />
     </main>
   </div>
