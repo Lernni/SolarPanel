@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "johnsoncodehk.volar",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss",
+    "eamodio.gitlens",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "redhat.vscode-yaml",
+    "meganrogge.template-string-converter",
+    "sibiraj-s.vscode-scss-formatter",
+    "fabiospampinato.vscode-todo-plus",
+  ]
+}
