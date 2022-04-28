@@ -1,14 +1,10 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
   <div>
-    <header class="bg-white shadow" v-if="$route.meta.title">
-      <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        <h1
-          class="text-3xl font-bold leading-tight text-gray-900"
-        >
+    <header v-if="$route.meta.title" class="bg-white shadow">
+      <div class="py-6 px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <h1 class="text-3xl font-bold leading-tight text-gray-900">
           {{ $route.meta.title }}
         </h1>
       </div>

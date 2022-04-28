@@ -1,9 +1,5 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
-  <div class="bg-gray-50">
-    Settings
-  </div>
+  <div class="bg-gray-50">Settings</div>
 </template>

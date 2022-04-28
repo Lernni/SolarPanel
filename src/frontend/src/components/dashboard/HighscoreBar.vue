@@ -1,16 +1,16 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue'
 import { useElementHover } from '@vueuse/core'
-import noUiSlider from 'nouislider';
-import 'nouislider/dist/nouislider.css';
+import noUiSlider from 'nouislider'
+import 'nouislider/dist/nouislider.css'
 
 const props = defineProps({
-  minValue: String,
-  minDate: String,
-  maxValue: String,
-  maxDate: String,
-  currentValue: String,
-  unit: String,
+  minValue: { type: String, default: '0' },
+  minDate: { type: String, default: '01.01.2000' },
+  maxValue: { type: String, default: '1' },
+  maxDate: { type: String, default: '01.01.2000' },
+  currentValue: { type: String, default: '0' },
+  unit: { type: String, default: '-' },
 })
 
 const highscoreBar = ref()
@@ -18,79 +18,83 @@ const highscoreBar = ref()
 onMounted(() => {
   noUiSlider.create(highscoreBar.value, {
     range: {
-        'min': parseFloat(props.minValue),
-        'max': parseFloat(props.maxValue)
+      min: Number.parseFloat(props.minValue),
+      max: Number.parseFloat(props.maxValue),
     },
-    start: [parseFloat(props.minValue), parseFloat(props.currentValue), parseFloat(props.maxValue) ],
-    tooltips: [{
-      to: (value) => {
-        return value + ' ' + props.unit + '<span class="tooltip-info"> - ' + props.minDate + '</span>'
-      }
-    },
-    {
-      to: (value) => {
-        return value + ' ' + props.unit
-      }
-    },
-    {
-      to: (value) => {
-        return '<span class="tooltip-info">' + props.maxDate + ' - </span>' + value + ' ' + props.unit
-      }
-    }]
+    start: [
+      Number.parseFloat(props.minValue),
+      Number.parseFloat(props.currentValue),
+      Number.parseFloat(props.maxValue),
+    ],
+    tooltips: [
+      {
+        to: (value) => {
+          return (
+            value + ' ' + props.unit + '<span class="tooltip-info"> - ' + props.minDate + '</span>'
+          )
+        },
+      },
+      {
+        to: (value) => {
+          return value + ' ' + props.unit
+        },
+      },
+      {
+        to: (value) => {
+          return (
+            '<span class="tooltip-info">' + props.maxDate + ' - </span>' + value + ' ' + props.unit
+          )
+        },
+      },
+    ],
   })
 
-  let origins = highscoreBar.value.getElementsByClassName('noUi-origin');
-  origins[0].id = 'first-thumb';
-  origins[1].id = 'middle-thumb';
-  origins[2].id = 'last-thumb';
+  let origins = highscoreBar.value.querySelectorAll('.noUi-origin')
+  origins[0].id = 'first-thumb'
+  origins[1].id = 'middle-thumb'
+  origins[2].id = 'last-thumb'
 
-  const firstHandle = ref(origins[0].getElementsByClassName('noUi-handle')[0])
-  const lastHandle = ref(origins[2].getElementsByClassName('noUi-handle')[0])
+  const firstHandle = ref(origins[0].querySelectorAll('.noUi-handle')[0])
+  const lastHandle = ref(origins[2].querySelectorAll('.noUi-handle')[0])
 
-  const firstTooltip = ref(origins[0].getElementsByClassName('noUi-tooltip')[0])
-  const lastTooltip = ref(origins[2].getElementsByClassName('noUi-tooltip')[0])
+  const firstTooltip = ref(origins[0].querySelectorAll('.noUi-tooltip')[0])
+  const lastTooltip = ref(origins[2].querySelectorAll('.noUi-tooltip')[0])
 
-  const firstTooltipHovered = useElementHover(firstHandle);
-  const lastTooltipHovered = useElementHover(lastHandle);
+  const firstTooltipHovered = useElementHover(firstHandle)
+  const lastTooltipHovered = useElementHover(lastHandle)
 
   watch(firstTooltipHovered, (value) => {
-    if (value) {
-      lastTooltip.value.style.opacity = '0'
-    } else {
-      lastTooltip.value.style.opacity = '100%'
-    }
+    lastTooltip.value.style.opacity = value ? '0' : '100%'
   })
 
   watch(lastTooltipHovered, (value) => {
-    if (value) {
-      firstTooltip.value.style.opacity = '0'
-    } else {
-      firstTooltip.value.style.opacity = '100%'
-    }
+    firstTooltip.value.style.opacity = value ? '0' : '100%'
   })
 
   watch(props, (newProps) => {
     console.log(newProps)
     highscoreBar.value.noUiSlider.updateOptions({
       range: {
-        'min': parseFloat(newProps.minValue),
-        'max': parseFloat(newProps.maxValue)
-      }
+        min: Number.parseFloat(newProps.minValue),
+        max: Number.parseFloat(newProps.maxValue),
+      },
     })
-    highscoreBar.value.noUiSlider.set([parseFloat(newProps.minValue), parseFloat(newProps.currentValue), parseFloat(newProps.maxValue)])
+    highscoreBar.value.noUiSlider.set([
+      Number.parseFloat(newProps.minValue),
+      Number.parseFloat(newProps.currentValue),
+      Number.parseFloat(newProps.maxValue),
+    ])
   })
 })
-
 </script>
 
 <template>
   <div class="px-6 my-10 border-inherit">
-    <div disabled id="highscore-bar" ref="highscoreBar" class="w-full h-full"></div>
+    <div id="highscore-bar" ref="highscoreBar" disabled class="w-full h-full"></div>
   </div>
 </template>
 
 <style lang="scss">
-
 #highscore-bar {
   @apply bg-teal-500 border-none border-inherit h-2;
 
@@ -130,7 +134,6 @@ onMounted(() => {
 
   #first-thumb,
   #last-thumb {
-
     .noUi-handle {
       @apply cursor-pointer;
 
@@ -154,5 +157,4 @@ onMounted(() => {
     @apply right-full;
   }
 }
-
 </style>

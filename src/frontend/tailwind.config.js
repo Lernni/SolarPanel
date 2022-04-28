@@ -10,7 +10,7 @@ module.exports = {
       },
       transitionProperty: {
         'card-body': 'max-height, opacity, padding',
-      }
+      },
     },
   },
   plugins: [
