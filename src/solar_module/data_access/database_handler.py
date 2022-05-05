@@ -2,7 +2,7 @@ from pathlib import Path
 import math
 from datetime import timedelta
 
-from globals import DB_PATH, RESOLUTION_DEPTH, MAX_RECORDS_PER_PARTITION
+from globals import DB_PATH, RESOLUTION_DEPTH, MAX_RECORDS_PER_PARTITION, MAX_RESOLUTION
 from data_objects.record import Record
 from data_access.database_partition import DBPartition
 
@@ -76,7 +76,72 @@ class DatabaseHandler:
         DatabaseHandler.partitions[partition_index].append(DBPartition())
         DatabaseHandler.add_records(records[cut_index:])
 
-  
+
+  def get_partitions(start_time, end_time, resolution) -> list:
+
+    '''
+    * Returns a list of partitions that contain records for a given time period and resolution
+    '''
+
+    # calculate partition index
+    partition_index = math.log2(resolution)
+
+    if not partition_index.is_integer():
+      partition_index = int(math.ceil(partition_index))
+      resolution = int(math.pow(2, partition_index))
+
+      if partition_index > RESOLUTION_DEPTH:
+        partition_index = RESOLUTION_DEPTH
+        resolution = MAX_RESOLUTION
+
+    partition_index = int(partition_index)
+
+
+    # get partitions
+    sub_partitions = DatabaseHandler.partitions[partition_index]
+    if len(sub_partitions) == 0: return []
+    requested_partitions = []
+
+    # Search for partitions that match the time range and mark the first and last match in the list
+    for i in range(len(sub_partitions)):
+      if sub_partitions[i].end_time >= start_time and sub_partitions[i].start_time <= end_time:
+        requested_partitions.append(sub_partitions[i])
+
+      elif len(requested_partitions) != 0:
+        # if there were matches before, there will be no other matches after the condition failed
+        break
+
+    return requested_partitions
+
+
+  def get_average(start_time, end_time, metric) -> float:
+
+    '''
+    * Returns the average value for a given metric over a specific time
+    '''
+
+    # calculate the time difference in seconds
+    time_delta_seconds = int(timedelta.total_seconds(end_time - start_time))
+    if time_delta_seconds == 0: return None
+
+    # get gcd() to identify lowest resolution that could contain time period exactly and if not,
+    #  the resulting error will small in comparison to the computing effort
+    resolution = math.gcd(time_delta_seconds, MAX_RESOLUTION)
+
+    # get values
+    partitions = DatabaseHandler.get_partitions(start_time, end_time, resolution)
+
+    # create a list of all values from partitions
+    values = []
+    for partition in partitions:
+      records = partition.get_records(start_time, end_time)
+      for record in records:
+        values.append(record.data[metric])
+
+    # calculate average
+    return round(sum(values) / len(values), 2)
+
+
   def get_latest_record(resolution) -> Record:
 
     '''

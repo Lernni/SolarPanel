@@ -3,18 +3,21 @@ from threading import Thread
 import logging
 import math
 
+import schedule
+
 from data_access.database_handler import DatabaseHandler
 from data_objects.record import Record
 from config.config import Config
 from hardware_access.module import Module
 from hardware_access.led_control import LEDControl, LED
-from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RECORD_COUNT, LOW_BATTERY_THRESHOLD
+from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RESOLUTION, LOW_BATTERY_THRESHOLD
 
 
 class RecordScheduler(Thread):
 
   '''
   * Schedules creation of new records exactly once per second
+  * Schedules calculation of averages once per day at midnight
   '''
 
   def __init__(self, job):
@@ -22,24 +25,24 @@ class RecordScheduler(Thread):
     self.name = "RecordScheduler"
     self.running = True
     self.job = job
+
+    self.calc_averages_job = schedule.every().day.at("00:00").do(RecordScheduler.run_threaded, RecordHandler.calc_averages)
   
+
+  def run_threaded(job_func):
+    job_thread = Thread(target = job_func, name= "JobThread")
+    job_thread.start()
+
   def run(self):
     while self.running:
       # sleep as long as needed to run at an exact one second interval
       self.job()
+      schedule.run_pending()
       time.sleep(1.0 - time.time() % 1.0)
 
   def stop(self):
     self.running = False
-
-# checks if this thread runs in child process to only start RecordScheduler once
-# otherwise RecordScheduler will be initialized twice
-
-# source: https://stackoverflow.com/a/25519547
-# TODO: Check if this test is necessary when flask is active in dev mode
-
-# if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-#     RecordHandler.record_scheduler = RecordScheduler()
+    schedule.cancel_job(self.calc_averages_job)
 
 
 class RecordHandler:
@@ -92,11 +95,11 @@ class RecordHandler:
 
       if RecordHandler.current_capacity is None:
         with Config() as parser:
-          RecordHandler.current_capacity = parser.getfloat("record_data", "capacity")
+          RecordHandler.current_capacity = parser.getfloat("battery_state", "capacity")
 
       if RecordHandler.current_soc is None:
         with Config() as parser:
-          RecordHandler.current_soc = parser.getfloat("record_data", "soc")
+          RecordHandler.current_soc = parser.getfloat("battery_state", "soc")
 
       RecordHandler.record_scheduler.start()
       RecordHandler.recording = True
@@ -166,7 +169,7 @@ class RecordHandler:
     # To reduce necessary db reads, only the first half of the cache is saved, so there is a buffer
     #   for calculating lower resolution records
 
-    if (RecordHandler.record_count % (record.resolution * 2) == 0) & ((record.resolution * 2) <= MAX_RECORD_COUNT):
+    if (RecordHandler.record_count % (record.resolution * 2) == 0) & ((record.resolution * 2) <= MAX_RESOLUTION):
       # There are two records with the current resolution, so they can be averaged
 
       other_record = None
@@ -199,7 +202,7 @@ class RecordHandler:
       RecordHandler.add_record(averaged_record)
 
 
-    if RecordHandler.record_count == MAX_RECORD_COUNT:
+    if RecordHandler.record_count == MAX_RESOLUTION:
       # Record count reached value to calculate the lowest resolution record
       logging.debug("record count reached maximum, resetting...")
 
@@ -284,14 +287,55 @@ class RecordHandler:
 
     RecordHandler.add_record(record)
 
-    # save new capacity and soc to config file if necessary
-    if round(RecordHandler.current_capacity, 2) != RecordHandler.old_capacity:
-      with Config() as parser:
-        parser.set("record_data", "capacity", str(round(RecordHandler.current_capacity, 2)))
+    # update battery state and highscores
+    with Config() as parser:
 
-    if round(RecordHandler.current_soc, 2) != RecordHandler.old_soc:
-      with Config() as parser:
-        parser.set("record_data", "soc", str(round(RecordHandler.current_soc, 2)))
+      # battery state
+      if round(RecordHandler.current_capacity, 2) != RecordHandler.old_capacity:
+        parser.set("battery_state", "capacity", str(round(RecordHandler.current_capacity, 2)))
+
+      if round(RecordHandler.current_soc, 2) != RecordHandler.old_soc:
+        parser.set("battery_state", "soc", str(round(RecordHandler.current_soc, 2)))
+
+
+      # battery highscores
+      if current_difference > 0:
+        max_soc_gain_s = parser.getfloat("highscores", "max_soc_gain_s")
+        if current_difference > max_soc_gain_s:
+          parser.set("highscores", "max_soc_gain_s", str(current_difference))
+          parser.set("highscores", "max_soc_gain_s_date", str(record.timestamp))
+      else:
+        max_soc_loss_s = parser.getfloat("highscores", "max_soc_loss_s")
+        if abs(current_difference) > max_soc_loss_s:
+          parser.set("highscores", "max_soc_loss_s", str(abs(current_difference)))
+          parser.set("highscores", "max_soc_loss_s_date", str(record.timestamp))
+
+
+      # voltage highscores
+      max_voltage = parser.getfloat("highscores", "max_voltage")
+      if record.data["voltage"] > max_voltage:
+        parser.set("highscores", "max_voltage", str(record.data["voltage"]))
+        parser.set("highscores", "max_voltage_date", str(record.timestamp))
+
+      min_voltage = parser.getfloat("highscores", "min_voltage")
+      if record.data["voltage"] < min_voltage or min_voltage == 0:
+        parser.set("highscores", "min_voltage", str(record.data["voltage"]))
+        parser.set("highscores", "min_voltage_date", str(record.timestamp))
+
+
+      # input_current highscores
+      max_input_current = parser.getfloat("highscores", "max_input_current")
+      if record.data["input_current"] > max_input_current:
+        parser.set("highscores", "max_input_current", str(record.data["input_current"]))
+        parser.set("highscores", "max_input_current_date", str(record.timestamp))
+
+
+      # output_current highscores
+      max_output_current = parser.getfloat("highscores", "max_output_current")
+      if record.data["output_current"] > max_output_current:
+        parser.set("highscores", "max_output_current", str(record.data["output_current"]))
+        parser.set("highscores", "max_output_current_date", str(record.timestamp))
+      
 
     RecordHandler.old_capacity = round(RecordHandler.current_capacity, 2)
     RecordHandler.old_soc = round(RecordHandler.current_soc, 2)
@@ -308,3 +352,14 @@ class RecordHandler:
     LEDControl.set(LED.RED, low_battery_level)
     LEDControl.set(LED.GREEN, battery_charging)
     LEDControl.set(LED.YELLOW, False)
+
+
+  def calc_averages():
+
+    '''
+    * Calculates averages for every metric for the past day and last week
+    '''
+
+    logging.debug("calculating averages...")
+
+    voltage_yesterday = DatabaseHandler.get_average()

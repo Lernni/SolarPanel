@@ -1,12 +1,9 @@
 from datetime import datetime, timedelta, timezone
-import math
 
 from flask_restx import Resource
 from flask import request
 
 from data_access.database_handler import DatabaseHandler
-from globals import MAX_RECORD_COUNT, RESOLUTION_DEPTH
-
 
 MAX_RECORDS = 150
 
@@ -25,59 +22,23 @@ class DBRecords(Resource):
     resolution = time_delta_seconds // MAX_RECORDS
     if resolution == 0: resolution = 1
 
-    partition_index = math.log2(resolution)
-
-    if not partition_index.is_integer():
-      partition_index = int(math.ceil(partition_index))
-      resolution = int(math.pow(2, partition_index))
-
-      if partition_index > RESOLUTION_DEPTH:
-        partition_index = RESOLUTION_DEPTH
-        resolution = MAX_RECORD_COUNT
-
-    partition_index = int(partition_index)
-
-
-    # get records from db
-    sub_partitions = DatabaseHandler.partitions[partition_index]
-    if len(sub_partitions) == 0: return []
-
-    start_partition_index = None
-    end_partition_index = None
-
-    # Search for partitions that match the time range and mark the first and last match in the list
-    # TODO: count number of requested records in higher resolution and check if it is less than MAX_RECORDS
-
-    for i in range(len(sub_partitions)):
-      if sub_partitions[i].end_time >= start_time and sub_partitions[i].start_time <= end_time:
-        if start_partition_index is None:
-          start_partition_index = i
-
-      elif start_partition_index is not None:
-        end_partition_index = i - 1
-        break
-
-    # No partition containing the start time means that all partitions are before the start time,
-    #   so no partition is included
-    # No partition containing the end time means that all partitions after the start partition are included
-
-    if start_partition_index is None: return []
-    if end_partition_index is None: end_partition_index = len(sub_partitions) - 1
+    # get partitions
+    partitions = DatabaseHandler.get_partitions(start_time, end_time, resolution)
 
     # Iterate through all relevant partitions and gather the records in sections
 
     sections = []
     records = []
-    for i in range(start_partition_index, end_partition_index + 1):
-      new_records = sub_partitions[i].get_records(start_time, end_time)
+    for partition in partitions:
+      new_records = partition.get_records(start_time, end_time)
 
-      for j in range(len(new_records)):
+      for i in range(len(new_records)):
         record_data = []
         for unit in units:
-          record_data.append(new_records[j].data[unit])
+          record_data.append(new_records[i].data[unit])
 
-        new_records[j] = [int(new_records[j].timestamp.replace(tzinfo = timezone.utc).timestamp())]
-        new_records[j].extend(record_data)
+        new_records[i] = [int(new_records[i].timestamp.replace(tzinfo = timezone.utc).timestamp())]
+        new_records[i].extend(record_data)
           
       if len(records) == 0:
         records = new_records
