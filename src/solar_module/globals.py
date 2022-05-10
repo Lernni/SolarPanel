@@ -26,6 +26,21 @@ MAX_CACHE_SIZE = 512
 LOW_BATTERY_THRESHOLD = 20
 # Battery charging level in percent, below which the red LED is turned on, marking the battery level as low
 
+CORRECTION_INTERVAL = 32
+# Time in seconds between correction attempts
+
+MIN_VOLTAGE_AVG = 13.5
+# Minimum voltage average, above which capacity correction can be applied
+
+MAX_VOLTAGE_STD = 0.1
+# Maximum voltage standard deviation, below which capacity correction can be applied
+
+MAX_CURRENT_STD = 0.5
+# Maximum current standard deviation, below which capacity correction can be applied
+
+MAX_CURRENT_DIFF = 0.1
+# Maximum current difference, that is allowed between the input and output current
+
 
 if DEBUG:
     DB_PATH = Path("./cache/db")

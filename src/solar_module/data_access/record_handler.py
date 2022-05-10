@@ -3,18 +3,22 @@ from threading import Thread
 import logging
 import math
 
+import schedule
+
 from data_access.database_handler import DatabaseHandler
+from data_access.capacity_correction import CapacityCorrection
 from data_objects.record import Record
 from config.config import Config
 from hardware_access.module import Module
 from hardware_access.led_control import LEDControl, LED
-from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RECORD_COUNT, LOW_BATTERY_THRESHOLD
+from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RECORD_COUNT, LOW_BATTERY_THRESHOLD, CORRECTION_INTERVAL
 
 
 class RecordScheduler(Thread):
 
   '''
   * Schedules creation of new records exactly once per second
+  * Schedules capacity correction every 5 minutes
   '''
 
   def __init__(self, job):
@@ -22,15 +26,26 @@ class RecordScheduler(Thread):
     self.name = "RecordScheduler"
     self.running = True
     self.job = job
+
+    self.capacity_correction_job = schedule.every(CORRECTION_INTERVAL).seconds.do(
+      RecordScheduler.run_threaded, RecordHandler.run_capacity_correction
+    )
   
+  
+  def run_threaded(job_func):
+    job_thread = Thread(target = job_func, name= "JobThread")
+    job_thread.start()
+
   def run(self):
     while self.running:
       # sleep as long as needed to run at an exact one second interval
       self.job()
+      schedule.run_pending()
       time.sleep(1.0 - time.time() % 1.0)
 
   def stop(self):
     self.running = False
+    schedule.cancel_job(self.capacity_correction_job)
 
 # checks if this thread runs in child process to only start RecordScheduler once
 # otherwise RecordScheduler will be initialized twice
@@ -58,6 +73,7 @@ class RecordHandler:
 
   current_capacity = None
   current_soc = None
+  capacity_correction = 0.0
   old_capacity = 0.0
   old_soc = 0.0
   charging_level = 0
@@ -90,13 +106,10 @@ class RecordHandler:
       RecordHandler.record_count = 0
       RecordHandler.record_scheduler = RecordScheduler(RecordHandler.create_record)
 
-      if RecordHandler.current_capacity is None:
-        with Config() as parser:
-          RecordHandler.current_capacity = parser.getfloat("record_data", "capacity")
-
-      if RecordHandler.current_soc is None:
-        with Config() as parser:
-          RecordHandler.current_soc = parser.getfloat("record_data", "soc")
+      with Config() as parser:
+        RecordHandler.current_capacity = parser.getfloat("battery_state", "capacity")
+        RecordHandler.current_soc = parser.getfloat("battery_state", "soc")
+        RecordHandler.capacity_correction = parser.getfloat("battery_state", "capacity_correction")
 
       RecordHandler.record_scheduler.start()
       RecordHandler.recording = True
@@ -117,24 +130,26 @@ class RecordHandler:
       RecordHandler.recording = False
 
 
-  def get_latest_record() -> Record:
+  def get_latest_record(resolution: int = 1) -> Record:
 
     '''
-    * Returns the latest record with resolution 1 from cache.
+    * Returns the latest record with given resolution from cache.
     '''
 
-    return RecordHandler.record_cache[0][-1]
+    cache_index = int(math.log2(resolution))
+    return RecordHandler.record_cache[cache_index][-1]
 
-  def get_latest_records(n: int):
+  def get_latest_records(n: int, resolution: int = 1):
       
     '''
-    * Returns the latest n records with resolution 1 from cache.
+    * Returns the latest n records with given resolution from cache.
     '''
 
-    if 1 <= n <= len(RecordHandler.record_cache[0]):
-      return RecordHandler.record_cache[0][-n:]
-    elif n > len(RecordHandler.record_cache[0]):
-      return RecordHandler.record_cache[0]
+    cache_index = int(math.log2(resolution))
+    if 1 <= n <= len(RecordHandler.record_cache[cache_index]):
+      return RecordHandler.record_cache[cache_index][-n:]
+    elif n > len(RecordHandler.record_cache[cache_index]):
+      return RecordHandler.record_cache[cache_index]
 
 
   def add_record(record: Record):
@@ -166,7 +181,7 @@ class RecordHandler:
     # To reduce necessary db reads, only the first half of the cache is saved, so there is a buffer
     #   for calculating lower resolution records
 
-    if (RecordHandler.record_count % (record.resolution * 2) == 0) & ((record.resolution * 2) <= MAX_RECORD_COUNT):
+    if (RecordHandler.record_count % (record.resolution * 2) == 0) and ((record.resolution * 2) <= MAX_RECORD_COUNT):
       # There are two records with the current resolution, so they can be averaged
 
       other_record = None
@@ -248,7 +263,6 @@ class RecordHandler:
     '''
     * Creates a new record by measuring the current and voltage of the solar module.
     * The yellow LED will be turned on for the duration of the measurement and processing.
-    * TODO: The record also contains the current state of charge.
     '''
 
     logging.debug("creating record...")
@@ -260,7 +274,7 @@ class RecordHandler:
     output_record = Module.output_ina.measure()
 
     # calculate state of charge (soc) and capacity
-    current_difference = (input_record.current - output_record.current) / 3600
+    current_difference = (input_record.current - RecordHandler.capacity_correction - output_record.current) / 3600
     RecordHandler.current_soc += current_difference
 
     if RecordHandler.current_soc > RecordHandler.current_capacity:
@@ -287,11 +301,11 @@ class RecordHandler:
     # save new capacity and soc to config file if necessary
     if round(RecordHandler.current_capacity, 2) != RecordHandler.old_capacity:
       with Config() as parser:
-        parser.set("record_data", "capacity", str(round(RecordHandler.current_capacity, 2)))
+        parser.set("battery_state", "capacity", str(round(RecordHandler.current_capacity, 2)))
 
     if round(RecordHandler.current_soc, 2) != RecordHandler.old_soc:
       with Config() as parser:
-        parser.set("record_data", "soc", str(round(RecordHandler.current_soc, 2)))
+        parser.set("battery_state", "soc", str(round(RecordHandler.current_soc, 2)))
 
     RecordHandler.old_capacity = round(RecordHandler.current_capacity, 2)
     RecordHandler.old_soc = round(RecordHandler.current_soc, 2)
@@ -308,3 +322,20 @@ class RecordHandler:
     LEDControl.set(LED.RED, low_battery_level)
     LEDControl.set(LED.GREEN, battery_charging)
     LEDControl.set(LED.YELLOW, False)
+
+
+  def run_capacity_correction():
+
+    '''
+    * Runs capacity correction if necessary.
+    '''
+
+    logging.debug("running capacity correction...")
+
+    if CapacityCorrection.run(CORRECTION_INTERVAL):
+      old_correction_value = RecordHandler.capacity_correction
+
+      with Config() as parser:
+        RecordHandler.capacity_correction = parser.getfloat("battery_state", "capacity_correction")
+
+      logging.info("capacity correction value was changed from {}A to {}A".format(old_correction_value, RecordHandler.capacity_correction))
