@@ -332,10 +332,15 @@ class RecordHandler:
 
     logging.debug("running capacity correction...")
 
-    if CapacityCorrection.run(CORRECTION_INTERVAL):
-      old_correction_value = RecordHandler.capacity_correction
+    with Config() as parser:
+      calibration_state = parser.getboolean("system", "calibrating_capacity")
 
-      with Config() as parser:
-        RecordHandler.capacity_correction = parser.getfloat("battery_state", "capacity_correction")
+    if calibration_state:
+      if CapacityCorrection.run(CORRECTION_INTERVAL):
+        old_correction_value = RecordHandler.capacity_correction
 
-      logging.info("capacity correction value was changed from {}A to {}A".format(old_correction_value, RecordHandler.capacity_correction))
+        with Config() as parser:
+          RecordHandler.capacity_correction = parser.getfloat("battery_state", "capacity_correction")
+          parser["system"]["calibrating_capacity"] = "False"
+
+        logging.info("capacity correction value was changed from {}A to {}A".format(old_correction_value, RecordHandler.capacity_correction))
