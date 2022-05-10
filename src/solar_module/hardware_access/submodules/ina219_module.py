@@ -35,4 +35,4 @@ class INA219Module(Submodule):
             self.state = Submodule.State.IDLE
         else:
 
-            return RawRecord(random.uniform(12.5, 14.5), random.uniform(0.0, 150.0))
+            return RawRecord(random.uniform(13.6, 13.7), random.uniform(1.45, 1.66))
