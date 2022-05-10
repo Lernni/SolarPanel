@@ -9,6 +9,14 @@ module.exports = (io, socket) => {
     axios.post("/system/shutdown")
   })
 
+  socket.on("start_calibration", () => {
+    axios.post("/system/calibration_state/1")
+  })
+
+  socket.on("stop_calibration", () => {
+    axios.post("/system/calibration_state/0")
+  })
+
   socket.on("newSettings", (settings, callback) => {
     axios.post("/system/settings", settings)
     .then(() => {

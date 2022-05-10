@@ -12,7 +12,7 @@
     </b-modal>
 
     <b-modal disabled v-model="showRestartModal" title="System neustarten" header-bg-variant="danger" header-text-variant="light">
-      Soll das System jetzt neugestartet werden? Ein Fernzugriff ist vorrübergehend nicht möglich.
+      Soll das System jetzt neugestartet werden? Ein Fernzugriff ist vorübergehend nicht möglich.
 
       <template #modal-footer>
         <b-button variant="secondary" @click="showRestartModal = false">Abbrechen</b-button>
@@ -65,12 +65,12 @@
             <hr>
             <div class="view-anchor" id="shunts"><a name="shunts"></a></div>
 
-            <h2>Kalibrierung der Messmodule</h2>
+            <h2>Kalibrierung</h2>
 
             <!-- Kalibierung der Messwiderstände -->
             <h4>Messwiderstände (Shuntwerte)</h4>
             <p class="text-justify">
-              Die beiden Messwiderstände (Shuntwerte) für Eingangs- und Ausgangsstrom können automatisch durch eine Kalibrierung ermittelt oder manuell angepasst werden. 
+              Die beiden Messwiderstände (Shuntwerte) für Eingangs- und Ausgangsstrom können manuell angepasst werden. 
             </p>
 
             <b-row>
@@ -135,6 +135,61 @@
                       </b-input-group-text>
                     </template>
                   </b-input-group>
+                </b-form-group>
+              </b-col>
+            </b-row>
+
+            <!-- Kalibierung der Kapazität -->
+            <div class="view-anchor" id="capacity_correction"><a name="capacity_correction"></a></div>
+
+            <h4>Kapazität</h4>
+            <p class="text-justify text-muted">
+              Durch die Selbstentladung des Akkus steigt die errechnete Kapazität des Akkus mit der Zeit, da immer mehr Strom am Eingang als am Ausgang gemessen wird, obwohl der Akku tatsächlich vollständig geladen ist.
+              Damit diese Ladungsdifferenz nicht die Kapazitätsberechnung verfälscht, kann eine additive Konstante zur Reduzierung des Eingangsstroms mit in die Berechnung eingefügt werden.
+            </p>
+            <p class="text-justify">
+              Die Stromdifferenz zur Kalibrierung der Kapazitätsberechnung kann entweder manuell eingestellt oder automatisch ermittelt werden.
+              Die Dauer der automatischen Kalibrierung ist abhängig vom aktuellen Ladezustand des Akkus.
+              Die Kalibrierung dauert mindestens 5 Minuten, falls der Akku tagsüber voll geladen ist und eine konstante Last anliegt.
+            </p>
+
+            <b-row>
+              <b-col cols="12">
+                <b-form-group label="Stromdifferenz">
+                  <div class="d-flex">
+                    <b-input-group>
+                      <b-form-input
+                        type="number"
+                        step="0.01"
+                        v-model="form.capacity_correction"
+                        :disabled="settings.calibrating"
+                      ></b-form-input>
+                      <template #append>
+                        <b-input-group-text>
+                          <katex-element expression="A"/>
+                        </b-input-group-text>
+                      </template>
+                    </b-input-group>
+                    <b-input-group class="pl-3">
+                      <b-button-group>
+                        <b-button
+                          @click="calibrateEvent(true)"
+                          variant="primary"
+                          :disabled="!settings.recording || settings.calibrating"
+                        >
+                          <b-icon v-if="settings.calibrating"
+                            icon="circle-fill"
+                            animation="fade"
+                            scale="0.8"
+                          ></b-icon>
+                          {{ settings.calibrating ? "Kalibrieren..." : "Automatisch Kalibrieren" }}
+                        </b-button>
+                        <b-button @click="calibrateEvent(false)" v-if="settings.calibrating">
+                          <b-icon icon="x" scale="1.5"></b-icon>
+                        </b-button>
+                      </b-button-group>
+                    </b-input-group>
+                  </div>
                 </b-form-group>
               </b-col>
             </b-row>
@@ -225,6 +280,16 @@ export default {
   },
   
   methods: {
+    calibrateEvent(state) {
+      if (state) {
+        this.$socket.emit("start_calibration")
+        this.settings.calibrating = true
+      } else {
+        this.$socket.emit("stop_calibration")
+        this.settings.calibrating = false
+      }
+    },
+
     restartEvent() {
       this.$socket.emit("restart")
       this.$store.dispatch("logout")

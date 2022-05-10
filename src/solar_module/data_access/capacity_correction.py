@@ -51,7 +51,6 @@ class CapacityCorrection:
 
 
     # check if voltage is high and constant enough
-    logging.debug(record_list)
     voltage_std = np.std([record.data['voltage'] for record in record_list])
     logging.debug("Voltage standard deviation: %f", voltage_std)
 
@@ -79,9 +78,9 @@ class CapacityCorrection:
     # => capacity correction can be applied
     logging.debug("currents are constant enough")
 
-
     capacity_correction = avg_record.data['input_current'] - avg_record.data['output_current']
+    logging.debug(capacity_correction)
     with Config() as parser:
-      parser.set('battery_state', 'capacity_correction', str(capacity_correction))
+      parser['battery_state']['capacity_correction'] = str(capacity_correction)
 
     return True
