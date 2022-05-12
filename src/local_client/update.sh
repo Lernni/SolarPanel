@@ -20,7 +20,7 @@ docker-compose down
 if [ $RESET -eq 1 ]; then
   git reset --hard origin/main
   git fetch
-  git pull
+  git pull origin main
 fi
 
 # get all other parameters except options
