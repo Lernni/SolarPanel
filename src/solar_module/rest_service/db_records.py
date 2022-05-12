@@ -26,6 +26,7 @@ class DBRecords(Resource):
     partitions = DatabaseHandler.get_partitions(start_time, end_time, resolution)
 
     # Iterate through all relevant partitions and gather the records in sections
+    # TODO: reduce
 
     sections = []
     records = []

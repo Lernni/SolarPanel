@@ -1,6 +1,5 @@
 from pathlib import Path
 import math
-from datetime import timedelta
 
 from globals import DB_PATH, RESOLUTION_DEPTH, MAX_RECORDS_PER_PARTITION, MAX_RESOLUTION
 from data_objects.record import Record
@@ -77,6 +76,21 @@ class DatabaseHandler:
         DatabaseHandler.add_records(records[cut_index:])
 
 
+  def get_records(start_time, end_time, resolution) -> list:
+
+    '''
+    * Returns a list of records for a given time period and resolution
+    '''
+
+    partitions = DatabaseHandler.get_partitions(start_time, end_time, resolution)
+    records = []
+
+    for partition in partitions:
+      records.extend(partition.get_records(start_time, end_time))
+
+    return records
+
+
   def get_partitions(start_time, end_time, resolution) -> list:
 
     '''
@@ -112,34 +126,6 @@ class DatabaseHandler:
         break
 
     return requested_partitions
-
-
-  def get_average(start_time, end_time, metric) -> float:
-
-    '''
-    * Returns the average value for a given metric over a specific time
-    '''
-
-    # calculate the time difference in seconds
-    time_delta_seconds = int(timedelta.total_seconds(end_time - start_time))
-    if time_delta_seconds == 0: return None
-
-    # get gcd() to identify lowest resolution that could contain time period exactly and if not,
-    #  the resulting error will small in comparison to the computing effort
-    resolution = math.gcd(time_delta_seconds, MAX_RESOLUTION)
-
-    # get values
-    partitions = DatabaseHandler.get_partitions(start_time, end_time, resolution)
-
-    # create a list of all values from partitions
-    values = []
-    for partition in partitions:
-      records = partition.get_records(start_time, end_time)
-      for record in records:
-        values.append(record.data[metric])
-
-    # calculate average
-    return round(sum(values) / len(values), 2)
 
 
   def get_latest_record(resolution) -> Record:

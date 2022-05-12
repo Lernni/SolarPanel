@@ -1,48 +1,13 @@
-import time
-from threading import Thread
 import logging
 import math
 
-import schedule
-
 from data_access.database_handler import DatabaseHandler
+from data_access.record_scheduler import RecordScheduler
 from data_objects.record import Record
 from config.config import Config
 from hardware_access.module import Module
 from hardware_access.led_control import LEDControl, LED
 from globals import RESOLUTION_DEPTH, MAX_CACHE_SIZE, MAX_RESOLUTION, LOW_BATTERY_THRESHOLD
-
-
-class RecordScheduler(Thread):
-
-  '''
-  * Schedules creation of new records exactly once per second
-  * Schedules calculation of averages once per day at midnight
-  '''
-
-  def __init__(self, job):
-    Thread.__init__(self)
-    self.name = "RecordScheduler"
-    self.running = True
-    self.job = job
-
-    self.calc_averages_job = schedule.every().day.at("00:00").do(RecordScheduler.run_threaded, RecordHandler.calc_averages)
-  
-
-  def run_threaded(job_func):
-    job_thread = Thread(target = job_func, name= "JobThread")
-    job_thread.start()
-
-  def run(self):
-    while self.running:
-      # sleep as long as needed to run at an exact one second interval
-      self.job()
-      schedule.run_pending()
-      time.sleep(1.0 - time.time() % 1.0)
-
-  def stop(self):
-    self.running = False
-    schedule.cancel_job(self.calc_averages_job)
 
 
 class RecordHandler:
@@ -352,14 +317,3 @@ class RecordHandler:
     LEDControl.set(LED.RED, low_battery_level)
     LEDControl.set(LED.GREEN, battery_charging)
     LEDControl.set(LED.YELLOW, False)
-
-
-  def calc_averages():
-
-    '''
-    * Calculates averages for every metric for the past day and last week
-    '''
-
-    logging.debug("calculating averages...")
-
-    voltage_yesterday = DatabaseHandler.get_average()

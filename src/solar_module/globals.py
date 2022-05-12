@@ -8,7 +8,7 @@ DEBUG = bool(os.environ.get('DEBUG'))
 # *** Recording Variables ***
 
 RESOLUTION_DEPTH = 18
-MAX_RESOLUTION = math.pow(2, RESOLUTION_DEPTH)
+MAX_RESOLUTION = int(math.pow(2, RESOLUTION_DEPTH))
 # RESOLUTION_DEPTH determines how many resolution layers are created
 # e.g. RESOLUTION_DEPTH = 5 -> 2, 4, 8, 16, 32
 

@@ -17,12 +17,12 @@ class DashboardUpdate(Resource):
     record = RecordHandler.get_latest_record()
 
     return {
-      "timestamp": record.timestamp,
+      "timestamp": str(record.timestamp),
       "voltage": round(record.data["voltage"], 2),
       "input_current": round(record.data["input_current"], 2),
       "output_current": round(record.data["output_current"], 2),
-      "soc": RecordHandler.current_soc,
-      "capacity": RecordHandler.current_capacity,
+      "soc": round(RecordHandler.current_soc, 2),
+      "capacity": round(RecordHandler.current_capacity, 1),
     }
 
 
@@ -51,27 +51,27 @@ class MetricAnalysis(Resource):
           "max_date": parser.get("highscores", "max_voltage_date"),
           "min": parser.getfloat("highscores", "min_voltage"),
           "min_date": parser.get("highscores", "min_voltage_date"),
-          "avg_yesterday": parser.get("averages", "voltage_yesterday"),
-          "avg_week": parser.get("averages", "voltage_last_week"),
+          "avg_yesterday": parser.get("averages_yesterday", "voltage"),
+          "avg_week": parser.get("averages_past_week", "voltage"),
         }
       elif metric == "input_current":
         response["details"] = {
           "max": parser.getfloat("highscores", "max_input_current"),
           "max_date": parser.get("highscores", "max_input_current_date"),
-          "avg_yesterday": parser.get("averages", "input_current_yesterday"),
-          "avg_week": parser.get("averages", "input_current_last_week"),
+          "avg_yesterday": parser.get("averages_yesterday", "input_current"),
+          "avg_week": parser.get("averages_past_week", "input_current"),
         }
       elif metric == "output_current":
         response["details"] = {
           "max": parser.getfloat("highscores", "max_output_current"),
           "max_date": parser.get("highscores", "max_output_current_date"),
-          "avg_yesterday": parser.get("averages", "output_current_yesterday"),
-          "avg_week": parser.get("averages", "output_current_last_week"),
+          "avg_yesterday": parser.get("averages_yesterday", "output_current"),
+          "avg_week": parser.get("averages_past_week", "output_current"),
         }
       elif metric == "soc":
         response["details"]= {
-          "max_soc_gain": parser.getfloat("highscores, max_soc_gain_s"),
-          "max_soc_loss": parser.getfloat("highscores, max_soc_loss_s"),
+          "max_soc_gain": parser.getfloat("highscores", "max_soc_gain_s"),
+          "max_soc_loss": parser.getfloat("highscores", "max_soc_loss_s"),
         }
       else:
         logging.warning("Invalid metric requested: {}".format(metric))
