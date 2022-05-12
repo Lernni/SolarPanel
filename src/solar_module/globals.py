@@ -26,7 +26,7 @@ MAX_CACHE_SIZE = 512
 LOW_BATTERY_THRESHOLD = 20
 # Battery charging level in percent, below which the red LED is turned on, marking the battery level as low
 
-CORRECTION_INTERVAL = 32
+CORRECTION_INTERVAL = 256
 # Time in seconds between correction attempts
 
 MIN_VOLTAGE_AVG = 13.5
