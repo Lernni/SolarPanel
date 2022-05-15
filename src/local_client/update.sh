@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# run without sudo
+
 RESET=0
 START=0
+LOGS=0
 
 # check option parameters
 while getopts rs flag
@@ -9,6 +12,7 @@ do
   case "${flag}" in
     r) RESET=1 ;;
     s) START=1 ;;
+    l) LOGS=1 ;;
   esac
 done
 
@@ -36,6 +40,11 @@ done
 
 # rebuild all docker containers or only those that are given as parameters
 docker-compose build --build-arg CACHEBUST=$(date +%s) "${finalopts[@]}"
+
+# delete old log files if requested
+if [ $LOGS -eq 1 ]; then
+  sudo rm -rf ~/solarpanel_data/logs/*.log
+fi
 
 # restart SolarPanel if requested
 if [ $START -eq 1 ]; then
