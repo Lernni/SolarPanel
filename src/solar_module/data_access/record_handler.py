@@ -33,13 +33,15 @@ class RecordScheduler(Thread):
   
   
   def run_threaded(job_func):
-    job_thread = Thread(target = job_func, name= "JobThread")
+    job_thread = Thread(target = job_func, name = "ThreadedJob")
     job_thread.start()
 
   def run(self):
     while self.running:
       # sleep as long as needed to run at an exact one second interval
-      self.job()
+      th = Thread(target = self.job, name = "RecordSchedulerJob")
+      th.start()
+
       schedule.run_pending()
       time.sleep(1.0 - time.time() % 1.0)
 
@@ -164,8 +166,13 @@ class RecordHandler:
     # all possible resolutions are multiples of 2, so log base 2
     #   of the record resolution sorts the records in sub-lists accordingly
     
-    cache_index = int(math.log2(record.resolution))
-    RecordHandler.record_cache[cache_index].append(record)
+    try:
+      cache_index = int(math.log2(record.resolution))
+      RecordHandler.record_cache[cache_index].append(record)
+    except:
+      logging.error("record resolution not supported!")
+      logging.error("record_resolution: " + str(record.resolution))
+      logging.error("cache_index: " + str(cache_index))
 
     if record.resolution == 1:
       RecordHandler.record_count += 1
@@ -189,24 +196,43 @@ class RecordHandler:
 
       if len(RecordHandler.record_cache[cache_index]) >= 2:
         # Both records are in cache
-        other_record = RecordHandler.record_cache[cache_index][-2]
+        try:
+          other_record = RecordHandler.record_cache[cache_index][-2]
+        except:
+          logging.error("could not get other record from cache!")
+          logging.error("cache_index: " + str(cache_index))
+          logging.error("record_count: " + str(RecordHandler.record_count))
+          logging.error("record_cache: " + str(RecordHandler.record_cache))
+          logging.error("record_resolution: " + str(record.resolution))
 
       else:
         # The other record is not in cache, so it must be read from the db
-
-        other_record = DatabaseHandler.get_latest_record(record.resolution)
+        try:
+          other_record = DatabaseHandler.get_latest_record(record.resolution)
+        except:
+          logging.error("could not get other record from db!")
+          logging.error("cache_index: " + str(cache_index))
+          logging.error("record_count: " + str(RecordHandler.record_count))
+          logging.error("record_cache: " + str(RecordHandler.record_cache))
+          logging.error("record_resolution: " + str(record.resolution))
       
+      try:
+        averaged_record = Record(
+          timestamp = other_record.timestamp,
+          data = {
+            "voltage": round((other_record.data["voltage"] + record.data["voltage"]) / 2, 2),
+            "input_current": round((other_record.data["input_current"] + record.data["input_current"]) / 2, 2),
+            "output_current": round((other_record.data["output_current"] + record.data["output_current"]) / 2, 2),
+            "soc": round((other_record.data["soc"] + record.data["soc"]) / 2, 2)
+          },
+          resolution = record.resolution * 2
+        )
+      except:
+        logging.error("could not average records!")
+        logging.error("record.timestamp: " + str(record.timestamp))
+        logging.error("other_record.timestamp: " + str(other_record.timestamp))
+        logging.error("record_count: " + str(RecordHandler.record_count))
 
-      averaged_record = Record(
-        timestamp = other_record.timestamp,
-        data = {
-          "voltage": round((other_record.data["voltage"] + record.data["voltage"]) / 2, 2),
-          "input_current": round((other_record.data["input_current"] + record.data["input_current"]) / 2, 2),
-          "output_current": round((other_record.data["output_current"] + record.data["output_current"]) / 2, 2),
-          "soc": round((other_record.data["soc"] + record.data["soc"]) / 2, 2)
-        },
-        resolution = record.resolution * 2
-      )
       
       # Add the averaged record of lower resolution to the cache recursively
       # The recursive call allows even lower resolution records to be added to the cache, if possible
@@ -216,7 +242,7 @@ class RecordHandler:
 
     if RecordHandler.record_count == MAX_RECORD_COUNT:
       # Record count reached value to calculate the lowest resolution record
-      logging.debug("record count reached maximum, resetting...")
+      logging.info("record count reached maximum, resetting...")
 
       RecordHandler.record_count = 0
     
@@ -238,22 +264,35 @@ class RecordHandler:
     '''
 
     if half:
-      for i in range(len(RecordHandler.record_cache)):
-        if len(RecordHandler.record_cache[i]) == 1:
-          DatabaseHandler.add_records([RecordHandler.record_cache[i][0]])
-          RecordHandler.record_cache[i] = []
+      try:
+        for i in range(len(RecordHandler.record_cache)):
+          if len(RecordHandler.record_cache[i]) == 1:
+            DatabaseHandler.add_records([RecordHandler.record_cache[i][0]])
+            RecordHandler.record_cache[i] = []
 
-        elif len(RecordHandler.record_cache[i]) > 1:
-          DatabaseHandler.add_records(RecordHandler.record_cache[i][:len(RecordHandler.record_cache[i]) // 2])
-          RecordHandler.record_cache[i] = RecordHandler.record_cache[i][len(RecordHandler.record_cache[i]) // 2:]
-        else:
-          break
+          elif len(RecordHandler.record_cache[i]) > 1:
+            DatabaseHandler.add_records(RecordHandler.record_cache[i][:len(RecordHandler.record_cache[i]) // 2])
+            RecordHandler.record_cache[i] = RecordHandler.record_cache[i][len(RecordHandler.record_cache[i]) // 2:]
+          else:
+            break
+      except:
+        logging.error("could not save half of cache!")
+        logging.error("len(RecordHandler.record_cache): " + str(len(RecordHandler.record_cache)))
+        logging.error("i: " + str(i))
+        logging.error("len(RecordHandler.record_cache[i])", str(len(RecordHandler.record_cache[i])))
+        logging.error("record_count: " + str(RecordHandler.record_count))
+
     else:
-      for sub_list in RecordHandler.record_cache:
-        if len(sub_list) != 0:
-          DatabaseHandler.add_records(sub_list)
-        else:
-          break
+      try:
+        for sub_list in RecordHandler.record_cache:
+          if len(sub_list) != 0:
+            DatabaseHandler.add_records(sub_list)
+          else:
+            break
+      except:
+        logging.error("could not save cache!")
+        logging.error("len(RecordHandler.record_cache): " + str(len(RecordHandler.record_cache)))
+        logging.error("record_count: " + str(RecordHandler.record_count))
 
       RecordHandler.record_cache = [[] for _ in range(RESOLUTION_DEPTH + 1)]
 
@@ -270,58 +309,104 @@ class RecordHandler:
     LEDControl.set(LED.YELLOW, True)
 
     # measure voltage and current
-    input_record = Module.input_ina.measure()
-    output_record = Module.output_ina.measure()
+    try:
+      input_record = Module.input_ina.measure()
+      output_record = Module.output_ina.measure()
+    except: 
+      logging.error("failed to measure input and output current!")
 
     # calculate state of charge (soc) and capacity
-    current_difference = (input_record.current - RecordHandler.capacity_correction - output_record.current) / 3600
-    RecordHandler.current_soc += current_difference
+    try:
+      current_difference = (input_record.current - RecordHandler.capacity_correction - output_record.current) / 3600
+    except:
+      logging.error("failed to calculate current difference!")
+      logging.error("input_record.current: " + str(input_record.current))
+      logging.error("RecordHandler.capacity_correction: " + str(RecordHandler.capacity_correction))
+      logging.error("output_record.current: " + str(output_record.current))
+    
+    try:
+      RecordHandler.current_soc += current_difference
 
-    if RecordHandler.current_soc > RecordHandler.current_capacity:
-      RecordHandler.current_capacity = RecordHandler.current_soc
+      if RecordHandler.current_soc > RecordHandler.current_capacity:
+        RecordHandler.current_capacity = RecordHandler.current_soc
 
-    if RecordHandler.current_soc < 0:
-      RecordHandler.current_capacity += abs(RecordHandler.current_soc)
-      RecordHandler.current_soc = 0.0
+      if RecordHandler.current_soc < 0:
+        RecordHandler.current_capacity += abs(RecordHandler.current_soc)
+        RecordHandler.current_soc = 0.0
+    except:
+      logging.error("failed to calculate current state of charge!")
+      logging.error("current_difference: " + str(current_difference))
+      logging.error("RecordHandler.current_soc: " + str(RecordHandler.current_soc))
+      logging.error("RecordHandler.current_capacity: " + str(RecordHandler.current_capacity))
 
     # create record with new data and add it to cache
-    record = Record(
-      timestamp = input_record.recorded_time,
-      data = {
-        "voltage": round((input_record.voltage + output_record.voltage) / 2, 2),
-        "input_current": round(input_record.current, 2),
-        "output_current": round(output_record.current, 2),
-        "soc": round(RecordHandler.current_soc, 2)
-      },
-      resolution = 1
-    )
+
+    try:
+      record = Record(
+        timestamp = input_record.recorded_time,
+        data = {
+          "voltage": round((input_record.voltage + output_record.voltage) / 2, 2),
+          "input_current": round(input_record.current, 2),
+          "output_current": round(output_record.current, 2),
+          "soc": round(RecordHandler.current_soc, 2)
+        },
+        resolution = 1
+      )
+    except:
+      logging.error("failed to create record!")
+      logging.error("input_record.voltage: " + str(input_record.voltage))
+      logging.error("output_record.voltage: " + str(output_record.voltage))
+      logging.error("input_record.current: " + str(input_record.current))
+      logging.error("output_record.current: " + str(output_record.current))
+      logging.error("RecordHandler.current_soc: " + str(RecordHandler.current_soc))
+
 
     RecordHandler.add_record(record)
 
     # save new capacity and soc to config file if necessary
-    if round(RecordHandler.current_capacity, 2) != RecordHandler.old_capacity:
-      with Config() as parser:
-        parser.set("battery_state", "capacity", str(round(RecordHandler.current_capacity, 2)))
 
-    if round(RecordHandler.current_soc, 2) != RecordHandler.old_soc:
-      with Config() as parser:
-        parser.set("battery_state", "soc", str(round(RecordHandler.current_soc, 2)))
+    try:
+      if round(RecordHandler.current_capacity, 2) != RecordHandler.old_capacity:
+        with Config() as parser:
+          parser.set("battery_state", "capacity", str(round(RecordHandler.current_capacity, 2)))
 
-    RecordHandler.old_capacity = round(RecordHandler.current_capacity, 2)
-    RecordHandler.old_soc = round(RecordHandler.current_soc, 2)
+      if round(RecordHandler.current_soc, 2) != RecordHandler.old_soc:
+        with Config() as parser:
+          parser.set("battery_state", "soc", str(round(RecordHandler.current_soc, 2)))
+
+      RecordHandler.old_capacity = round(RecordHandler.current_capacity, 2)
+      RecordHandler.old_soc = round(RecordHandler.current_soc, 2)
+    except:
+      logging.error("failed to save new capacity and soc to config file!")
+      logging.error("RecordHandler.current_capacity: " + str(RecordHandler.current_capacity))
+      logging.error("RecordHandler.current_soc: " + str(RecordHandler.current_soc))
+      logging.error("RecordHandler.old_capacity: " + str(RecordHandler.old_capacity))
+      logging.error("RecordHandler.old_soc: " + str(RecordHandler.old_soc))
 
     # calculate current battery charging level
-    low_battery_level = True
-    if RecordHandler.current_capacity != 0:
-      RecordHandler.charging_level = math.trunc(RecordHandler.current_soc / RecordHandler.current_capacity * 100)
-      low_battery_level = RecordHandler.charging_level <= LOW_BATTERY_THRESHOLD
+    try:
+      low_battery_level = True
+      if RecordHandler.current_capacity != 0:
+        RecordHandler.charging_level = math.trunc(RecordHandler.current_soc / RecordHandler.current_capacity * 100)
+        low_battery_level = RecordHandler.charging_level <= LOW_BATTERY_THRESHOLD
 
-    battery_charging = input_record.current > output_record.current
+      battery_charging = input_record.current > output_record.current
+    except:
+      logging.error("failed to calculate battery charging level!")
+      logging.error("input_record.current: " + str(input_record.current))
+      logging.error("output_record.current: " + str(output_record.current))
+      logging.error("RecordHandler.current_soc: " + str(RecordHandler.current_soc))
+      logging.error("RecordHandler.current_capacity: " + str(RecordHandler.current_capacity))
 
     # update LED indicators
-    LEDControl.set(LED.RED, low_battery_level)
-    LEDControl.set(LED.GREEN, battery_charging)
-    LEDControl.set(LED.YELLOW, False)
+    try:
+      LEDControl.set(LED.RED, low_battery_level)
+      LEDControl.set(LED.GREEN, battery_charging)
+      LEDControl.set(LED.YELLOW, False)
+    except:
+      logging.error("failed to update LED indicators!")
+      logging.error("low_battery_level: " + str(low_battery_level))
+      logging.error("battery_charging: " + str(battery_charging))
 
 
   def run_capacity_correction():
