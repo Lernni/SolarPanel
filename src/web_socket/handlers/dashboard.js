@@ -13,8 +13,20 @@ module.exports = (io, socket) => {
     })
   })
   
-  socket.on("getDashboardUpdate", (callback) => {
+  socket.on("dashboard:getUpdate", (callback) => {
     axios.get("/dashboard")
+    .then((response) => {
+      callback({
+        data: response.data
+      })
+    })
+    .catch((error) => {
+      console.log(error)
+    })
+  })
+
+  socket.on("dashboard:getDetailedUpdate", (metric, callback) => {
+    axios.get("/dashboard/" + metric + "/60")
     .then((response) => {
       callback({
         data: response.data

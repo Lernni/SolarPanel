@@ -41,8 +41,12 @@ class MetricAnalysis(Resource):
     }
 
     latest_records = RecordHandler.get_latest_records(n)
-    for record in latest_records:
-      response["data"].append(record.data[metric])
+    if metric != "battery":
+      for record in latest_records:
+        response["data"].append(record.data[metric])
+    else:
+      for record in latest_records:
+        response["data"].append(record.data["soc"])
 
     with Config() as parser:
       if metric == "voltage":
@@ -51,24 +55,24 @@ class MetricAnalysis(Resource):
           "max_date": parser.get("highscores", "max_voltage_date"),
           "min": parser.getfloat("highscores", "min_voltage"),
           "min_date": parser.get("highscores", "min_voltage_date"),
-          "avg_yesterday": parser.get("averages_yesterday", "voltage"),
-          "avg_week": parser.get("averages_past_week", "voltage"),
+          "avg_yesterday": parser.getfloat("averages_yesterday", "voltage"),
+          "avg_week": parser.getfloat("averages_past_week", "voltage"),
         }
       elif metric == "input_current":
         response["details"] = {
           "max": parser.getfloat("highscores", "max_input_current"),
           "max_date": parser.get("highscores", "max_input_current_date"),
-          "avg_yesterday": parser.get("averages_yesterday", "input_current"),
-          "avg_week": parser.get("averages_past_week", "input_current"),
+          "avg_yesterday": parser.getfloat("averages_yesterday", "input_current"),
+          "avg_week": parser.getfloat("averages_past_week", "input_current"),
         }
       elif metric == "output_current":
         response["details"] = {
           "max": parser.getfloat("highscores", "max_output_current"),
           "max_date": parser.get("highscores", "max_output_current_date"),
-          "avg_yesterday": parser.get("averages_yesterday", "output_current"),
-          "avg_week": parser.get("averages_past_week", "output_current"),
+          "avg_yesterday": parser.getfloat("averages_yesterday", "output_current"),
+          "avg_week": parser.getfloat("averages_past_week", "output_current"),
         }
-      elif metric == "soc":
+      elif metric == "battery":
         response["details"]= {
           "max_soc_gain": parser.getfloat("highscores", "max_soc_gain_s"),
           "max_soc_loss": parser.getfloat("highscores", "max_soc_loss_s"),

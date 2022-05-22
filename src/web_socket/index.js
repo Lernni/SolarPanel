@@ -10,7 +10,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:8080", "https://admin.socket.io/"]
+    origin: ["http://localhost:3000", "http://localhost:8080", "https://admin.socket.io/"]
   }
 });
 
@@ -79,12 +79,15 @@ io.on('connection', (socket) => {
       var token = socket.handshake.auth.token
       console.log(clientIp + " tries to make a request")
 
-      if ((clientIp == '127.0.0.1') || (token == systemCredentials.token)) {
-        next()
-      } else {
-        console.log(clientIp + " with id " + socket.id + " is not unauthorized")
-        next(new Error('unauthorized'))
-      }
+      // disable authorization
+      next()
+
+      // if ((clientIp == '127.0.0.1') || (token == systemCredentials.token)) {
+      //   next()
+      // } else {
+      //   console.log(clientIp + " with id " + socket.id + " is not unauthorized")
+      //   next(new Error('unauthorized'))
+      // }
     }
   })
 

@@ -5,27 +5,34 @@ import noUiSlider from 'nouislider'
 import 'nouislider/dist/nouislider.css'
 
 const props = defineProps({
-  minValue: { type: String, default: '0' },
+  minValue: { type: Number, default: 0 },
   minDate: { type: String, default: '01.01.2000' },
-  maxValue: { type: String, default: '1' },
+  maxValue: { type: Number, default: 1 },
   maxDate: { type: String, default: '01.01.2000' },
-  currentValue: { type: String, default: '0' },
+  currentValue: { type: Number, default: 0 },
   unit: { type: String, default: '-' },
 })
 
 const highscoreBar = ref()
 
+const firstTooltipHoveredState = ref(false)
+const lastTooltipHoveredState = ref(false)
+
+const firstTooltipOpacity = () => {
+  return firstTooltipHoveredState.value ? 0 : 1
+}
+
+const lastTooltipOpacity = () => {
+  return lastTooltipHoveredState.value ? 0 : 1
+}
+
 onMounted(() => {
   noUiSlider.create(highscoreBar.value, {
     range: {
-      min: Number.parseFloat(props.minValue),
-      max: Number.parseFloat(props.maxValue),
+      min: props.minValue,
+      max: props.maxValue,
     },
-    start: [
-      Number.parseFloat(props.minValue),
-      Number.parseFloat(props.currentValue),
-      Number.parseFloat(props.maxValue),
-    ],
+    start: [props.minValue, props.currentValue, props.maxValue],
     tooltips: [
       {
         to: (value) => {
@@ -36,7 +43,7 @@ onMounted(() => {
       },
       {
         to: (value) => {
-          return value + ' ' + props.unit
+          return value.toFixed(1) + ' ' + props.unit
         },
       },
       {
@@ -57,33 +64,25 @@ onMounted(() => {
   const firstHandle = ref(origins[0].querySelectorAll('.noUi-handle')[0])
   const lastHandle = ref(origins[2].querySelectorAll('.noUi-handle')[0])
 
-  const firstTooltip = ref(origins[0].querySelectorAll('.noUi-tooltip')[0])
-  const lastTooltip = ref(origins[2].querySelectorAll('.noUi-tooltip')[0])
-
   const firstTooltipHovered = useElementHover(firstHandle)
   const lastTooltipHovered = useElementHover(lastHandle)
 
-  watch(firstTooltipHovered, (value) => {
-    lastTooltip.value.style.opacity = value ? '0' : '100%'
-  })
-
-  watch(lastTooltipHovered, (value) => {
-    firstTooltip.value.style.opacity = value ? '0' : '100%'
-  })
-
   watch(props, (newProps) => {
-    console.log(newProps)
     highscoreBar.value.noUiSlider.updateOptions({
       range: {
-        min: Number.parseFloat(newProps.minValue),
-        max: Number.parseFloat(newProps.maxValue),
+        min: newProps.minValue,
+        max: newProps.maxValue,
       },
     })
-    highscoreBar.value.noUiSlider.set([
-      Number.parseFloat(newProps.minValue),
-      Number.parseFloat(newProps.currentValue),
-      Number.parseFloat(newProps.maxValue),
-    ])
+    highscoreBar.value.noUiSlider.set([newProps.minValue, newProps.currentValue, newProps.maxValue])
+  })
+
+  watch(firstTooltipHovered, (newValue) => {
+    lastTooltipHoveredState.value = newValue
+  })
+
+  watch(lastTooltipHovered, (newValue) => {
+    firstTooltipHoveredState.value = newValue
   })
 })
 </script>
@@ -149,12 +148,20 @@ onMounted(() => {
     }
   }
 
-  #first-thumb .noUi-tooltip .tooltip-info {
-    @apply left-full;
+  #first-thumb .noUi-tooltip {
+    opacity: v-bind(firstTooltipOpacity());
+
+    .tooltip-info {
+      @apply left-full;
+    }
   }
 
-  #last-thumb .noUi-tooltip .tooltip-info {
-    @apply right-full;
+  #last-thumb .noUi-tooltip {
+    opacity: v-bind(lastTooltipOpacity());
+
+    .tooltip-info {
+      @apply right-full;
+    }
   }
 }
 </style>

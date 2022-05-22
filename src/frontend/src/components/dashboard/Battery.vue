@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-  soc: { type: Number, default: 0 },
+  value: { type: Number, default: 0 },
   diffDay: { type: Number, default: 0 },
   diffWeek: { type: Number, default: 0 },
 })
@@ -13,12 +13,12 @@ defineProps({
       <div
         class="flex overflow-hidden relative justify-center items-center w-full h-full bg-gray-200 rounded-xl border-4 border-gray-50"
       >
-        <p class="z-10 text-3xl font-semibold">{{ soc }}<span class="text-base">%</span></p>
+        <p class="z-10 text-3xl font-semibold">{{ value }}<span class="text-base">%</span></p>
         <div
           class="absolute bottom-0 w-full bg-green-400 rounded-md transition-[height] duration-500 ease-in-out"
-          :style="{ height: soc + '%' }"
+          :style="{ height: value + '%' }"
           role="progressbar"
-          :aria-valuenow="soc"
+          :aria-valuenow="value"
           aria-valuemin="0"
           aria-valuemax="100"
         >
