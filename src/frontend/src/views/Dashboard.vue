@@ -14,7 +14,7 @@ setInterval(() => {
 
 <template>
   <div class="flex items-start">
-    <StatsCard id="battery" title="Akkustatus" unit="%">
+    <StatsCard id="battery" open title="Akkustatus" unit="%">
       <div class="flex justify-between">
         <Battery :value="dashboardStore.data.battery.value" diff-day="30" />
         <div class="flex flex-col w-28">

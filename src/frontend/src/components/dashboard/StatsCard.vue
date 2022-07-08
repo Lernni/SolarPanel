@@ -7,6 +7,7 @@ import { useDashboardStore } from '@/stores/dashboard'
 const dashboardStore = useDashboardStore()
 
 const props = defineProps({
+  open: { type: Boolean, default: false },
   id: { type: String, default: 'id' },
   title: { type: String, default: 'Title' },
   unit: { type: String, default: '-' },
@@ -19,7 +20,7 @@ const props = defineProps({
 
 const card = ref()
 const cardHovered = useElementHover(card)
-const detailsOpen = ref(false)
+const detailsOpen = ref(props.open)
 const cardData = dashboardStore.data[props.id]
 
 const detailsHeight = () => {
