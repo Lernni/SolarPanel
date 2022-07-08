@@ -72,12 +72,14 @@ export const useDashboardStore = defineStore('dashboard', {
   actions: {
     update() {
       socket.emit('dashboard:getUpdate', (response) => {
+        // set state from request response
         this.data.voltage.value = response.data.voltage
         this.data.input_current.value = response.data.input_current
         this.data.output_current.value = response.data.output_current
         this.data.battery.soc = response.data.soc
         this.data.battery.capacity = response.data.capacity
 
+        // set computed state values
         this.data.battery.value = Math.round((response.data.soc / response.data.capacity) * 100)
         this.data.battery.gain.value =
           (this.data.input_current.value - this.data.output_current.value) / 3600
@@ -87,6 +89,27 @@ export const useDashboardStore = defineStore('dashboard', {
         this.data.outputPower = Number(
           this.data.voltage.value * this.data.output_current.value
         ).toFixed(1)
+
+        // update min and max values if necessary
+        if (this.data.voltage.value > this.data.voltage.max.value) {
+          this.data.voltage.max.value = this.data.voltage.value
+          this.data.voltage.max.date = response.data.timestamp
+        }
+
+        if (this.data.voltage.value < this.data.voltage.min.value) {
+          this.data.voltage.min.value = this.data.voltage.value
+          this.data.voltage.min.date = response.data.timestamp
+        }
+
+        if (this.data.input_current.value > this.data.input_current.max.value) {
+          this.data.input_current.max.value = this.data.input_current.value
+          this.data.input_current.max.date = response.data.timestamp
+        }
+
+        if (this.data.output_current.value > this.data.output_current.max.value) {
+          this.data.output_current.max.value = this.data.output_current.value
+          this.data.output_current.max.date = response.data.timestamp
+        }
       })
     },
 
