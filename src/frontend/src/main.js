@@ -3,7 +3,7 @@ import './tailwind.css'
 import App from './App.vue'
 import { routes } from './routes.js'
 import { createRouter, createWebHistory } from 'vue-router'
-import VueApexCharts from 'vue3-apexcharts'
+import HighchartsVue from 'highcharts-vue'
 import MathJax, { initMathJax, renderByMathjax } from 'mathjax-vue3'
 import { createPinia } from 'pinia'
 
@@ -22,7 +22,7 @@ const router = createRouter({
 })
 
 app.use(router)
-app.use(VueApexCharts)
+app.use(HighchartsVue)
 app.use(MathJax)
 app.use(createPinia())
 app.mount('#app')
