@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@vueuse/core": "^8.9.1",
-    "apexcharts": "^3.35.3",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-tailwindcss": "^3.6.0",

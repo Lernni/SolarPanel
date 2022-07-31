@@ -1,5 +1,6 @@
 <script setup>
 import HighscoreBar from './HighscoreBar.vue'
+import SparklineChart from './SparklineChart.vue'
 import { ref, watch } from 'vue'
 import { useElementHover } from '@vueuse/core'
 import { useDashboardStore } from '@/stores/dashboard'
@@ -25,7 +26,7 @@ const cardData = dashboardStore.data[props.id]
 
 const detailsHeight = () => {
   if (detailsOpen.value) {
-    return 'opacity-100 max-h-72 p-4'
+    return 'opacity-100 p-4 max-h-[35rem]'
   } else if (cardHovered.value) {
     return 'opacity-0 max-h-0 p-2'
   } else {
@@ -41,22 +42,22 @@ watch(detailsOpen, (newValue) => {
 </script>
 
 <template>
-  <div class="flex overflow-hidden flex-col m-2 w-64 bg-gray-50 rounded-xl shadow">
+  <div class="m-2 flex w-64 flex-col overflow-hidden rounded-xl bg-gray-50 shadow">
     <!-- card header -->
     <div
       ref="card"
-      class="z-10 p-3 bg-white cursor-pointer select-none"
+      class="z-10 cursor-pointer select-none bg-white p-3"
       @click="detailsOpen = !detailsOpen"
     >
       <p class="mb-2 text-xl text-gray-800">{{ title }}</p>
-      <p class="text-5xl font-semibold text-right text-teal-500">
+      <p class="text-right text-5xl font-semibold text-teal-500">
         {{ cardData.value }}<span class="text-4xl">{{ unit }}</span>
       </p>
     </div>
 
     <!-- card details -->
     <div
-      class="overflow-hidden border-gray-50 duration-300 ease-in-out transition-card-body"
+      class="transition-card-body overflow-hidden border-gray-50 duration-300 ease-in-out"
       :class="detailsHeight()"
     >
       <slot>
@@ -68,12 +69,16 @@ watch(detailsOpen, (newValue) => {
           :current-value="cardData.value"
           :unit="unit"
         />
+
+        <SparklineChart :series-name="title" :series-data="cardData.liveData" :unit="unit" />
+
         <div class="grid grid-cols-2 pt-3 text-gray-700">
           <p>Ø Vortag</p>
-          <p class="text-lg font-semibold text-right">{{ cardData.avg.yesterday }} {{ unit }}</p>
+          <p class="text-right text-lg font-semibold">{{ cardData.avg.yesterday }} {{ unit }}</p>
           <p>Ø 7 Tage</p>
-          <p class="text-lg font-semibold text-right">{{ cardData.avg.lastWeek }} {{ unit }}</p>
+          <p class="text-right text-lg font-semibold">{{ cardData.avg.lastWeek }} {{ unit }}</p>
         </div>
+
         <slot name="details"></slot>
       </slot>
     </div>

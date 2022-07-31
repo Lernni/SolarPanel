@@ -8,6 +8,7 @@ export const useDashboardStore = defineStore('dashboard', {
     data: {
       battery: {
         value: 0,
+        liveData: [],
         soc: 0.0,
         capacity: 0.0,
         gain: {
@@ -18,6 +19,7 @@ export const useDashboardStore = defineStore('dashboard', {
       },
       voltage: {
         value: 0.0,
+        liveData: [],
         min: {
           value: 0.0,
           date: '',
@@ -34,6 +36,7 @@ export const useDashboardStore = defineStore('dashboard', {
       inputPower: 0.0,
       input_current: {
         value: 0.0,
+        liveData: [],
         min: {
           value: 0.0,
           date: '',
@@ -50,6 +53,7 @@ export const useDashboardStore = defineStore('dashboard', {
       outputPower: 0.0,
       output_current: {
         value: 0.0,
+        liveData: [],
         min: {
           value: 0.0,
           date: '',
@@ -78,6 +82,19 @@ export const useDashboardStore = defineStore('dashboard', {
         this.data.output_current.value = response.data.output_current
         this.data.battery.soc = response.data.soc
         this.data.battery.capacity = response.data.capacity
+
+        // append live data
+        this.data.voltage.liveData.push(response.data.voltage)
+        this.data.input_current.liveData.push(response.data.input_current)
+        this.data.output_current.liveData.push(response.data.output_current)
+        this.data.battery.liveData.push(response.data.soc)
+
+        if (this.data.voltage.liveData.length > 300) {
+          this.data.voltage.liveData.shift()
+          this.data.input_current.liveData.shift()
+          this.data.output_current.liveData.shift()
+          this.data.battery.liveData.shift()
+        }
 
         // set computed state values
         this.data.battery.value = Math.round((response.data.soc / response.data.capacity) * 100)
@@ -123,6 +140,9 @@ export const useDashboardStore = defineStore('dashboard', {
             this.data.voltage.max.date = response.data.details.max_date
             this.data.voltage.avg.yesterday = response.data.details.avg_yesterday
             this.data.voltage.avg.lastWeek = response.data.details.avg_week
+            if (this.data.voltage.liveData.length == 0) {
+              this.data.voltage.liveData = response.data.data
+            }
             break
 
           case 'input_current':
@@ -130,6 +150,9 @@ export const useDashboardStore = defineStore('dashboard', {
             this.data.input_current.max.date = response.data.details.max_date
             this.data.input_current.avg.yesterday = response.data.details.avg_yesterday
             this.data.input_current.avg.lastWeek = response.data.details.avg_week
+            if (this.data.input_current.liveData.length == 0) {
+              this.data.input_current.liveData = response.data.data
+            }
             break
 
           case 'output_current':
@@ -137,11 +160,17 @@ export const useDashboardStore = defineStore('dashboard', {
             this.data.output_current.max.date = response.data.details.max_date
             this.data.output_current.avg.yesterday = response.data.details.avg_yesterday
             this.data.output_current.avg.lastWeek = response.data.details.avg_week
+            if (this.data.output_current.liveData.length == 0) {
+              this.data.output_current.liveData = response.data.data
+            }
             break
 
           case 'battery':
             this.data.battery.gain.min = response.data.details.max_soc_loss
             this.data.battery.gain.max = response.data.details.max_soc_gain
+            if (this.data.battery.liveData.length == 0) {
+              this.data.battery.liveData = response.data.data
+            }
         }
       })
     },

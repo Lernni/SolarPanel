@@ -17,11 +17,11 @@ setInterval(() => {
     <StatsCard id="battery" open title="Akkustatus" unit="%">
       <div class="flex justify-between">
         <Battery :value="dashboardStore.data.battery.value" diff-day="30" />
-        <div class="flex flex-col w-28">
+        <div class="flex w-28 flex-col">
           <div
-            class="flex overflow-hidden relative flex-auto h-full scroll-smooth snap-x snap-mandatory"
+            class="relative flex h-full flex-auto snap-x snap-mandatory overflow-hidden scroll-smooth"
           >
-            <div class="flex absolute">
+            <div class="absolute flex">
               <div id="slide-1" class="slide">
                 <div>
                   <p class="text-gray-700">Ladezustand</p>
