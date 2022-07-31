@@ -13,11 +13,11 @@ setInterval(() => {
 </script>
 
 <template>
-  <div class="flex items-start">
+  <div class="mt-3 gap-0 sm:columns-2 xl:flex xl:items-start xl:flex-wrap justify-center">
     <StatsCard id="battery" open title="Akkustatus" unit="%">
       <div class="flex justify-between">
         <Battery :value="dashboardStore.data.battery.value" diff-day="30" />
-        <div class="flex w-28 flex-col">
+        <div class="flex w-32 flex-col">
           <div
             class="relative flex h-full flex-auto snap-x snap-mandatory overflow-hidden scroll-smooth"
           >
