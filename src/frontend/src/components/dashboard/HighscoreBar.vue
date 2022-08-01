@@ -88,8 +88,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="px-6 my-10 border-inherit">
-    <div id="highscore-bar" ref="highscoreBar" disabled class="w-full h-full"></div>
+  <div class="my-10 border-inherit px-6">
+    <div id="highscore-bar" ref="highscoreBar" disabled class="h-full w-full"></div>
   </div>
 </template>
 
