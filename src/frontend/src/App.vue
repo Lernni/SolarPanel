@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import Nav from './components/Nav.vue'
+</script>
 
 <template>
   <div>
@@ -9,8 +11,13 @@
         </h1>
       </div>
     </header>
-    <main class="flex justify-center">
-      <router-view />
+    <main class="m-3">
+      <div class="absolute">
+        <Nav />
+      </div>
+      <div class="flex justify-center">
+        <router-view />
+      </div>
     </main>
   </div>
 </template>

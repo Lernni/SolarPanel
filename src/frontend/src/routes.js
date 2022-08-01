@@ -5,9 +5,24 @@ import NotFound from './views/NotFound.vue'
 
 /** @type {import('vue-router').RouterOptions['routes']} */
 export const routes = [
-  { path: '/', component: Dashboard, meta: { title: 'Dashboard' } },
-  { path: '/browser', component: Browser, meta: { title: 'Browser' } },
-  { path: '/settings', component: Settings, meta: { title: 'Settings' } },
-
-  { path: '/:path(.*)', component: NotFound },
+  {
+    path: '/',
+    component: Dashboard,
+    meta: { title: 'Dashboard', icon: 'SunIcon', showItem: true },
+  },
+  {
+    path: '/browser',
+    component: Browser,
+    meta: { title: 'Browser', icon: 'ChartBarIcon', showItem: true },
+  },
+  {
+    path: '/settings',
+    component: Settings,
+    meta: { title: 'Einstellungen', icon: 'AdjustmentsIcon', showItem: true },
+  },
+  {
+    path: '/:path(.*)',
+    component: NotFound,
+    meta: { title: 'NotFound', showItem: false },
+  },
 ]
