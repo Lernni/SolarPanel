@@ -42,7 +42,9 @@ watch(detailsOpen, (newValue) => {
 </script>
 
 <template>
-  <div class="mx-2 mb-4 flex w-72 flex-col overflow-hidden rounded-xl bg-gray-50 shadow transition-transform">
+  <div
+    class="mx-2 mb-4 flex w-64 flex-col overflow-hidden rounded-xl bg-gray-50 shadow transition-transform 2xl:w-72"
+  >
     <!-- card header -->
     <div
       ref="card"

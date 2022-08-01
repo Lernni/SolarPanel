@@ -10,7 +10,7 @@ const routes = router.options.routes.filter(({ meta: { showItem } }) => showItem
   <div
     v-for="route in routes"
     :key="route.path"
-    class="nav-item text-md ml-3 mt-3 text-gray-600 transition-all"
+    class="text-md m-3 mr-5 px-3 text-gray-600 sm:px-0"
   >
     <NavItem
       :title="route.meta.title"
@@ -21,12 +21,3 @@ const routes = router.options.routes.filter(({ meta: { showItem } }) => showItem
     />
   </div>
 </template>
-
-<style scoped lang="scss">
-.nav-item {
-  .active,
-  &:hover {
-    @apply font-bold text-blue-600;
-  }
-}
-</style>
