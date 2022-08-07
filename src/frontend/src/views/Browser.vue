@@ -1,5 +1,137 @@
-<script setup></script>
+<script setup>
+import { computed } from 'vue'
+
+import { SunIcon, DownloadIcon, ChipIcon } from '@heroicons/vue/solid'
+
+import { useUnits } from '../modules/useUnits.js'
+import { useBrowserStore } from '../stores/browser.js'
+import ErrorMessage from '../components/UI/ErrorMessage.vue'
+// import SynchronizedCharts from '../components/browser/SynchronizedCharts.vue'
+
+const units = useUnits()
+const browserStore = useBrowserStore()
+
+const noUnitsSelected = computed(() => browserStore.selectedUnits.length === 0)
+
+const incorrectTimeRange = computed(() => {
+  const start = browserStore.range.start
+  const end = browserStore.range.end
+  return end.isBefore(start) || start.isSame(end)
+})
+
+const sameDayRange = computed(() => {
+  const start = browserStore.range.start
+  const end = browserStore.range.end
+  return start.isSame(end, 'day')
+})
+
+const validHoursStart = computed(() => {
+  const maxValue = sameDayRange.value ? browserStore.range.end.getUTCHours() : 23
+  return {
+    min: 0,
+    max: maxValue,
+  }
+})
+
+const validHoursEnd = computed(() => {
+  const minValue = sameDayRange.value ? browserStore.range.start.getUTCHours() : 0
+  return {
+    min: minValue,
+    max: 23,
+  }
+})
+
+const fetchData = () => {
+  const data = browserStore.fetchData()
+  console.log(data)
+}
+</script>
 
 <template>
-  <div class="bg-gray-50">Browser</div>
+  <div class="w-full sm:w-5/6">
+    <div class="divide-y rounded-xl bg-gray-50 p-3 shadow">
+      <div>
+        <div class="flex justify-center pb-2">
+          <div>
+            <div class="mb-1 text-lg">Zeitraum</div>
+            <div class="flex">
+              <div>
+                <v-date-picker v-model="browserStore.timeRange" timezone="UTC" is-range />
+              </div>
+              <div
+                class="ml-3 flex flex-col justify-center"
+                :class="incorrectTimeRange ? 'invalid' : ''"
+              >
+                <label>Startzeit</label>
+                <v-date-picker
+                  v-model="browserStore.startTime"
+                  :valid-hours="validHoursStart"
+                  mode="time"
+                  class="mb-3"
+                  timezone="UTC"
+                  is24hr
+                />
+                <label>Endzeit</label>
+                <v-date-picker
+                  v-model="browserStore.endTime"
+                  :valid-hours="validHoursEnd"
+                  mode="time"
+                  timezone="UTC"
+                  is24hr
+                />
+              </div>
+            </div>
+          </div>
+          <div class="ml-8">
+            <div class="mb-1 text-lg">Messgrößen</div>
+            <div
+              v-for="unit in units"
+              :key="unit.value"
+              class="flex"
+              :class="noUnitsSelected ? 'invalid' : ''"
+            >
+              <input
+                :id="unit.value"
+                v-model="browserStore.selectedUnits"
+                :value="unit.value"
+                type="checkbox"
+                class="mb-2 h-6 w-6 rounded border-gray-300 text-indigo-600"
+              />
+              <label :for="unit.value" class="ml-2">{{ unit.text }}</label>
+            </div>
+          </div>
+        </div>
+        <p class="text-sm text-slate-500">
+          Alle Zeitangaben sind in mitteleuropäischer Winterzeit (UTC+1)
+        </p>
+        <ErrorMessage v-show="incorrectTimeRange"
+          >Bitte gebe einen gültigen Zeitraum an!</ErrorMessage
+        >
+        <ErrorMessage v-show="noUnitsSelected">Wähle mindestens eine Messgröße aus!</ErrorMessage>
+      </div>
+      <div class="flex justify-center py-4">
+        <button
+          class="button-md"
+          :disabled="incorrectTimeRange || noUnitsSelected"
+          @click="fetchData"
+        >
+          <SunIcon class="inline h-6 w-6" />
+          <span class="ml-1">Abfrage</span>
+        </button>
+        <button class="button-md ml-2" :disabled="incorrectTimeRange || noUnitsSelected">
+          <DownloadIcon class="inline h-6 w-6" />
+          <span class="ml-1">Download</span>
+        </button>
+        <button class="button-md ml-2" disabled>
+          <ChipIcon class="inline h-6 w-6" />
+          <span class="ml-1">Export (USB)</span>
+        </button>
+      </div>
+      <div>
+        <!-- <SynchronizedCharts /> -->
+      </div>
+    </div>
+  </div>
+
+  <!---->
 </template>

@@ -1,7 +1,7 @@
 const { default: axios } = require('axios');
 
 module.exports = (io, socket) => {
-  socket.on("browserRequest", ({start_time, end_time, units}, callback) => {
+  socket.on("browser:fetchData", ({start_time, end_time, units}, callback) => {
     axios.get("/db/records", {
       headers: {
         "Content-Type": "application/json"

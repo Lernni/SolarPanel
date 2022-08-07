@@ -5,3 +5,15 @@
 :root {
   @apply bg-gray-100;
 }
+
+.button-md {
+  @apply px-3 py-2 text-base font-medium rounded-md inline-flex items-center text-white bg-indigo-600 disabled:opacity-50;
+}
+
+.invalid > input, .invalid > div {
+  @apply border-red-600 !important;
+}
+
+.invalid > label {
+  @apply text-red-600 !important;
+}
