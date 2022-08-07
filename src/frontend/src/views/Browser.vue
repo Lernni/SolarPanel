@@ -6,7 +6,7 @@ import { SunIcon, DownloadIcon, ChipIcon } from '@heroicons/vue/solid'
 import { useUnits } from '../modules/useUnits.js'
 import { useBrowserStore } from '../stores/browser.js'
 import ErrorMessage from '../components/UI/ErrorMessage.vue'
-// import SynchronizedCharts from '../components/browser/SynchronizedCharts.vue'
+import SynchronizedCharts from '../components/browser/SynchronizedCharts.vue'
 
 const units = useUnits()
 const browserStore = useBrowserStore()
@@ -128,7 +128,7 @@ const fetchData = () => {
         </button>
       </div>
       <div>
-        <!-- <SynchronizedCharts /> -->
+        <SynchronizedCharts />
       </div>
     </div>
   </div>
