@@ -41,9 +41,10 @@ const validHoursEnd = computed(() => {
   }
 })
 
-const fetchData = () => {
-  const data = browserStore.fetchData()
-  console.log(data)
+const fetchData = async () => {
+  browserStore.fetchData((response) => {
+    console.log(response)
+  })
 }
 </script>
 

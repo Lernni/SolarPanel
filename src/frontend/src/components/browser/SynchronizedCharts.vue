@@ -1,18 +1,19 @@
 <script setup>
 import Highcharts from 'highcharts'
 import { onMounted } from 'vue'
-/*
-The purpose of this demo is to demonstrate how multiple charts on the same page
-can be linked through DOM and Highcharts events and API methods. It takes a
-standard Highcharts config with a small variation for each data set, and a
-mouse/touch event handler to bind the charts together.
-*/
 
-/**
- * In order to synchronize tooltips and crosshairs, override the
- * built-in events with handlers defined on the parent element.
- */
+const props = defineProps({
+  options: {
+    type: Object,
+    default: () => ({}),
+  },
+})
+
 onMounted(() => {
+  /**
+   * In order to synchronize tooltips and crosshairs, override the
+   * built-in events with handlers defined on the parent element.
+   */
   ;['mousemove', 'touchmove', 'touchstart'].forEach(function (eventType) {
     document.getElementById('container').addEventListener(eventType, function (e) {
       var chart, point, i, event

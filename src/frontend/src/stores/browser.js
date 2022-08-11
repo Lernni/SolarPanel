@@ -21,7 +21,7 @@ export const useBrowserStore = defineStore('browser', () => {
   // const graphValues
 
   // actions
-  const fetchData = () => {
+  const fetchData = (callback) => {
     socket.emit(
       'browser:fetchData',
       {
@@ -30,7 +30,7 @@ export const useBrowserStore = defineStore('browser', () => {
         units: selectedUnits.value,
       },
       (response) => {
-        return response.data
+        callback(response.data)
       }
     )
   }
