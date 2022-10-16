@@ -26,29 +26,21 @@ class DBRecords(Resource):
     partitions = DatabaseHandler.get_partitions(start_time, end_time, resolution)
 
     # Iterate through all relevant partitions and gather the records in sections
-    # TODO: reduce
+    record_data = {
+      "timestamps": [],
+      "values": {}
+    }
 
-    sections = []
-    records = []
     for partition in partitions:
       new_records = partition.get_records(start_time, end_time)
 
-      for i in range(len(new_records)):
-        record_data = []
-        for unit in units:
-          record_data.append(new_records[i].data[unit])
+      record_data["timestamps"].extend(
+        int(record.timestamp.replace(tzinfo = timezone.utc).timestamp()) for record in new_records
+      )
 
-        new_records[i] = [int(new_records[i].timestamp.replace(tzinfo = timezone.utc).timestamp())]
-        new_records[i].extend(record_data)
-          
-      if len(records) == 0:
-        records = new_records
-      elif new_records[0][0] == records[-1][0] + resolution:
-        records.extend(new_records)
-      else:
-        sections.append(records)
-        records = new_records
+      for unit in units:
+        record_data["values"][unit] = [
+          record.data[unit] for record in new_records
+        ]
 
-    if len(records) != 0: sections.append(records)
-
-    return sections
+    return record_data

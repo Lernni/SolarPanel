@@ -26,7 +26,7 @@ const sameDayRange = computed(() => {
 })
 
 const validHoursStart = computed(() => {
-  const maxValue = sameDayRange.value ? browserStore.range.end.getUTCHours() : 23
+  const maxValue = sameDayRange.value ? browserStore.range.end.utc().hours() : 23
   return {
     min: 0,
     max: maxValue,
@@ -34,7 +34,7 @@ const validHoursStart = computed(() => {
 })
 
 const validHoursEnd = computed(() => {
-  const minValue = sameDayRange.value ? browserStore.range.start.getUTCHours() : 0
+  const minValue = sameDayRange.value ? browserStore.range.start.utc().hours() : 0
   return {
     min: minValue,
     max: 23,
@@ -42,9 +42,7 @@ const validHoursEnd = computed(() => {
 })
 
 const fetchData = async () => {
-  browserStore.fetchData((response) => {
-    console.log(response)
-  })
+  browserStore.fetchData()
 }
 </script>
 
@@ -86,19 +84,19 @@ const fetchData = async () => {
           <div class="ml-8">
             <div class="mb-1 text-lg">Messgrößen</div>
             <div
-              v-for="unit in units"
-              :key="unit.value"
+              v-for="(value, key) in units"
+              :key="key"
               class="flex"
               :class="noUnitsSelected ? 'invalid' : ''"
             >
               <input
-                :id="unit.value"
+                :id="key"
                 v-model="browserStore.selectedUnits"
-                :value="unit.value"
+                :value="key"
                 type="checkbox"
                 class="mb-2 h-6 w-6 rounded border-gray-300 text-indigo-600"
               />
-              <label :for="unit.value" class="ml-2">{{ unit.text }}</label>
+              <label :for="key" class="ml-2">{{ value.text }}</label>
             </div>
           </div>
         </div>
@@ -119,7 +117,7 @@ const fetchData = async () => {
           <SunIcon class="inline h-6 w-6" />
           <span class="ml-1">Abfrage</span>
         </button>
-        <button class="button-md ml-2" :disabled="incorrectTimeRange || noUnitsSelected">
+        <button class="button-md ml-2" disabled>
           <DownloadIcon class="inline h-6 w-6" />
           <span class="ml-1">Download</span>
         </button>
@@ -129,7 +127,17 @@ const fetchData = async () => {
         </button>
       </div>
       <div>
-        <SynchronizedCharts />
+        <h2 v-if="browserStore.datasetRange" class="my-4 text-center text-lg text-gray-700">
+          Ergebnisse vom
+          <span class="font-semibold">{{
+            browserStore.datasetRange.start.format('DD.MM.YY HH:mm:ss')
+          }}</span>
+          bis
+          <span class="font-semibold">
+            {{ browserStore.datasetRange.end.format('DD.MM.YY HH:mm:ss') }}</span
+          >
+        </h2>
+        <SynchronizedCharts :dataset="browserStore.dataset" />
       </div>
     </div>
   </div>

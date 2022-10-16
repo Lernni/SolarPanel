@@ -1,10 +1,10 @@
 export const useUnits = () => {
-  const units = [
-    { text: 'Spannung (V)', value: 'voltage' },
-    { text: 'Eingangsstrom (A)', value: 'input_current' },
-    { text: 'Ausgangsstrom (A)', value: 'output_current' },
-    { text: 'Ladezustand (Ah)', value: 'soc' },
-  ]
+  const units = {
+    voltage: { text: 'Spannung (V)', color: '#0000ff', unit: 'V' },
+    input_current: { text: 'Eingangsstrom (A)', color: '#ff0000', unit: 'A' },
+    output_current: { text: 'Ausgangsstrom (A)', color: '#ff0000', unit: 'A' },
+    soc: { text: 'Ladezustand (Ah)', color: '#00ffff', unit: 'Ah' },
+  }
 
   return units
 }

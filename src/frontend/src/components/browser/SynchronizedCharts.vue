@@ -1,13 +1,139 @@
 <script setup>
 import Highcharts from 'highcharts'
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
+
+import { useUnits } from '../../modules/useUnits.js'
 
 const props = defineProps({
+  dataset: {
+    type: Object,
+    required: true,
+  },
   options: {
     type: Object,
     default: () => ({}),
   },
 })
+
+const units = useUnits()
+
+/**
+ * Synchronize zooming through the setExtremes event handler.
+ */
+const syncExtremes = (e) => {
+  var thisChart = this.chart
+
+  if (e.trigger !== 'syncExtremes') {
+    // Prevent feedback loop
+    Highcharts.each(Highcharts.charts, function (chart) {
+      if (chart !== thisChart) {
+        if (chart.xAxis[0].setExtremes) {
+          // It is null while updating
+          chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, { trigger: 'syncExtremes' })
+        }
+      }
+    })
+  }
+}
+
+const optionsTemplate = {
+  chart: {
+    marginLeft: 60,
+    spacingTop: 30,
+    spacingBottom: 20,
+    height: '250px',
+  },
+  title: {
+    align: 'left',
+    margin: 0,
+    x: 50,
+  },
+  credits: {
+    enabled: false,
+  },
+  legend: {
+    enabled: false,
+  },
+  xAxis: {
+    crosshair: true,
+    events: {
+      setExtremes: syncExtremes,
+    },
+    type: 'datetime',
+  },
+  yAxis: {
+    title: {
+      text: null,
+    },
+  },
+  tooltip: {
+    borderWidth: 0,
+    backgroundColor: 'none',
+    pointFormat: '{point.y}',
+    headerFormat: '',
+    shadow: false,
+    style: {
+      fontSize: '14px',
+    },
+  },
+  series: [],
+}
+
+const getOptions = (config) => {
+  const options = { ...optionsTemplate }
+
+  options.title.text = config.title
+  options.yAxis.labels = { format: `{value} ${config.unit}` }
+  options.series = [
+    {
+      data: config.data,
+      name: config.name,
+      type: config.type,
+      color: config.color,
+      tooltip: {
+        valueSuffix: ' ' + config.unit,
+      },
+    },
+  ]
+
+  return options
+}
+
+watch(
+  () => props.dataset,
+  () => {
+    if (!props.dataset) return
+
+    const dataset = props.dataset
+
+    document.getElementById('container').innerHTML = ''
+
+    // prepare chart data
+    for (const parameter of Object.keys(dataset.values)) {
+      var chartDiv = document.createElement('div')
+      chartDiv.className = 'chart'
+      document.getElementById('container').appendChild(chartDiv)
+
+      const chartData = dataset.values[parameter].map((value, index) => [
+        dataset.timestamps[index] * 1000,
+        value,
+      ])
+
+      console.log(chartData)
+
+      const config = {
+        title: units[parameter].text,
+        data: chartData,
+        name: parameter,
+        type: 'spline',
+        color: units[parameter].color,
+        unit: units[parameter].unit,
+      }
+
+      Highcharts.chart(chartDiv, getOptions(config))
+    }
+  }
+)
 
 onMounted(() => {
   /**
@@ -49,115 +175,6 @@ onMounted(() => {
     this.series.chart.tooltip.refresh(this) // Show the tooltip
     this.series.chart.xAxis[0].drawCrosshair(event, this) // Show the crosshair
   }
-
-  /**
-   * Synchronize zooming through the setExtremes event handler.
-   */
-  function syncExtremes(e) {
-    var thisChart = this.chart
-
-    if (e.trigger !== 'syncExtremes') {
-      // Prevent feedback loop
-      Highcharts.each(Highcharts.charts, function (chart) {
-        if (chart !== thisChart) {
-          if (chart.xAxis[0].setExtremes) {
-            // It is null while updating
-            chart.xAxis[0].setExtremes(e.min, e.max, undefined, false, { trigger: 'syncExtremes' })
-          }
-        }
-      })
-    }
-  }
-
-  // Get the data. The contents of the data file can be viewed at
-  async function getDemo() {
-    let response = await fetch(
-      'https://cdn.jsdelivr.net/gh/highcharts/highcharts@v7.0.0/samples/data/activity.json'
-    )
-    if (response.ok) {
-      let activity = await response.json()
-      activity.datasets.forEach(function (dataset, i) {
-        // Add X values
-        dataset.data = Highcharts.map(dataset.data, function (val, j) {
-          return [activity.xData[j], val]
-        })
-
-        var chartDiv = document.createElement('div')
-        chartDiv.className = 'chart'
-        document.getElementById('container').appendChild(chartDiv)
-
-        Highcharts.chart(chartDiv, {
-          chart: {
-            marginLeft: 40, // Keep all charts left aligned
-            spacingTop: 20,
-            spacingBottom: 20,
-          },
-          title: {
-            text: dataset.name,
-            align: 'left',
-            margin: 0,
-            x: 30,
-          },
-          credits: {
-            enabled: false,
-          },
-          legend: {
-            enabled: false,
-          },
-          xAxis: {
-            crosshair: true,
-            events: {
-              setExtremes: syncExtremes,
-            },
-            labels: {
-              format: '{value} km',
-            },
-            accessibility: {
-              description: 'Kilometers',
-              rangeDescription: '0km to 6.5km',
-            },
-          },
-          yAxis: {
-            title: {
-              text: null,
-            },
-          },
-          tooltip: {
-            positioner: function () {
-              return {
-                // right aligned
-                x: this.chart.chartWidth - this.label.width,
-                y: 10, // align to title
-              }
-            },
-            borderWidth: 0,
-            backgroundColor: 'none',
-            pointFormat: '{point.y}',
-            headerFormat: '',
-            shadow: false,
-            style: {
-              fontSize: '18px',
-            },
-            valueDecimals: dataset.valueDecimals,
-          },
-          series: [
-            {
-              data: dataset.data,
-              name: dataset.name,
-              type: dataset.type,
-              color: Highcharts.getOptions().colors[i],
-              fillOpacity: 0.3,
-              tooltip: {
-                valueSuffix: ' ' + dataset.unit,
-              },
-            },
-          ],
-        })
-      })
-    }
-  }
-
-  getDemo()
 })
 </script>
 

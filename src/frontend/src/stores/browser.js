@@ -16,7 +16,17 @@ export const useBrowserStore = defineStore('browser', () => {
     end: moment.utc().add(1, 'h').set({ seconds: 0, milliseconds: 0 }),
   })
 
-  const selectedUnits = ref(units.map((unit) => unit.value))
+  const dataset = ref({})
+
+  const datasetRange = computed(() => {
+    if (!dataset.value.timestamps) return
+
+    const start = moment.utc(dataset.value.timestamps[0] * 1000)
+    const end = moment.utc(dataset.value.timestamps[dataset.value.timestamps.length - 1] * 1000)
+    return { start, end }
+  })
+
+  const selectedUnits = ref(Object.keys(units))
 
   // const graphValues
 
@@ -30,7 +40,8 @@ export const useBrowserStore = defineStore('browser', () => {
         units: selectedUnits.value,
       },
       (response) => {
-        callback(response.data)
+        dataset.value = response.data
+        typeof callback === 'function' && callback(response.data)
       }
     )
   }
@@ -67,5 +78,5 @@ export const useBrowserStore = defineStore('browser', () => {
     },
   })
 
-  return { range, selectedUnits, fetchData, startTime, endTime, timeRange }
+  return { range, dataset, datasetRange, selectedUnits, fetchData, startTime, endTime, timeRange }
 })
