@@ -26,6 +26,10 @@ export const useBrowserStore = defineStore('browser', () => {
     return { start, end }
   })
 
+  const hasResults = computed(() => {
+    return dataset.value.timestamps && dataset.value.timestamps.length > 0
+  })
+
   const selectedUnits = ref(Object.keys(units))
 
   // const graphValues
@@ -78,5 +82,15 @@ export const useBrowserStore = defineStore('browser', () => {
     },
   })
 
-  return { range, dataset, datasetRange, selectedUnits, fetchData, startTime, endTime, timeRange }
+  return {
+    range,
+    dataset,
+    datasetRange,
+    hasResults,
+    selectedUnits,
+    fetchData,
+    startTime,
+    endTime,
+    timeRange,
+  }
 })

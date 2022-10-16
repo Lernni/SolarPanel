@@ -127,15 +127,18 @@ const fetchData = async () => {
         </button>
       </div>
       <div>
-        <h2 v-if="browserStore.datasetRange" class="my-4 text-center text-lg text-gray-700">
-          Ergebnisse vom
-          <span class="font-semibold">{{
-            browserStore.datasetRange.start.format('DD.MM.YY HH:mm:ss')
-          }}</span>
-          bis
-          <span class="font-semibold">
-            {{ browserStore.datasetRange.end.format('DD.MM.YY HH:mm:ss') }}</span
-          >
+        <h2 class="my-4 text-center text-lg text-gray-700">
+          <span v-if="browserStore.hasResults">
+            Ergebnisse vom
+            <span class="font-semibold">{{
+              browserStore.datasetRange.start.format('DD.MM.YY HH:mm:ss')
+            }}</span>
+            bis
+            <span class="font-semibold">
+              {{ browserStore.datasetRange.end.format('DD.MM.YY HH:mm:ss') }}</span
+            >
+          </span>
+          <span v-else>Keine Ergebnisse</span>
         </h2>
         <SynchronizedCharts :dataset="browserStore.dataset" />
       </div>
