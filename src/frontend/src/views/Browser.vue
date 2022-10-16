@@ -50,15 +50,17 @@ const fetchData = async () => {
   <div class="w-full sm:w-5/6">
     <div class="divide-y rounded-xl bg-gray-50 p-3 shadow">
       <div>
-        <div class="flex justify-center pb-2">
+        <div
+          class="flex flex-col items-center justify-center space-y-8 pb-2 lg:flex-row lg:items-start lg:space-y-0 lg:space-x-8"
+        >
           <div>
             <div class="mb-1 text-lg">Zeitraum</div>
-            <div class="flex">
+            <div class="flex flex-col items-center space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4">
               <div>
                 <v-date-picker v-model="browserStore.timeRange" timezone="UTC" is-range />
               </div>
               <div
-                class="ml-3 flex flex-col justify-center"
+                class="flex flex-col justify-center"
                 :class="incorrectTimeRange ? 'invalid' : ''"
               >
                 <label>Startzeit</label>
@@ -81,7 +83,7 @@ const fetchData = async () => {
               </div>
             </div>
           </div>
-          <div class="ml-8">
+          <div>
             <div class="mb-1 text-lg">Messgrößen</div>
             <div
               v-for="(value, key) in units"
