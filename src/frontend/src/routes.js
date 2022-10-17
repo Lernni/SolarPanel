@@ -18,7 +18,7 @@ export const routes = [
   {
     path: '/settings',
     component: Settings,
-    meta: { title: 'Einstellungen', icon: 'AdjustmentsIcon', showItem: true },
+    meta: { title: 'Einstellungen', icon: 'AdjustmentsVerticalIcon', showItem: true },
   },
   {
     path: '/:path(.*)',

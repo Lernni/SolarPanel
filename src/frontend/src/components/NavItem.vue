@@ -1,5 +1,5 @@
 <script setup>
-import * as heroIcons from '@heroicons/vue/solid'
+import * as heroIcons from '@heroicons/vue/24/solid'
 
 const props = defineProps({
   title: { type: String, default: 'Title' },

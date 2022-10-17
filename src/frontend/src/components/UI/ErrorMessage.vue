@@ -1,5 +1,5 @@
 <script setup>
-import { ExclamationCircleIcon } from '@heroicons/vue/outline'
+import { ExclamationCircleIcon } from '@heroicons/vue/24/outline'
 </script>
 
 <template>

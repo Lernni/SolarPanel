@@ -1,5 +1,5 @@
 <script setup>
-import { ArrowRightIcon } from '@heroicons/vue/solid'
+import { ArrowRightIcon } from '@heroicons/vue/24/solid'
 
 const props = defineProps({
   value: {
@@ -26,9 +26,9 @@ const getPercentageValue = () => {
 </script>
 
 <template>
-  <div class="w-8 h-8 bg-gray-200 rounded-md">
+  <div class="h-8 w-8 rounded-md bg-gray-200">
     <ArrowRightIcon
-      class="p-1.5 w-full h-full transition-transform duration-500"
+      class="h-full w-full p-1.5 transition-transform duration-500"
       :style="{ transform: 'rotate(' + -getPercentageValue() * 0.9 + 'deg)' }"
     />
   </div>

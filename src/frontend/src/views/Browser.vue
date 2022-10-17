@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
-import { SunIcon, DownloadIcon, ChipIcon } from '@heroicons/vue/solid'
+import { SunIcon, ArrowDownTrayIcon, CpuChipIcon } from '@heroicons/vue/24/solid'
 
 import { useUnits } from '../modules/useUnits.js'
 import { useBrowserStore } from '../stores/browser.js'
@@ -120,11 +120,11 @@ const fetchData = async () => {
           <span class="ml-1">Abfrage</span>
         </button>
         <button class="button-md ml-2" disabled>
-          <DownloadIcon class="inline h-6 w-6" />
+          <ArrowDownTrayIcon class="inline h-6 w-6" />
           <span class="ml-1">Download</span>
         </button>
         <button class="button-md ml-2" disabled>
-          <ChipIcon class="inline h-6 w-6" />
+          <CpuChipIcon class="inline h-6 w-6" />
           <span class="ml-1">Export (USB)</span>
         </button>
       </div>
